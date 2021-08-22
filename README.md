@@ -46,7 +46,7 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 
 * SafeCloset doesn't protect you against keyloggers
 * SafeCloset doesn't protect you from somebody watching your screen while a secret value is displayed
-* Space efficiency: Closet files are usually 1 to 5 MB large to allow specific features
+* SafeCloset doesn't try to be space efficient: Closet files are usually about 1 MB large to allow specific features
 
 # Features not yet implemented
 
@@ -61,7 +61,11 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 
 # Implementation details
 
-Drawer data are serialized in JSON before being encrypted with AES-GCM-SIV. JSON allows for the later addition of fields while keeping the compatibility with previous closet files. The key used for this encryption is a 32 bits Argon2 hash of the password with a closet specific salt.
+Drawer data are serialized in JSON before being encrypted with AES-GCM-SIV.
+
+JSON allows for the later addition of fields while keeping the compatibility with previous closet files.
+
+The key used for this encryption is a 32 bits Argon2 hash of the password with a closet specific salt.
 
 # Keyboard actions
 

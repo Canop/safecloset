@@ -45,6 +45,7 @@ impl AppState {
         self.closet.save()?;
         Ok(())
     }
+
     /// Handle a key event
     pub fn on_key(&mut self, key: KeyEvent) -> Result<CmdResult, SafeClosetError> {
         use DrawerState::*;
@@ -56,16 +57,39 @@ impl AppState {
         }
 
         if key == CONTROL_S {
-            debug!("user request save, keep state");
+            debug!("user requests save, keep state");
             self.save(true)?;
             return Ok(CmdResult::Stay);
         }
 
         if key == CONTROL_X {
-            debug!("user request save and quit");
+            debug!("user requests save and quit");
             self.save(false)?;
             return Ok(CmdResult::Quit);
         }
+
+        // -- pending removal
+
+        if let DrawerEdit(des) = &mut self.drawer_state {
+            if let EntryState::PendingRemoval { idx } = &des.entry_state {
+                let idx = *idx;
+                // we either confirm (delete) or cancel removal
+                if as_letter(key) == Some('y') {
+                    info!("user requests entry removal");
+                    des.drawer.entries.remove(idx);
+                    des.entry_state = if idx > 0 {
+                        EntryState::NameSelected { idx }
+                    } else {
+                        EntryState::NoneSelected
+                    };
+                } else {
+                    info!("user cancels entry removal");
+                    des.entry_state = EntryState::NameSelected { idx };
+                }
+            }
+        }
+
+        // --
 
         if key == ENTER {
             self.close_drawer_input(false); // if there's an entry input
@@ -284,11 +308,16 @@ impl AppState {
             }
 
             if let DrawerEdit(des) = &mut self.drawer_state {
-                match letter {
-                    'n' => {
+                // if we're here, there's no input
+                match (letter, des.entry_state.idx()) {
+                    ('n', _) => {
                         // new entry
                         let idx = des.drawer.empty_entry();
                         des.edit_entry_name(idx);
+                    }
+                    ('d', Some(idx)) => {
+                        // delete entry (with confirmation)
+                        des.entry_state = EntryState::PendingRemoval { idx };
                     }
                     _ => {}
                 }

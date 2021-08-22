@@ -8,6 +8,7 @@ use {
 /// the current selection or edition.
 pub enum EntryState {
     NoneSelected,
+    PendingRemoval { idx: usize },
     NameSelected { idx: usize },
     ValueSelected { idx: usize },
     NameEdit { idx: usize, input: InputField },
@@ -20,11 +21,15 @@ impl EntryState {
     pub fn idx(&self) -> Option<usize> {
         match self {
             Self::NoneSelected => None,
+            Self::PendingRemoval { idx } => Some(*idx),
             Self::NameSelected { idx } => Some(*idx),
             Self::ValueSelected { idx } => Some(*idx),
             Self::NameEdit { idx, .. } => Some(*idx),
             Self::ValueEdit { idx, .. } => Some(*idx),
         }
+    }
+    pub fn is_pending_removal(&self) -> bool {
+        matches!(self, EntryState::PendingRemoval { .. })
     }
     pub fn is_name_selected(&self, entry_idx: usize) -> bool {
         match self {
