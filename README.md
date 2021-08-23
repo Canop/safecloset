@@ -6,6 +6,8 @@
 [s2]: https://miaou.dystroy.org/static/shields/room.svg
 [l2]: https://miaou.dystroy.org/3768?rust
 
+**SafeCloset** keeps your secrets in password protected files.
+
 # Warning
 
 * This is a personal project
@@ -52,6 +54,7 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 
 - search
 - option to hide password on input
+- option to hide non selected values
 - auto-close
 - multi-line values
 - help page with all keyboard shortcuts

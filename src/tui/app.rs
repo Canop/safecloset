@@ -10,7 +10,7 @@ use {
 /// Run the Terminal User Interface until the user decides to quit.
 ///
 /// The terminal must be already in alternate and raw mode
-pub(crate) fn run(w: &mut W, closet: Closet) -> Result<(), SafeClosetError> {
+pub(super) fn run(w: &mut W, closet: Closet) -> Result<(), SafeClosetError> {
     let mut state = AppState::new(closet);
     let mut view = GlobalView::default();
     view.set_area(Area::full_screen());

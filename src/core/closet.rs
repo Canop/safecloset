@@ -73,11 +73,18 @@ impl Closet {
 
     /// Create a drawer, don't open it, add it to the closet.
     ///
-    /// It must have been checked before that no drawer already has this
-    /// password.
+    /// Return an error if the password is already used by
+    /// another drawer (which probably means the user wanted
+    /// to open a drawer and not create one)
     pub fn create_drawer(&mut self, password: &str) -> Result<(), CoreError> {
         if password.len() < MIN_PASSWORD_LENGTH {
             return Err(CoreError::PasswordTooShort);
+        }
+        // check no existing drawer already has this password
+        for (drawer_idx, closed_drawer) in self.ser_closet.drawers.iter().enumerate() {
+            if closed_drawer.open(drawer_idx, password, &self.ser_closet, 0).is_ok() {
+                return Err(CoreError::PasswordAlreadyUsed);
+            }
         }
         let drawer_idx = self.ser_closet.drawers.len();
         let drawer = OpenDrawer {
@@ -182,6 +189,12 @@ fn test_create_write_read() {
     // create 2 drawers
     closet.create_drawer(pwd1).unwrap();
     closet.create_drawer(pwd2).unwrap();
+
+    // check we can't reuse a password
+    assert!(matches!(
+        closet.create_drawer(pwd1),
+        Err(CoreError::PasswordAlreadyUsed),
+    ));
 
     // reopen the first drawer and add an entry
     let mut open_drawer = closet.open_drawer(pwd1).unwrap();

@@ -38,7 +38,9 @@ impl ClosedDrawer {
 
     /// Try to decrypt the content with the provided password
     /// and the closet's salt, then return the open drawer with
-    /// clear data and the password to allow reencrypting
+    /// clear data and the password to allow reencrypting.
+    ///
+    /// This function can also be used to check drawer existence.
     pub fn open(
         &self,
         drawer_idx: usize,

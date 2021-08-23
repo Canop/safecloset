@@ -24,4 +24,7 @@ pub enum CoreError {
 
     #[error("Internal error: {0}")]
     InternalError(String),
+
+    #[error("Password already used for an existing drawer")]
+    PasswordAlreadyUsed,
 }
