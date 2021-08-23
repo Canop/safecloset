@@ -11,6 +11,10 @@ pub struct Args {
     #[argh(switch, short = 'v')]
     pub version: bool,
 
+    /// hide unselected values
+    #[argh(switch, short = 'h')]
+    pub hide: bool,
+
     #[argh(positional)]
     /// the closet file to open or create
     pub path: Option<PathBuf>,

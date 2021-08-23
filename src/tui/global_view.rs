@@ -41,7 +41,6 @@ impl View for GlobalView {
     }
 
     fn draw(&mut self, w: &mut W, state: &mut AppState) -> Result<(), SafeClosetError> {
-        debug!("global draw");
         self.title.draw(w, state)?;
         self.content.draw(w, state)?;
         self.status.draw(w, state)?;

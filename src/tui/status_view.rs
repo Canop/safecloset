@@ -53,6 +53,8 @@ impl View for StatusView {
                     "Hit *y* to confirm entry removal (any other key cancels it)"
                 } else if des.touched() {
                     "Hit *^q* to quit, *^s* to save, *^x* to save and quit"
+                } else if !des.drawer.entries.is_empty() {
+                    "Hit *^q* to quit, *^h* to toggle unselected values visibility"
                 } else {
                     "Hit *^q* to quit"
                 }

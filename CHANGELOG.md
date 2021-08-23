@@ -1,3 +1,6 @@
+### next
+- password characters visibility toggle (hidden initially)
+- unselected values visibility toggle (preference kept in drawer, and automatic hiding if launched with --hide)
 
 <a name="v0.1.0"></a>
 ### v0.1.0 - 2021-08-23

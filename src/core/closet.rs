@@ -105,16 +105,10 @@ impl Closet {
     pub fn open_drawer(&mut self, password: &str) -> Option<OpenDrawer> {
         let open_id = rand::thread_rng().gen();
         for (drawer_idx, closed_drawer) in self.ser_closet.drawers.iter().enumerate() {
-            match closed_drawer.open(drawer_idx, password, &self.ser_closet, open_id) {
-                Ok(open_drawer) => {
-                    debug!("open id: {}", open_id);
-                    self.open_id = Some(open_id);
-                    return Some(open_drawer);
-                }
-                Err(e) => {
-                    // temp debug
-                    debug!("Failed to open drawer: {}", e);
-                }
+            if let Ok(open_drawer) =  closed_drawer.open(drawer_idx, password, &self.ser_closet, open_id) {
+                debug!("open id: {}", open_id);
+                self.open_id = Some(open_id);
+                return Some(open_drawer);
             }
         }
         None

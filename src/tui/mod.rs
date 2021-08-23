@@ -45,12 +45,15 @@ fn writer() -> W {
     std::io::BufWriter::new(std::io::stdout())
 }
 
-pub fn run(closet: Closet) -> Result<(), SafeClosetError> {
+pub fn run(
+    closet: Closet,
+    hide_values: bool,
+) -> Result<(), SafeClosetError> {
     let mut w = writer();
     w.queue(EnterAlternateScreen)?;
     w.queue(cursor::Hide)?;
     debug!("TUI starts");
-    let r = app::run(&mut w, closet);
+    let r = app::run(&mut w, closet, hide_values);
     debug!("TUI ends");
     w.queue(cursor::Show)?;
     w.queue(LeaveAlternateScreen)?;

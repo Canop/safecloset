@@ -176,7 +176,6 @@ impl ContentView {
         tbl_style.queue_str(w, "┼")?;
         tbl_style.queue_str(w, &"─".repeat(value_width as usize + 1))?;
         // -- entries
-        debug!("scroll in draw: {}", *scroll);
         let mut iter = drawer.entries.iter().enumerate().skip(*scroll);
         for iy in 0..area.height {
             let y = iy + area.top;
@@ -213,13 +212,17 @@ impl ContentView {
                 if let Some(input) = entry_state.value_input(idx) {
                     input.change_area(value_left, y, value_width);
                     input.display_on(w)?;
+                } else if entry_state.is_value_selected(idx) {
+                    self.skins.sel_cell.write_composite_fill(
+                        w,
+                        Composite::from_inline(&entry.value),
+                        value_width.into(),
+                        Alignment::Left,
+                    )?;
+                } else if drawer.settings.hide_values {
+                    tbl_style.queue_str(w, &"▦".repeat(value_width as usize))?;
                 } else {
-                    let skin = if entry_state.is_value_selected(idx) {
-                        &self.skins.sel_cell
-                    } else {
-                        &self.skins.cell
-                    };
-                    skin.write_composite_fill(
+                    self.skins.cell.write_composite_fill(
                         w,
                         Composite::from_inline(&entry.value),
                         value_width.into(),

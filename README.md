@@ -44,11 +44,12 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 * No company can die and lose your secrets: you keep everything
 * Fast and convenient to use
 * Cross-platform because you don't know where you'll have to use your closet
+* "I'm being watched" mode in which unselected values are hidden. This mode is kept per drawer, and always activated when you launch SafeCloset with the `--hide` option
 
 # Non features
 
 * SafeCloset doesn't protect you against keyloggers
-* SafeCloset doesn't protect you from somebody watching your screen while a secret value is displayed
+* SafeCloset doesn't protect you from somebody watching your screen while a secret value is displayed (but the rest of the drawer can be kept hidden)
 * SafeCloset doesn't try to be space efficient: Closet files are usually about 1 MB large to allow specific features
 
 # Features not yet implemented

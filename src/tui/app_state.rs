@@ -11,14 +11,16 @@ pub struct AppState {
     pub closet: Closet,
     pub drawer_state: DrawerState,
     pub error: Option<String>,
+    pub hide_values: bool,
 }
 
 impl AppState {
-    pub fn new(closet: Closet) -> Self {
+    pub fn new(closet: Closet, hide_values: bool) -> Self {
         Self {
             closet,
             drawer_state: DrawerState::NoneOpen,
             error: None,
+            hide_values,
         }
     }
     /// If there's an open drawer input (entry name or value), close it, keeping
@@ -96,6 +98,10 @@ impl AppState {
                 pis.input.password_mode ^= true;
                 return Ok(CmdResult::Stay);
             }
+            if let DrawerEdit(des) = &mut self.drawer_state {
+                des.drawer.settings.hide_values ^= true;
+                return Ok(CmdResult::Stay);
+            }
         }
 
         // --
@@ -128,7 +134,10 @@ impl AppState {
                 let pwd = input.get_content();
                 let open_drawer = self.closet.open_drawer(&pwd);
                 match open_drawer {
-                    Some(open_drawer) => {
+                    Some(mut open_drawer) => {
+                        if self.hide_values {
+                            open_drawer.settings.hide_values = true;
+                        }
                         self.drawer_state = DrawerEdit(DrawerEditState::from(open_drawer));
                     }
                     None => {
