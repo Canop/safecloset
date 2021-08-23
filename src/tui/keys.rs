@@ -38,9 +38,10 @@ const_key!(TAB, Tab);
 const_key!(UP, Up);
 const_key!(PAGE_UP, PageUp);
 //const_key!(F1, F(1));
+const_key!(CONTROL_H, Char('h'), KeyModifiers::CONTROL);
 const_key!(CONTROL_Q, Char('q'), KeyModifiers::CONTROL);
-const_key!(CONTROL_X, Char('x'), KeyModifiers::CONTROL);
 const_key!(CONTROL_S, Char('s'), KeyModifiers::CONTROL);
+const_key!(CONTROL_X, Char('x'), KeyModifiers::CONTROL);
 
 /// return the raw char if the event is a letter event
 pub fn as_letter(key: KeyEvent) -> Option<char> {

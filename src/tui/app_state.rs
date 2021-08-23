@@ -89,6 +89,15 @@ impl AppState {
             }
         }
 
+        // -- toggle visibility of password or values
+
+        if key == CONTROL_H {
+            if let DrawerCreation(pis) | DrawerOpening(pis) = &mut self.drawer_state {
+                pis.input.password_mode ^= true;
+                return Ok(CmdResult::Stay);
+            }
+        }
+
         // --
 
         if key == ENTER {
@@ -123,8 +132,8 @@ impl AppState {
                         self.drawer_state = DrawerEdit(DrawerEditState::from(open_drawer));
                     }
                     None => {
-                        warn!("no drawer can be opened with this password");
-                        self.error = Some("This password opens no drawer".to_string());
+                        warn!("no drawer can be opened with this passphrase");
+                        self.error = Some("This passphrase opens no drawer".to_string());
                     }
                 }
             }
@@ -296,11 +305,11 @@ impl AppState {
                 match letter {
                     'n' => {
                         // new drawer
-                        self.drawer_state = DrawerCreation(PasswordInputState::default());
+                        self.drawer_state = DrawerCreation(PasswordInputState::new(false));
                     }
                     'o' => {
                         // open drawer
-                        self.drawer_state = DrawerOpening(PasswordInputState::default());
+                        self.drawer_state = DrawerOpening(PasswordInputState::new(true));
                     }
                     _ => {}
                 }

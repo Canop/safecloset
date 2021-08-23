@@ -5,6 +5,7 @@ mod drawer_state;
 mod entry_state;
 mod global_view;
 mod keys;
+mod password_input_state;
 mod scroll;
 mod status_view;
 mod title_view;
@@ -29,6 +30,7 @@ pub(crate) use {
     entry_state::*,
     global_view::*,
     keys::*,
+    password_input_state::*,
     scroll::*,
     status_view::*,
     title_view::*,

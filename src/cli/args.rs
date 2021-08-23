@@ -4,9 +4,7 @@ use {
 };
 
 #[derive(Debug, FromArgs)]
-/// SafeCloset keeps your secrets
-///
-///
+/// SafeCloset keeps your secrets -
 /// Source at https://github.com/Canop/safecloset
 pub struct Args {
     /// print the version

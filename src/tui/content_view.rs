@@ -3,7 +3,7 @@ use {
     crate::error::SafeClosetError,
     crossterm::style::{Color, Color::*, SetBackgroundColor},
     minimad::{Alignment, Composite},
-    termimad::{gray, Area, MadSkin},
+    termimad::{gray, Area, InputField, MadSkin},
 };
 
 /// Renders on most of the screen:
@@ -63,9 +63,10 @@ This drawer is still empty.
 Hit *n* to create a new entry.
 "#;
 
-static MD_CREATE_DRAWER: &str = r#"Type the password for the new drawer:"#;
-
-static MD_OPEN_DRAWER: &str = r#"Type the password of the drawer you want to open:"#;
+static MD_CREATE_DRAWER: &str = r#"Type the passphrase for the new drawer:"#;
+static MD_OPEN_DRAWER: &str = r#"Type the passphrase of the drawer you want to open:"#;
+static MD_HIDDEN_CHARS: &str = r#"Characters are hidden. Type *^h* to toggle visibility."#;
+static MD_VISIBLE_CHARS: &str = r#"Characters are visible. Type *^h* to hide them."#;
 
 impl View for ContentView {
     fn set_area(&mut self, area: Area) {
@@ -88,16 +89,10 @@ impl View for ContentView {
                     .write_in_area_on(w, MD_NO_DRAWER_OPEN, &self.area)?;
             }
             DrawerState::DrawerCreation(PasswordInputState { input }) => {
-                self.go_to_line(w, 3)?;
-                self.skins.normal.write_inline_on(w, MD_CREATE_DRAWER)?;
-                input.change_area(0, 5, self.area.width);
-                input.display_on(w)?;
+                self.draw_password_input(w, input, MD_CREATE_DRAWER)?;
             }
             DrawerState::DrawerOpening(PasswordInputState { input }) => {
-                self.go_to_line(w, 3)?;
-                self.skins.normal.write_inline_on(w, MD_OPEN_DRAWER)?;
-                input.change_area(0, 5, self.area.width);
-                input.display_on(w)?;
+                self.draw_password_input(w, input, MD_OPEN_DRAWER)?;
             }
             DrawerState::DrawerEdit(des) => {
                 self.draw_drawer(w, des)?;
@@ -108,7 +103,30 @@ impl View for ContentView {
 }
 
 impl ContentView {
-    fn draw_drawer(&mut self, w: &mut W, des: &mut DrawerEditState) -> Result<(), SafeClosetError> {
+    fn draw_password_input(
+        &mut self,
+        w: &mut W,
+        input: &mut InputField,
+        introduction: &str,
+    ) -> Result<(), SafeClosetError> {
+        self.go_to_line(w, 3)?;
+        self.skins.normal.write_inline_on(w, introduction)?;
+        input.change_area(0, 5, self.area.width);
+        input.display_on(w)?;
+        self.go_to_line(w, 7)?;
+        let s = if input.password_mode {
+            MD_HIDDEN_CHARS
+        } else {
+            MD_VISIBLE_CHARS
+        };
+        self.skins.normal.write_inline_on(w, s)?;
+        Ok(())
+    }
+    fn draw_drawer(
+        &mut self,
+        w: &mut W,
+        des: &mut DrawerEditState,
+    ) -> Result<(), SafeClosetError> {
         if des.drawer.entries.is_empty() {
             self.skins
                 .normal

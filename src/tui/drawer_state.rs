@@ -13,10 +13,6 @@ pub enum DrawerState {
     // EntrySearch
 }
 
-pub struct PasswordInputState {
-    pub input: InputField,
-}
-
 /// State of the application when a drawer is open.
 ///
 /// Contains the open drawer and an entry state.
@@ -34,13 +30,6 @@ impl Default for DrawerState {
     }
 }
 
-impl Default for PasswordInputState {
-    fn default() -> Self {
-        Self {
-            input: InputField::new(Area::uninitialized()),
-        }
-    }
-}
 impl From<OpenDrawer> for DrawerEditState {
     fn from(drawer: OpenDrawer) -> Self {
         Self {

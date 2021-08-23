@@ -4,7 +4,7 @@ pub enum CoreError {
     #[error("IO error: {0}")]
     IO(#[from] std::io::Error),
 
-    #[error("Password too short")]
+    #[error("Passphrase too short")]
     PasswordTooShort,
 
     #[error("Serde JSON error: {0}")]
@@ -25,6 +25,6 @@ pub enum CoreError {
     #[error("Internal error: {0}")]
     InternalError(String),
 
-    #[error("Password already used for an existing drawer")]
+    #[error("Passphrase already used for an existing drawer")]
     PasswordAlreadyUsed,
 }

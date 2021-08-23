@@ -43,6 +43,7 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 * SafeCloset can't be queryied by other applications, like browsers. This is a feature.
 * No company can die and lose your secrets: you keep everything
 * Fast and convenient to use
+* Cross-platform because you don't know where you'll have to use your closet
 
 # Non features
 
@@ -82,3 +83,11 @@ The key used for this encryption is a 32 bits Argon2 hash of the password with a
 * <kbd>ctrl</kbd><kbd>s</kbd> : Save
 * <kbd>ctrl</kbd><kbd>x</kbd> : Save then quit
 * <kbd>Enter</kbd> : Validate the current edition
+
+# Advices
+
+1. Use the search to navigate among entries. That's the most efficient solution. It's OK to have thousands of secrets in your drawer.
+1. **Don't use drawers as categories**. They separate audience or security levels and ensure plausible deniability. You're supposed to have one drawer for most of your secrets. Maybe a second one if you have a *very secret* level. Or one with your work secrets that you may open with colleagues nearby. Or one for the family that even the kids can read. This shouldn't be more than 3 or 4 drawers at most.
+1. Backup your closet files. They're not readable as long as your passphrases can't be guessed so you don't have to hide those files and it's most important to not lose them.
+1. Use hard to guess passphrases that you can remember for a very long time. It's usually easier to remember a complex sentence than a dozen special characters in random order.
+1. You may keep the executables of all OS on your USB keys, so that you can read your secrets everywhere

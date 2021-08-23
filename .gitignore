@@ -1,3 +1,7 @@
 
 /target
 /*.closet
+/*.old
+/*.zip
+/build
+/releases
