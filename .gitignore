@@ -5,3 +5,4 @@
 /*.zip
 /build
 /releases
+/deploy.sh
