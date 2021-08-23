@@ -70,7 +70,7 @@ Drawer data are serialized in JSON before being encrypted with AES-GCM-SIV.
 
 JSON allows for the later addition of fields while keeping the compatibility with previous closet files.
 
-The key used for this encryption is a 32 bits Argon2 hash of the password with a closet specific salt.
+The key used for this encryption is a 32 bytes Argon2 hash of the password with a closet specific salt.
 
 # Keyboard actions
 
