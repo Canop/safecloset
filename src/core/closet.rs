@@ -12,6 +12,7 @@ use {
 ///
 /// Only one drawer can be opened at a time.
 pub struct Closet {
+
     /// the path to the file in which the closet is persisted
     path: PathBuf,
 
@@ -55,7 +56,7 @@ impl Closet {
         let decoy_drawer_count = thread_rng().gen_range(DECOY_DRAWERS_COUNT);
         for _ in 0..decoy_drawer_count {
             let password = random_password();
-            closet.create_drawer(&password)?;
+            closet.create_drawer_unchecked(&password)?;
         }
         Ok(closet)
     }
@@ -71,11 +72,31 @@ impl Closet {
         Ok(closet)
     }
 
+    /// Create a drawer without checking first the password isn't used by
+    /// another drawer, or that the password meets minimal requirements.
+    ///
+    /// This is dangerous, and should not be used on user action.
+    fn create_drawer_unchecked(&mut self, password: &str) -> Result<(), CoreError> {
+        let drawer_idx = self.ser_closet.drawers.len();
+        let drawer = OpenDrawer {
+            password: password.to_string(),
+            drawer_idx,
+            entries: Vec::new(),
+            settings: DrawerSettings::default(),
+            open_id: 0, // it's not really open
+        };
+        // the crypted drawer is pushed at the end, so if there's an open
+        // driver its open_id is still valid
+        let crypted_drawer = ClosedDrawer::from_open_drawer(drawer, &self.ser_closet)?;
+        self.ser_closet.drawers.push(crypted_drawer);
+        Ok(())
+    }
+
     /// Create a drawer, don't open it, add it to the closet.
     ///
     /// Return an error if the password is already used by
     /// another drawer (which probably means the user wanted
-    /// to open a drawer and not create one)
+    /// to open a drawer and not create one).
     pub fn create_drawer(&mut self, password: &str) -> Result<(), CoreError> {
         if password.len() < MIN_PASSWORD_LENGTH {
             return Err(CoreError::PasswordTooShort);
@@ -86,17 +107,7 @@ impl Closet {
                 return Err(CoreError::PasswordAlreadyUsed);
             }
         }
-        let drawer_idx = self.ser_closet.drawers.len();
-        let drawer = OpenDrawer {
-            password: password.to_string(),
-            drawer_idx,
-            entries: Vec::new(),
-            settings: DrawerSettings::default(),
-            open_id: 0, // it's not really open
-        };
-        let crypted_drawer = ClosedDrawer::from_open_drawer(drawer, &self.ser_closet)?;
-        self.ser_closet.drawers.push(crypted_drawer);
-        Ok(())
+        self.create_drawer_unchecked(password)
     }
 
     /// Open the drawer responding to this password and return it.
@@ -123,6 +134,7 @@ impl Closet {
         let drawer_idx = drawer.drawer_idx;
         let crypted_drawer = ClosedDrawer::from_open_drawer(drawer, &self.ser_closet)?;
         self.ser_closet.push_drawer_back(crypted_drawer, drawer_idx);
+        self.open_id = None;
         Ok(())
     }
 

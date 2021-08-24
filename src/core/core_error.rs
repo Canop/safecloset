@@ -27,4 +27,7 @@ pub enum CoreError {
 
     #[error("Passphrase already used for an existing drawer")]
     PasswordAlreadyUsed,
+
+    #[error("Invalid CheckId in deserialized drawer")]
+    InvalidCheckId,
 }

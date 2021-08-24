@@ -7,6 +7,7 @@ use {
 /// a closed, crypted, drawer
 #[derive(Serialize, Deserialize)]
 pub struct ClosedDrawer {
+
     nonce: Box<[u8]>,
 
     /// crypted content
@@ -23,7 +24,7 @@ impl ClosedDrawer {
         closet: &SerCloset,
     ) -> Result<Self, CoreError> {
         let cipher = closet.cipher(&open_drawer.password)?;
-        let ser_drawer = SerDrawer::new(open_drawer);
+        let ser_drawer = SerDrawer::new(open_drawer, closet.salt.clone());
         let clear_content = serde_json::to_string(&ser_drawer)?;
         let nonce = random_nonce();
         let crypted_content = cipher
@@ -54,7 +55,11 @@ impl ClosedDrawer {
             .decrypt(nonce, self.content.as_ref())
             .map_err(|_| CoreError::Aead)?;
         let ser_drawer: SerDrawer = serde_json::from_slice(&clear_content)?;
-        let open_drawer = ser_drawer.into_open_drawer(drawer_idx, password.to_string(), open_id);
-        Ok(open_drawer)
+        ser_drawer.into_open_drawer(
+            drawer_idx,
+            password.to_string(),
+            open_id,
+            &closet.salt,
+        )
     }
 }

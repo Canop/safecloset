@@ -13,6 +13,7 @@
 * This is a personal project
 * It hasn't been audited
 * It's not even finished anyway
+* There will be breaking changes (they should stop at version 0.2)
 
 SafeCloset comes with **absolutely** no guarantee. If you store your crypto wallet's password with 2B€ in SafeCloset and can't read it back, I can do nothing for you.
 
@@ -35,12 +36,13 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 * Drawers are automatically closed on inactivity
 * The size of the drawer's content isn't observable
 * An attacker having several versions of the closet files can't determine if you've just read or made changes, and if the content grew or shrinked
-* No clear file is ever created, edition is done directly in the TUI
+* No clear file is ever created, edition is done directly in the TUI (external editors are usually the weakest point)
 * No clear data is ever given to any external library, widget, etc.
 * All data is viewed and edited in the TUI application
 * You can compile SafeCloset yourself. Its code is small and auditable and 100% in Rust
 * The format of the closet file is described so that another application could be written to decode your closet files in the future (assuming you have the password)
 * SafeCloset can't be queryied by other applications, like browsers. This is a feature.
+* You may have all your secrets in one file easy to keep with you and backup
 * No company can die and lose your secrets: you keep everything
 * Fast and convenient to use
 * Cross-platform because you don't know where you'll have to use your closet

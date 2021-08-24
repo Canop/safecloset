@@ -7,7 +7,7 @@ use {
 const PASSWORD_CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
                                 abcdefghijklmnopqrstuvwxyz\
                                 0123456789)(*&^%$#@!~\
-                                ._[]{}/;:?%^=-+'";
+                                ._[]{}/;:?%,=-+'";
 
 pub fn random_bytes(count: usize) -> Box<[u8]> {
     let mut vec = vec![0u8; count];
