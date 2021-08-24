@@ -25,10 +25,10 @@ impl ClosedDrawer {
     ) -> Result<Self, CoreError> {
         let cipher = closet.cipher(&open_drawer.password)?;
         let ser_drawer = SerDrawer::new(open_drawer, closet.salt.clone());
-        let clear_content = serde_json::to_string(&ser_drawer)?;
+        let clear_content = rmp_serde::encode::to_vec_named(&ser_drawer)?;
         let nonce = random_nonce();
         let crypted_content = cipher
-            .encrypt(&nonce, clear_content.as_bytes())
+            .encrypt(&nonce, &*clear_content)
             .map_err(|_| CoreError::Aead)?;
         let nonce = nonce.as_slice().into();
         Ok(Self {
@@ -54,7 +54,7 @@ impl ClosedDrawer {
         let clear_content = cipher
             .decrypt(nonce, self.content.as_ref())
             .map_err(|_| CoreError::Aead)?;
-        let ser_drawer: SerDrawer = serde_json::from_slice(&clear_content)?;
+        let ser_drawer: SerDrawer = rmp_serde::from_read(&*clear_content)?;
         ser_drawer.into_open_drawer(
             drawer_idx,
             password.to_string(),

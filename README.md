@@ -13,7 +13,6 @@
 * This is a personal project
 * It hasn't been audited
 * It's not even finished anyway
-* There will be breaking changes (they should stop at version 0.2)
 
 SafeCloset comes with **absolutely** no guarantee. If you store your crypto wallet's password with 2B€ in SafeCloset and can't read it back, I can do nothing for you.
 
@@ -52,7 +51,6 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 
 * SafeCloset doesn't protect you against keyloggers
 * SafeCloset doesn't protect you from somebody watching your screen while a secret value is displayed (but the rest of the drawer can be kept hidden)
-* SafeCloset doesn't try to be space efficient: Closet files are usually about 1 MB large to allow specific features
 
 # Features not yet implemented
 
@@ -68,9 +66,9 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 
 # Implementation details
 
-Drawer data are serialized in JSON before being encrypted with AES-GCM-SIV.
+Drawer data are serialized in MessagePack before being encrypted with AES-GCM-SIV.
 
-JSON allows for the later addition of fields while keeping the compatibility with previous closet files.
+MessagePack, being used with named fields, allows for the later addition of fields while keeping the compatibility with previous closet files.
 
 The key used for this encryption is a 32 bytes Argon2 hash of the password with a closet specific salt.
 
@@ -82,6 +80,7 @@ The key used for this encryption is a 32 bytes Argon2 hash of the password with 
 * <kbd>tab</kbd> : Create a new entry or edit the value if you're already editing an entry's name
 * arrow keys: Move selection, selecting either an entry name or a value
 * <kbd>i</kbd> or <kbd>insert</kbd> : Start editing the selected name or value
+* <kbd>d</kbd> : Remove the selected entry
 * <kbd>ctrl</kbd><kbd>q</kbd> : Quit without saving
 * <kbd>ctrl</kbd><kbd>s</kbd> : Save
 * <kbd>ctrl</kbd><kbd>x</kbd> : Save then quit

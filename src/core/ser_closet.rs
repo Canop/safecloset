@@ -3,14 +3,14 @@ use {
     aes_gcm_siv::{aead::NewAead, Aes256GcmSiv, Key},
     rand::{seq::SliceRandom, thread_rng},
     serde::{Deserialize, Serialize},
-    std::{fs::File, io::Write, path::Path},
+    std::{fs::File, path::Path},
 };
 
 /// A closet as it is serialized to a file
 #[derive(Serialize, Deserialize)]
 pub struct SerCloset {
-    /// The salt used to generate the cipher keys from
-    /// the passwords
+
+    /// The salt used to generate the cipher keys from the passwords
     pub salt: String,
 
     /// The crypted drawers
@@ -35,14 +35,13 @@ impl SerCloset {
             return Err(CoreError::FileExists(path.to_path_buf()));
         }
         let mut file = File::create(path)?;
-        let serialized = serde_json::to_string(&self)?;
-        write!(file, "{}", serialized)?;
+        rmp_serde::encode::write_named(&mut file, &self)?;
         Ok(())
     }
 
     pub fn from_file(path: &Path) -> Result<Self, CoreError> {
         let file = File::open(path)?;
-        let sc = serde_json::from_reader(file)?;
+        let sc = rmp_serde::decode::from_read(file)?;
         Ok(sc)
     }
 

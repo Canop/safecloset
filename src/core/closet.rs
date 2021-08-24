@@ -31,7 +31,8 @@ const MIN_PASSWORD_LENGTH: usize = 10;
 const DECOY_DRAWERS_COUNT: Range<usize> = 7..20;
 
 impl Closet {
-    /// either create a new closet, or open an existing one, depending
+
+    /// Either create a new closet, or open an existing one, depending
     /// on whether the file exists
     pub fn open_or_create<P: Into<PathBuf>>(path: P) -> Result<Self, CoreError> {
         let path = path.into();
@@ -75,7 +76,7 @@ impl Closet {
     /// Create a drawer without checking first the password isn't used by
     /// another drawer, or that the password meets minimal requirements.
     ///
-    /// This is dangerous, and should not be used on user action.
+    /// This is fast but dangerous, and should not be used on user action.
     fn create_drawer_unchecked(&mut self, password: &str) -> Result<(), CoreError> {
         let drawer_idx = self.ser_closet.drawers.len();
         let drawer = OpenDrawer {
@@ -140,8 +141,8 @@ impl Closet {
 
     /// Close the drawer then reopen it.
     ///
-    /// The closed drawers of the closet are updated (and scrambled)
-    /// but the closet isn't saved.
+    /// After this operation, the closet contains the content of the given
+    /// drawer but the closet isn't saved.
     pub fn close_then_reopen(&mut self, drawer: OpenDrawer) -> Result<OpenDrawer, CoreError> {
         let password = drawer.password.clone();
         self.close_drawer(drawer)?;

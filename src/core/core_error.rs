@@ -7,8 +7,11 @@ pub enum CoreError {
     #[error("Passphrase too short")]
     PasswordTooShort,
 
-    #[error("Serde JSON error: {0}")]
-    SerdeJson(#[from] serde_json::Error),
+    #[error("MessagePack Encode error: {0}")]
+    MessagePackEncode(#[from] rmp_serde::encode::Error),
+
+    #[error("MessagePack Decode error: {0}")]
+    MessagePackDecode(#[from] rmp_serde::decode::Error),
 
     #[error("AEAD error")]
     Aead, // The AEAD error type is opaque
