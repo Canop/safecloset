@@ -1,6 +1,7 @@
 mod cli;
 mod core;
 mod error;
+mod search;
 mod tui;
 
 #[macro_use]

@@ -3,7 +3,7 @@ use {
     crate::error::SafeClosetError,
     crossterm::style::{Color, Color::*, SetBackgroundColor},
     minimad::{Alignment, Composite},
-    termimad::{gray, Area, InputField, MadSkin},
+    termimad::{gray, Area, InputField, MadSkin, StrFit},
 };
 
 /// Renders on most of the screen:
@@ -140,61 +140,77 @@ impl ContentView {
                 .write_in_area_on(w, "*too small*", &self.area)?;
             return Ok(());
         }
+        let normal_style = &self.skins.normal.paragraph.compound_style;
         // entries area
         let mut area = Area::new(0, self.area.top + 3, self.area.width, self.area.height - 3);
         des.set_page_height(area.height as usize);
-        let DrawerEditState { drawer, scroll, entry_state, .. } = des;
-        let scrollbar = area.scrollbar(*scroll as i32, drawer.entries.len() as i32);
+        let scrollbar = area.scrollbar(des.scroll as i32, des.listed_entries_count() as i32);
         if scrollbar.is_some() {
             area.width -= 1;
         }
-        let name_width = (area.width / 3).min(30);
+        let name_width_u16 = (area.width / 3).min(30);
+        let name_width = name_width_u16 as usize; // I must change termimad to use only usize
         let value_left = name_width + 2;
-        let value_width = area.width - value_left;
+        let value_width = area.width as usize - value_left;
         let tbl_style = &self.skins.normal.table.compound_style;
         // -- header
         self.go_to_line(w, 1)?;
-        tbl_style.queue_str(w, &"─".repeat(name_width as usize + 1))?;
+        tbl_style.queue_str(w, &"─".repeat(name_width + 1))?;
         tbl_style.queue_str(w, "┬")?;
-        tbl_style.queue_str(w, &"─".repeat(value_width as usize + 1))?;
+        tbl_style.queue_str(w, &"─".repeat(value_width + 1))?;
         self.go_to_line(w, 2)?;
-        self.skins.normal.write_composite_fill(
-            w,
-            Composite::from_inline("**name**"),
-            name_width as usize + 1,
-            Alignment::Center,
-        )?;
+        if matches!(&des.focus, DrawerFocus::SearchEdit) {
+            normal_style.queue_str(w, "/")?;
+            des.search.input.change_area(1, 2, name_width_u16);
+            des.search.input.display_on(w)?;
+        } else if des.search.has_content() {
+            normal_style.queue_str(w, "/")?;
+            let (fitted, width) = StrFit::make_string(&des.search.input.get_content(), name_width.into());
+            normal_style.queue_str(w, fitted)?;
+            if width < name_width {
+                tbl_style.queue_str(w, &" ".repeat(name_width - width))?;
+            }
+        } else {
+            self.skins.normal.write_composite_fill(
+                w,
+                Composite::from_inline("**name**"),
+                name_width + 1,
+                Alignment::Center,
+            )?;
+        }
         tbl_style.queue_str(w, "│")?;
         self.skins.normal.write_composite_fill(
             w,
             Composite::from_inline("**value**"),
-            value_width as usize,
+            value_width,
             Alignment::Center,
         )?;
         self.go_to_line(w, 3)?;
-        tbl_style.queue_str(w, &"─".repeat(name_width as usize + 1))?;
+        tbl_style.queue_str(w, &"─".repeat(name_width + 1))?;
         tbl_style.queue_str(w, "┼")?;
-        tbl_style.queue_str(w, &"─".repeat(value_width as usize + 1))?;
+        tbl_style.queue_str(w, &"─".repeat(value_width + 1))?;
         // -- entries
-        let mut iter = drawer.entries.iter().enumerate().skip(*scroll);
+        let mut line = des.scroll;
         for iy in 0..area.height {
             let y = iy + area.top;
             w.queue(SetBackgroundColor(self.bg()))?;
             self.go_to_line(w, y)?;
             self.clear_line(w)?;
-            if let Some((idx, entry)) = iter.next() {
+            if let Some((idx, name_match)) = des.listed_entry(line) {
+                let entry = &des.drawer.entries[idx];
+                let focus = &mut des.focus;
                 // - selection mark
-                if entry_state.idx() == Some(idx) {
+                if focus.line() == Some(line) {
                     self.skins.normal.write_inline_on(w, "▶")?;
                 } else {
                     self.skins.normal.write_inline_on(w, " ")?;
                 }
                 // - name field
-                if let Some(input) = entry_state.name_input(idx) {
-                    input.change_area(1, y, name_width);
+                if let Some(input) = focus.name_input(line) {
+                    input.change_area(1, y, name_width_u16);
                     input.display_on(w)?;
                 } else {
-                    let skin = if entry_state.is_name_selected(idx) {
+                    let skin = if focus.is_name_selected(line) {
                         &self.skins.sel_cell
                     } else {
                         &self.skins.cell
@@ -209,17 +225,17 @@ impl ContentView {
                 // - separator
                 tbl_style.queue_str(w, "│")?;
                 // - value field
-                if let Some(input) = entry_state.value_input(idx) {
-                    input.change_area(value_left, y, value_width);
+                if let Some(input) = focus.value_input(line) {
+                    input.change_area(value_left as u16, y, value_width as u16);
                     input.display_on(w)?;
-                } else if entry_state.is_value_selected(idx) {
+                } else if focus.is_value_selected(line) {
                     self.skins.sel_cell.write_composite_fill(
                         w,
                         Composite::from_inline(&entry.value),
                         value_width.into(),
                         Alignment::Left,
                     )?;
-                } else if drawer.settings.hide_values {
+                } else if des.drawer.settings.hide_values {
                     tbl_style.queue_str(w, &"▦".repeat(value_width as usize))?;
                 } else {
                     self.skins.cell.write_composite_fill(
@@ -233,6 +249,7 @@ impl ContentView {
                 if is_thumb(y.into(), scrollbar) {
                     self.skins.normal.scrollbar.thumb.queue(w)?;
                 }
+                line += 1;
             }
         }
         Ok(())

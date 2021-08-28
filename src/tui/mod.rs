@@ -2,10 +2,12 @@ mod app_state;
 mod cmd_result;
 mod content_view;
 mod drawer_state;
-mod entry_state;
+mod drawer_edit_state;
+mod drawer_focus;
 mod global_view;
 mod keys;
 mod password_input_state;
+mod search_state;
 mod scroll;
 mod status_view;
 mod title_view;
@@ -13,7 +15,10 @@ mod app;
 mod view;
 
 use {
-    crate::{core::Closet, error::SafeClosetError},
+    crate::{
+        core::Closet,
+        error::SafeClosetError,
+    },
     crossterm::{
         self, cursor,
         terminal::{EnterAlternateScreen, LeaveAlternateScreen},
@@ -27,10 +32,12 @@ pub(crate) use {
     cmd_result::*,
     content_view::*,
     drawer_state::*,
-    entry_state::*,
+    drawer_edit_state::*,
+    drawer_focus::*,
     global_view::*,
     keys::*,
     password_input_state::*,
+    search_state::*,
     scroll::*,
     status_view::*,
     title_view::*,

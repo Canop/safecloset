@@ -49,7 +49,7 @@ impl View for StatusView {
             )?;
         } else {
             let s = if let DrawerState::DrawerEdit(des) = &state.drawer_state {
-                if des.entry_state.is_pending_removal() {
+                if des.focus.is_pending_removal() {
                     "Hit *y* to confirm entry removal (any other key cancels it)"
                 } else if des.touched() {
                     "Hit *^q* to quit, *^s* to save, *^x* to save and quit"

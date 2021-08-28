@@ -600,6 +600,7 @@ dependencies = [
  "rand",
  "rmp-serde",
  "rust-argon2",
+ "secular",
  "serde",
  "tempfile",
  "termimad",
@@ -611,6 +612,15 @@ name = "scopeguard"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
+
+[[package]]
+name = "secular"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c3dc3eccdf599b53eba8a34a1190bd47394948258d1c43dca9cceb2426e25bb5"
+dependencies = [
+ "unicode-normalization",
+]
 
 [[package]]
 name = "serde"
@@ -702,8 +712,6 @@ dependencies = [
 [[package]]
 name = "termimad"
 version = "0.14.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1ea6e542eaec310898d8ba84e5dbda91e95b27e5e023722f0140ca57d72136e"
 dependencies = [
  "crossbeam",
  "crossterm",
@@ -743,10 +751,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "tinyvec"
+version = "1.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "848a1e1181b9f6753b5e96a092749e29b11d19ede67dfbbd6c7dc7e0f49b5338"
+dependencies = [
+ "tinyvec_macros",
+]
+
+[[package]]
+name = "tinyvec_macros"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
+
+[[package]]
 name = "typenum"
 version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "879f6906492a7cd215bfa4cf595b600146ccfac0c79bcbd1f3000162af5e8b06"
+
+[[package]]
+name = "unicode-normalization"
+version = "0.1.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d54590932941a9e9266f0832deed84ebe1bf2e4c9e4a3554d393d18f5e854bf9"
+dependencies = [
+ "tinyvec",
+]
 
 [[package]]
 name = "unicode-segmentation"

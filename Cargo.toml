@@ -20,6 +20,7 @@ log = "0.4.14"
 rand = "0.8.4"
 rmp-serde = "0.15.5"
 rust-argon2 = "0.8.3"
+secular = { version = "1.0", features = ["normalization"] }
 serde = { version = "1.0.128", features = ["derive"] }
 termimad = "0.14.3"
 thiserror = "1.0.26"
@@ -31,4 +32,4 @@ tempfile = "3.2.0"
 lto = true
 
 [patch.crates-io]
-# termimad = { path = "../termimad" }
+termimad = { path = "../termimad" }

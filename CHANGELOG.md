@@ -1,3 +1,6 @@
+## next
+- fuzzy search
+
 <a name="v0.1.1"></a>
 ### v0.1.1 - 2021-08-24
 - password characters visibility toggle (hidden initially)

@@ -15,6 +15,7 @@ pub struct AppState {
 }
 
 impl AppState {
+
     pub fn new(closet: Closet, hide_values: bool) -> Self {
         Self {
             closet,
@@ -23,16 +24,19 @@ impl AppState {
             hide_values,
         }
     }
+
     /// If there's an open drawer input (entry name or value), close it, keeping
     /// the input content if required.
     ///
     /// Return true if there was such input
     fn close_drawer_input(&mut self, discard: bool) -> bool {
         if let DrawerState::DrawerEdit(des) = &mut self.drawer_state {
-            des.close_input(discard);
+            des.close_input(discard)
+        } else {
+            false
         }
-        false
     }
+
     /// Save the content of the edited cell if any, then save the whole closet
     fn save(&mut self, reopen_if_open: bool) -> Result<(), SafeClosetError> {
         self.close_drawer_input(false);
@@ -50,7 +54,10 @@ impl AppState {
 
     /// Handle a key event
     pub fn on_key(&mut self, key: KeyEvent) -> Result<CmdResult, SafeClosetError> {
-        use DrawerState::*;
+        use {
+            DrawerFocus::*,
+            DrawerState::*,
+        };
         self.error = None;
 
         if key == CONTROL_Q {
@@ -73,20 +80,22 @@ impl AppState {
         // -- pending removal
 
         if let DrawerEdit(des) = &mut self.drawer_state {
-            if let EntryState::PendingRemoval { idx } = &des.entry_state {
-                let idx = *idx;
-                // we either confirm (delete) or cancel removal
-                if as_letter(key) == Some('y') {
-                    info!("user requests entry removal");
-                    des.drawer.entries.remove(idx);
-                    des.entry_state = if idx > 0 {
-                        EntryState::NameSelected { idx }
+            if let PendingRemoval { line } = &des.focus {
+                let line = *line;
+                if let Some(idx) = des.listed_entry_idx(line) {
+                    // we either confirm (delete) or cancel removal
+                    if as_letter(key) == Some('y') {
+                        info!("user requests entry removal");
+                        des.drawer.entries.remove(idx);
+                        des.focus = if line > 0 {
+                            NameSelected { line }
+                        } else {
+                            NoneSelected
+                        };
                     } else {
-                        EntryState::NoneSelected
-                    };
-                } else {
-                    info!("user cancels entry removal");
-                    des.entry_state = EntryState::NameSelected { idx };
+                        info!("user cancels entry removal");
+                        des.focus = NameSelected { line };
+                    }
                 }
             }
         }
@@ -154,7 +163,7 @@ impl AppState {
                 self.drawer_state = NoneOpen;
             } else if let DrawerEdit(des) = &mut self.drawer_state {
                 if !des.close_input(true) {
-                    des.entry_state = EntryState::NoneSelected;
+                    des.focus = NoneSelected;
                 }
             }
             return Ok(CmdResult::Stay);
@@ -162,45 +171,36 @@ impl AppState {
 
         if let DrawerEdit(des) = &mut self.drawer_state {
             if key == TAB {
-                if matches!(des.entry_state, EntryState::NoneSelected) {
+                if matches!(des.focus, NoneSelected) {
+                    // we remove any search
+                    des.search.clear();
                     let idx = des.drawer.empty_entry();
-                    des.edit_entry_name(idx);
-                } else if let EntryState::NameSelected { idx } = &des.entry_state {
-                    let idx = *idx;
-                    des.edit_entry_value(idx);
-                } else if let EntryState::NameEdit { idx, .. } = &des.entry_state {
-                    let idx = *idx;
+                    des.edit_entry_name_by_line(idx); // as there's no filtering, idx==line
+                } else if let NameSelected { line } = &des.focus {
+                    des.edit_entry_value_by_line(*line);
+                } else if let NameEdit { line, .. } = &des.focus {
+                    let line = *line;
                     des.close_input(false);
-                    des.edit_entry_value(idx);
-                } else if let EntryState::ValueSelected { idx } = &des.entry_state {
-                    let idx = *idx;
-                    if des.drawer.entries.len() == idx + 1 {
-                        // last entry
-                        if des.drawer.entries[idx].is_empty() {
-                            // if the current entry is empty, we don't create a new one
-                            // but go back to the current (empty) entry name
-                            des.edit_entry_name(idx);
+                    des.edit_entry_value_by_line(line);
+                } else if let ValueSelected { line } | ValueEdit { line, .. } = &des.focus {
+                    let line = *line;
+                    if let Some(idx) = des.listed_entry_idx(line) {
+                        if des.listed_entries_count() == line + 1 {
+                            // last listed entry
+                            if des.drawer.entries[line].is_empty() {
+                                // if the current entry is empty, we don't create a new one
+                                // but go back to the current (empty) entry name
+                                des.edit_entry_name_by_line(line);
+                            } else {
+                                // we create a new entry and start edit it
+                                // but we must ensure there's no search which could filter it
+                                des.search.clear();
+                                des.drawer.entries.push(Entry::default());
+                                des.edit_entry_name_by_line(des.drawer.entries.len() - 1);
+                            }
                         } else {
-                            // we create a new entry and start edit it
-                            des.drawer.entries.push(Entry::default());
-                            des.edit_entry_name(idx + 1);
+                            des.edit_entry_name_by_line(line + 1);
                         }
-                    } else {
-                        des.edit_entry_name(idx + 1);
-                    }
-                } else if let EntryState::ValueEdit { idx, .. } = &des.entry_state {
-                    let idx = *idx;
-                    des.close_input(false);
-                    if des.drawer.entries.len() == idx + 1 {
-                        // last entry
-                        if des.drawer.entries[idx].is_empty() {
-                            des.edit_entry_name(idx);
-                        } else {
-                            des.drawer.entries.push(Entry::default());
-                            des.edit_entry_name(idx + 1);
-                        }
-                    } else {
-                        des.edit_entry_name(idx + 1);
                     }
                 }
                 return Ok(CmdResult::Stay);
@@ -227,6 +227,11 @@ impl AppState {
 
         if let Some(input) = self.drawer_state.input() {
             input.apply_keycode_event(key.code);
+            if let DrawerEdit(des) = &mut self.drawer_state {
+                if matches!(des.focus, SearchEdit) {
+                    des.search.update(&des.drawer);
+                }
+            }
             return Ok(CmdResult::Stay);
         }
 
@@ -234,13 +239,11 @@ impl AppState {
 
         if key == INSERT || as_letter(key) == Some('i') {
             if let DrawerEdit(des) = &mut self.drawer_state {
-                if let EntryState::NameSelected { idx } = &des.entry_state {
-                    let idx = *idx;
-                    des.edit_entry_name(idx);
+                if let NameSelected { line } = &des.focus {
+                    des.edit_entry_name_by_line(*line);
                 }
-                if let EntryState::ValueSelected { idx } = &des.entry_state {
-                    let idx = *idx;
-                    des.edit_entry_value(idx);
+                if let ValueSelected { line } = &des.focus {
+                    des.edit_entry_value_by_line(*line);
                 }
             }
             return Ok(CmdResult::Stay);
@@ -248,60 +251,60 @@ impl AppState {
 
         if let DrawerEdit(des) = &mut self.drawer_state {
             if key == RIGHT {
-                if let EntryState::NameSelected { idx } = &des.entry_state {
-                    let idx = *idx;
-                    des.entry_state = EntryState::ValueSelected { idx };
+                if let NameSelected { line } = &des.focus {
+                    let line = *line;
+                    des.focus = ValueSelected { line };
                 }
                 return Ok(CmdResult::Stay);
             }
             if key == LEFT {
-                if let EntryState::ValueSelected { idx } = &des.entry_state {
-                    let idx = *idx;
-                    des.entry_state = EntryState::NameSelected { idx };
+                if let ValueSelected { line } = &des.focus {
+                    let line = *line;
+                    des.focus = NameSelected { line };
                 }
                 return Ok(CmdResult::Stay);
             }
             if key == UP {
-                if let EntryState::NameSelected { idx } = &des.entry_state {
-                    let idx = if *idx > 0 {
-                        idx - 1
+                if let NameSelected { line } = &des.focus {
+                    let line = if *line > 0 {
+                        line - 1
                     } else {
-                        des.drawer.entries.len() - 1
+                        des.listed_entries_count() - 1
                     };
-                    des.entry_state = EntryState::NameSelected { idx };
+                    des.focus = NameSelected { line };
                 }
-                if let EntryState::ValueSelected { idx } = &des.entry_state {
-                    let idx = if *idx > 0 {
-                        idx - 1
+                if let ValueSelected { line } = &des.focus {
+                    let line = if *line > 0 {
+                        line - 1
                     } else {
-                        des.drawer.entries.len() - 1
+                        des.listed_entries_count() - 1
                     };
-                    des.entry_state = EntryState::ValueSelected { idx };
+                    des.focus = ValueSelected { line };
                 }
-                if matches!(des.entry_state, EntryState::NoneSelected) {
-                    des.entry_state = EntryState::NameSelected { idx: 0 };
+                if matches!(des.focus, NoneSelected) {
+                    des.focus = NameSelected { line: 0 };
                 }
                 return Ok(CmdResult::Stay);
             }
             if key == DOWN {
-                if let EntryState::NameSelected { idx } = &des.entry_state {
-                    let idx = if *idx + 1 < des.drawer.entries.len() {
-                        idx + 1
+                if let NameSelected { line } = &des.focus {
+                    let line = if *line + 1 < des.listed_entries_count() {
+                        line + 1
                     } else {
                         0
                     };
-                    des.entry_state = EntryState::NameSelected { idx };
+                    des.focus = NameSelected { line };
                 }
-                if let EntryState::ValueSelected { idx } = &des.entry_state {
-                    let idx = if *idx + 1 < des.drawer.entries.len() {
-                        idx + 1
+                if let ValueSelected { line } = &des.focus {
+                    let line = if *line + 1 < des.listed_entries_count() {
+                        line + 1
                     } else {
                         0
                     };
-                    des.entry_state = EntryState::ValueSelected { idx };
+                    des.focus = ValueSelected { line };
                 }
-                if matches!(des.entry_state, EntryState::NoneSelected) {
-                    des.entry_state = EntryState::NameSelected { idx: 0 };
+                if matches!(des.focus, NoneSelected) {
+                    des.focus = NameSelected { line: 0 };
                 }
                 return Ok(CmdResult::Stay);
             }
@@ -327,15 +330,20 @@ impl AppState {
 
             if let DrawerEdit(des) = &mut self.drawer_state {
                 // if we're here, there's no input
-                match (letter, des.entry_state.idx()) {
+                match (letter, des.focus.line()) {
                     ('n', _) => {
                         // new entry
+                        des.search.clear();
                         let idx = des.drawer.empty_entry();
-                        des.edit_entry_name(idx);
+                        des.edit_entry_name_by_line(idx);
                     }
-                    ('d', Some(idx)) => {
+                    ('d', Some(line)) => {
                         // delete entry (with confirmation)
-                        des.entry_state = EntryState::PendingRemoval { idx };
+                        des.focus = PendingRemoval { line };
+                    }
+                    ('/', _) => {
+                        // start searching
+                        des.focus = SearchEdit;
                     }
                     _ => {}
                 }
