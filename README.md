@@ -54,15 +54,11 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 
 # Features not yet implemented
 
-- search
-- option to hide password on input
-- option to hide non selected values
 - auto-close
 - multi-line values
 - help page with all keyboard shortcuts
 - copy-paste
 - mouse selection
-- closet merge & split
 
 # Implementation details
 
@@ -76,6 +72,7 @@ The key used for this encryption is a 32 bytes Argon2 hash of the password with 
 
 * <kbd>o</kbd> : Open a drawer
 * <kbd>n</kbd> : Create a drawer (when none is open) or create a drawer entry
+* <kbd>/</kbd> : Start searching the current drawer
 * <kbd>esc</kbd> : Cancel current field edition
 * <kbd>tab</kbd> : Create a new entry or edit the value if you're already editing an entry's name
 * arrow keys: Move selection, selecting either an entry name or a value
