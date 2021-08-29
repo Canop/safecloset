@@ -46,5 +46,6 @@ impl View for TitleView {
 fn make_skin() -> MadSkin {
     let mut skin = MadSkin::default();
     skin.paragraph.set_fgbg(AnsiValue(252), AnsiValue(239));
+    skin.inline_code.set_bg(gray(2));
     skin
 }

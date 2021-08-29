@@ -28,6 +28,9 @@ impl DrawerFocus {
             Self::SearchEdit => None,
         }
     }
+    pub fn is_search(&self) -> bool {
+        matches!(self, DrawerFocus::SearchEdit)
+    }
     pub fn is_pending_removal(&self) -> bool {
         matches!(self, DrawerFocus::PendingRemoval { .. })
     }

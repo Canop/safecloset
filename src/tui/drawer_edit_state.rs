@@ -178,19 +178,30 @@ impl DrawerEditState {
                 return true;
             }
         }
-        if let DrawerFocus::SearchEdit = &self.focus {
+        if self.focus.is_search() {
+            self.focus = match self.best_search_line() {
+                Some(line) => DrawerFocus::NameSelected { line },
+                None => DrawerFocus::NoneSelected,
+            };
             if discard {
                 // FIXME be back to previous focus ?
                 self.search.clear();
-                self.focus = DrawerFocus::NoneSelected;
-            } else {
-                // FIXME take best score to select name
-                self.focus = DrawerFocus::NoneSelected;
             }
             self.search.update(&self.drawer);
             return true;
         }
         false
+    }
+    pub fn has_best_search(&self, line: usize) -> bool {
+        self.best_search_line()
+            .map_or(false, |l| l == line)
+    }
+    pub fn best_search_line(&self) -> Option<usize> {
+        if self.focus.is_search() {
+            self.search.result.as_ref().and_then(|r| r.best_line)
+        } else {
+            None
+        }
     }
 }
 

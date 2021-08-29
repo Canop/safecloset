@@ -126,7 +126,7 @@ impl ContentView {
         tbl_style.queue_str(w, "┬")?;
         tbl_style.queue_str(w, &"─".repeat(value_width + 1))?;
         self.go_to_line(w, 2)?;
-        if matches!(&des.focus, DrawerFocus::SearchEdit) {
+        if des.focus.is_search() {
             normal_style.queue_str(w, "/")?;
             des.search.input.change_area(1, 2, name_width_u16);
             des.search.input.display_on(w)?;
@@ -165,9 +165,12 @@ impl ContentView {
             self.clear_line(w)?;
             if let Some((idx, name_match)) = des.listed_entry(line) {
                 let entry = &des.drawer.entries[idx];
+                let is_best = des.has_best_search(line);
                 let focus = &mut des.focus;
                 // - selection mark
-                if focus.line() == Some(line) {
+                if is_best {
+                    self.skin.char_match.queue_str(w, "▶")?;
+                } else if focus.line() == Some(line) {
                     self.skin.md.write_inline_on(w, "▶")?;
                 } else {
                     self.skin.md.write_inline_on(w, " ")?;
@@ -178,7 +181,7 @@ impl ContentView {
                     input.display_on(w)?;
                 } else {
                     let mut cw = CropWriter::new(w, name_width);
-                    let selected = focus.is_name_selected(line);
+                    let selected = is_best || focus.is_name_selected(line);
                     let txt_style = self.skin.txt_style(selected);
                     let ms = MatchedString::new(
                         name_match,

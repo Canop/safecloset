@@ -14,6 +14,7 @@ pub struct StatusView {
     area: Area,
     hint_skin: MadSkin,
     error_skin: MadSkin,
+    drawer_display_count: usize,
 }
 
 impl Default for StatusView {
@@ -22,7 +23,43 @@ impl Default for StatusView {
             area: Area::uninitialized(),
             hint_skin: make_hint_skin(),
             error_skin: make_error_skin(),
+            drawer_display_count: 0,
         }
+    }
+}
+
+impl StatusView {
+
+    /// return a hint for the most normal case: no search, some entries, no
+    /// special state
+    fn rotate_drawer_hint(&mut self, des: &DrawerEditState) -> &'static str {
+        let mut hints: Vec<&'static str> = Vec::new();
+        if des.focus.is_pending_removal() {
+            hints.push("Hit *y* to confirm entry removal (any other key cancels it)");
+        } else if des.focus.is_search() {
+            hints.push("Hit *esc* to cancel search, *enter* to keep the result");
+            hints.push("Hit *esc* to cancel search, arrows to keep the result and move selection");
+        } else {
+            if des.search.has_content() {
+                hints.push("Hit */* then *esc* to clear the search");
+            }
+            if des.touched() {
+                hints.push("Hit *^q* to quit, *^s* to save, *^x* to save and quit");
+            }
+            if !des.drawer.entries.is_empty() {
+                if matches!(des.focus, DrawerFocus::NameSelected{..}|DrawerFocus::ValueSelected{..}) {
+                    hints.push("Hit *^q* to quit, *i* to edit the selected cell");
+                }
+                hints.push("Hit *^q* to quit, */* to search, *n* to create a new entry");
+                hints.push("Hit *^q* to quit, */* to search, *^h* to toggle values visibility");
+                hints.push("Hit *^q* to quit, */* to search, arrows to select a cell");
+                hints.push("Hit *^q* to quit, *tab* to edit the next cell");
+            }
+            hints.push("Hit *^q* to quit");
+        }
+        let idx = (self.drawer_display_count / 3 ) % hints.len();
+        self.drawer_display_count += 1;
+        hints[idx]
     }
 }
 
@@ -49,15 +86,7 @@ impl View for StatusView {
             )?;
         } else {
             let s = if let DrawerState::DrawerEdit(des) = &state.drawer_state {
-                if des.focus.is_pending_removal() {
-                    "Hit *y* to confirm entry removal (any other key cancels it)"
-                } else if des.touched() {
-                    "Hit *^q* to quit, *^s* to save, *^x* to save and quit"
-                } else if !des.drawer.entries.is_empty() {
-                    "Hit *^q* to quit, *^h* to toggle unselected values visibility"
-                } else {
-                    "Hit *^q* to quit"
-                }
+                self.rotate_drawer_hint(des)
             } else {
                 "Hit *^q* to quit"
             };
@@ -75,7 +104,7 @@ impl View for StatusView {
 fn make_hint_skin() -> MadSkin {
     let mut skin = MadSkin::default();
     skin.paragraph.set_fgbg(AnsiValue(252), AnsiValue(239));
-    skin.italic = CompoundStyle::with_fg(AnsiValue(44));
+    skin.italic = CompoundStyle::with_fg(AnsiValue(87)); // 203 ?
     skin
 }
 

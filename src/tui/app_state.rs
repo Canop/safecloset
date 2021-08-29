@@ -225,13 +225,14 @@ impl AppState {
         // --- input
 
         if let Some(input) = self.drawer_state.input() {
-            input.apply_keycode_event(key.code);
-            if let DrawerEdit(des) = &mut self.drawer_state {
-                if matches!(des.focus, SearchEdit) {
-                    des.search.update(&des.drawer);
+            if input.apply_keycode_event(key.code) {
+                if let DrawerEdit(des) = &mut self.drawer_state {
+                    if des.focus.is_search() {
+                        des.search.update(&des.drawer);
+                    }
                 }
+                return Ok(CmdResult::Stay);
             }
-            return Ok(CmdResult::Stay);
         }
 
         // --- navigation among entries
@@ -266,6 +267,22 @@ impl AppState {
                 return Ok(CmdResult::Stay);
             }
             if key == UP {
+                if des.focus.is_search() {
+                    if let Some(line) = des.best_search_line() {
+                        let line = if line > 0 {
+                            line - 1
+                        } else {
+                            des.listed_entries_count() - 1
+                        };
+                        des.focus = NameSelected { line };
+                    } else {
+                        // there's no match, so there's no point to keep the search
+                        des.search.clear();
+                        des.search.update(&des.drawer);
+                        des.focus = NameSelected { line: 0 };
+                    }
+                    return Ok(CmdResult::Stay);
+                }
                 if let NameSelected { line } = &des.focus {
                     let line = if *line > 0 {
                         line - 1
@@ -288,6 +305,22 @@ impl AppState {
                 return Ok(CmdResult::Stay);
             }
             if key == DOWN {
+                if des.focus.is_search() {
+                    if let Some(line) = des.best_search_line() {
+                        let line = if line < des.listed_entries_count() {
+                            line + 1
+                        } else {
+                            0
+                        };
+                        des.focus = NameSelected { line };
+                    } else {
+                        // there's no match, so there's no point to keep the search
+                        des.search.clear();
+                        des.search.update(&des.drawer);
+                        des.focus = NameSelected { line: 0 };
+                    }
+                    return Ok(CmdResult::Stay);
+                }
                 if let NameSelected { line } = &des.focus {
                     let line = if *line + 1 < des.listed_entries_count() {
                         line + 1

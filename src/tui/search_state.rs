@@ -7,7 +7,6 @@ use {
 };
 
 /// State of the search in a drawer
-///
 pub struct SearchState {
     pub input: InputField,
     pub result: Option<SearchResult>,
@@ -16,6 +15,8 @@ pub struct SearchState {
 pub struct SearchResult {
     pattern: FuzzyPattern,
     pub entries: Vec<MatchingEntry>,
+    /// index among filtered entries of the one with the best score
+    pub best_line: Option<usize>,
 }
 
 pub struct MatchingEntry {
@@ -40,15 +41,23 @@ impl SearchState {
             debug!("no more search");
         } else {
             let pattern = FuzzyPattern::from(&self.input.get_content());
-            let mut entries = Vec::new();
-            info!("searching on pattern {:?}", &pattern);
+            debug!("searching on pattern {:?}", &pattern);
+            let mut entries: Vec<MatchingEntry> = Vec::new();
+            let mut best_line: Option<usize> = None;
             for (idx, entry) in drawer.entries.iter().enumerate() {
                 if let Some(name_match) = pattern.find(&entry.name) {
+                    if let Some(i) = best_line {
+                        if entries[i].name_match.score < name_match.score {
+                            best_line = Some(entries.len());
+                        }
+                    } else {
+                        best_line = Some(entries.len());
+                    }
                     entries.push(MatchingEntry { idx, name_match });
                 }
             }
             debug!("{} matching entries", entries.len());
-            self.result = Some(SearchResult { pattern, entries });
+            self.result = Some(SearchResult { pattern, entries, best_line });
         }
     }
     pub fn has_content(&self) -> bool {
