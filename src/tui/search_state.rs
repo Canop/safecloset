@@ -1,8 +1,6 @@
 use {
-    super::*,
     crate::{
         core::*,
-        error::SafeClosetError,
         search::*,
     },
     termimad::{Area, InputField},

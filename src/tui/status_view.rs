@@ -5,7 +5,7 @@ use {
         style::{Color, Color::*},
     },
     minimad::{Alignment, Composite},
-    termimad::{gray, Area, MadSkin},
+    termimad::{gray, Area, CompoundStyle, MadSkin},
 };
 
 /// The view giving hints or informing of an error, at
@@ -75,6 +75,7 @@ impl View for StatusView {
 fn make_hint_skin() -> MadSkin {
     let mut skin = MadSkin::default();
     skin.paragraph.set_fgbg(AnsiValue(252), AnsiValue(239));
+    skin.italic = CompoundStyle::with_fg(AnsiValue(44));
     skin
 }
 

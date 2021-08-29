@@ -1,11 +1,13 @@
 mod app_state;
 mod cmd_result;
+mod content_skin;
 mod content_view;
 mod drawer_state;
 mod drawer_edit_state;
 mod drawer_focus;
 mod global_view;
 mod keys;
+mod matched_string;
 mod password_input_state;
 mod search_state;
 mod scroll;
@@ -30,12 +32,14 @@ use {
 pub(crate) use {
     app_state::*,
     cmd_result::*,
+    content_skin::*,
     content_view::*,
     drawer_state::*,
     drawer_edit_state::*,
     drawer_focus::*,
     global_view::*,
     keys::*,
+    matched_string::*,
     password_input_state::*,
     search_state::*,
     scroll::*,

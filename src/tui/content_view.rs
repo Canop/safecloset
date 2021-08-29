@@ -1,9 +1,9 @@
 use {
     super::*,
     crate::error::SafeClosetError,
-    crossterm::style::{Color, Color::*, SetBackgroundColor},
+    crossterm::style::{Color, SetBackgroundColor},
     minimad::{Alignment, Composite},
-    termimad::{gray, Area, InputField, MadSkin, StrFit},
+    termimad::*,
 };
 
 /// Renders on most of the screen:
@@ -11,42 +11,15 @@ use {
 /// - drawer content
 pub struct ContentView {
     area: Area,
-    skins: ContentSkins,
+    skin: ContentSkin,
 }
 
-pub struct ContentSkins {
-    /// skin for the selected cell
-    sel_cell: MadSkin,
-
-    /// skin for non selected cell
-    cell: MadSkin,
-
-    /// skin for the structural parts
-    normal: MadSkin,
-}
-
-impl ContentSkins {
-    pub fn new() -> Self {
-        let mut normal = MadSkin::default();
-        normal.paragraph.set_fgbg(AnsiValue(230), gray(2));
-        normal.table.set_fgbg(gray(8), gray(2));
-        let mut cell = normal.clone();
-        cell.table.set_fgbg(AnsiValue(230), gray(2));
-        let mut sel_cell = cell.clone();
-        sel_cell.paragraph.set_bg(gray(6));
-        Self {
-            sel_cell,
-            cell,
-            normal,
-        }
-    }
-}
 
 impl Default for ContentView {
     fn default() -> Self {
         Self {
             area: Area::uninitialized(),
-            skins: ContentSkins::new(),
+            skin: ContentSkin::new(),
         }
     }
 }
@@ -84,9 +57,7 @@ impl View for ContentView {
         self.clear(w)?;
         match &mut state.drawer_state {
             DrawerState::NoneOpen => {
-                self.skins
-                    .normal
-                    .write_in_area_on(w, MD_NO_DRAWER_OPEN, &self.area)?;
+                self.skin.md.write_in_area_on(w, MD_NO_DRAWER_OPEN, &self.area)?;
             }
             DrawerState::DrawerCreation(PasswordInputState { input }) => {
                 self.draw_password_input(w, input, MD_CREATE_DRAWER)?;
@@ -110,7 +81,7 @@ impl ContentView {
         introduction: &str,
     ) -> Result<(), SafeClosetError> {
         self.go_to_line(w, 3)?;
-        self.skins.normal.write_inline_on(w, introduction)?;
+        self.skin.md.write_inline_on(w, introduction)?;
         input.change_area(0, 5, self.area.width);
         input.display_on(w)?;
         self.go_to_line(w, 7)?;
@@ -119,7 +90,7 @@ impl ContentView {
         } else {
             MD_VISIBLE_CHARS
         };
-        self.skins.normal.write_inline_on(w, s)?;
+        self.skin.md.write_inline_on(w, s)?;
         Ok(())
     }
     fn draw_drawer(
@@ -128,19 +99,14 @@ impl ContentView {
         des: &mut DrawerEditState,
     ) -> Result<(), SafeClosetError> {
         if des.drawer.entries.is_empty() {
-            self.skins
-                .normal
-                .write_in_area_on(w, MD_EMPTY_DRAWER, &self.area)?;
+            self.skin.md.write_in_area_on(w, MD_EMPTY_DRAWER, &self.area)?;
             return Ok(());
         }
         if self.area.height < 5 || self.area.width < 20 {
             warn!("Terminal too small to render drawer content");
-            self.skins
-                .normal
-                .write_in_area_on(w, "*too small*", &self.area)?;
+            self.skin.md.write_in_area_on(w, "*too small*", &self.area)?;
             return Ok(());
         }
-        let normal_style = &self.skins.normal.paragraph.compound_style;
         // entries area
         let mut area = Area::new(0, self.area.top + 3, self.area.width, self.area.height - 3);
         des.set_page_height(area.height as usize);
@@ -152,7 +118,8 @@ impl ContentView {
         let name_width = name_width_u16 as usize; // I must change termimad to use only usize
         let value_left = name_width + 2;
         let value_width = area.width as usize - value_left;
-        let tbl_style = &self.skins.normal.table.compound_style;
+        let tbl_style = self.skin.tbl_style(false);
+        let normal_style = self.skin.txt_style(false);
         // -- header
         self.go_to_line(w, 1)?;
         tbl_style.queue_str(w, &"─".repeat(name_width + 1))?;
@@ -171,7 +138,7 @@ impl ContentView {
                 tbl_style.queue_str(w, &" ".repeat(name_width - width))?;
             }
         } else {
-            self.skins.normal.write_composite_fill(
+            self.skin.md.write_composite_fill(
                 w,
                 Composite::from_inline("**name**"),
                 name_width + 1,
@@ -179,7 +146,7 @@ impl ContentView {
             )?;
         }
         tbl_style.queue_str(w, "│")?;
-        self.skins.normal.write_composite_fill(
+        self.skin.md.write_composite_fill(
             w,
             Composite::from_inline("**value**"),
             value_width,
@@ -193,7 +160,7 @@ impl ContentView {
         let mut line = des.scroll;
         for iy in 0..area.height {
             let y = iy + area.top;
-            w.queue(SetBackgroundColor(self.bg()))?;
+            w.queue(SetBackgroundColor(self.skin.bg))?;
             self.go_to_line(w, y)?;
             self.clear_line(w)?;
             if let Some((idx, name_match)) = des.listed_entry(line) {
@@ -201,26 +168,26 @@ impl ContentView {
                 let focus = &mut des.focus;
                 // - selection mark
                 if focus.line() == Some(line) {
-                    self.skins.normal.write_inline_on(w, "▶")?;
+                    self.skin.md.write_inline_on(w, "▶")?;
                 } else {
-                    self.skins.normal.write_inline_on(w, " ")?;
+                    self.skin.md.write_inline_on(w, " ")?;
                 }
                 // - name field
                 if let Some(input) = focus.name_input(line) {
                     input.change_area(1, y, name_width_u16);
                     input.display_on(w)?;
                 } else {
-                    let skin = if focus.is_name_selected(line) {
-                        &self.skins.sel_cell
-                    } else {
-                        &self.skins.cell
-                    };
-                    skin.write_composite_fill(
-                        w,
-                        Composite::from_inline(&entry.name),
-                        name_width.into(),
-                        Alignment::Left,
-                    )?;
+                    let mut cw = CropWriter::new(w, name_width);
+                    let selected = focus.is_name_selected(line);
+                    let txt_style = self.skin.txt_style(selected);
+                    let ms = MatchedString::new(
+                        name_match,
+                        &entry.name,
+                        txt_style,
+                        self.skin.match_style(selected),
+                    );
+                    ms.queue_on(&mut cw)?;
+                    cw.fill_with_space(txt_style)?;
                 }
                 // - separator
                 tbl_style.queue_str(w, "│")?;
@@ -229,7 +196,7 @@ impl ContentView {
                     input.change_area(value_left as u16, y, value_width as u16);
                     input.display_on(w)?;
                 } else if focus.is_value_selected(line) {
-                    self.skins.sel_cell.write_composite_fill(
+                    self.skin.sel_md.write_composite_fill(
                         w,
                         Composite::from_inline(&entry.value),
                         value_width.into(),
@@ -238,7 +205,7 @@ impl ContentView {
                 } else if des.drawer.settings.hide_values {
                     tbl_style.queue_str(w, &"▦".repeat(value_width as usize))?;
                 } else {
-                    self.skins.cell.write_composite_fill(
+                    self.skin.md.write_composite_fill(
                         w,
                         Composite::from_inline(&entry.value),
                         value_width.into(),
@@ -247,7 +214,7 @@ impl ContentView {
                 }
                 // - scrollbar
                 if is_thumb(y.into(), scrollbar) {
-                    self.skins.normal.scrollbar.thumb.queue(w)?;
+                    self.skin.md.scrollbar.thumb.queue(w)?;
                 }
                 line += 1;
             }

@@ -177,30 +177,29 @@ impl AppState {
                     let idx = des.drawer.empty_entry();
                     des.edit_entry_name_by_line(idx); // as there's no filtering, idx==line
                 } else if let NameSelected { line } = &des.focus {
-                    des.edit_entry_value_by_line(*line);
+                    let line = *line;
+                    des.edit_entry_value_by_line(line);
                 } else if let NameEdit { line, .. } = &des.focus {
                     let line = *line;
                     des.close_input(false);
                     des.edit_entry_value_by_line(line);
                 } else if let ValueSelected { line } | ValueEdit { line, .. } = &des.focus {
                     let line = *line;
-                    if let Some(idx) = des.listed_entry_idx(line) {
-                        if des.listed_entries_count() == line + 1 {
-                            // last listed entry
-                            if des.drawer.entries[line].is_empty() {
-                                // if the current entry is empty, we don't create a new one
-                                // but go back to the current (empty) entry name
-                                des.edit_entry_name_by_line(line);
-                            } else {
-                                // we create a new entry and start edit it
-                                // but we must ensure there's no search which could filter it
-                                des.search.clear();
-                                des.drawer.entries.push(Entry::default());
-                                des.edit_entry_name_by_line(des.drawer.entries.len() - 1);
-                            }
+                    if des.listed_entries_count() == line + 1 {
+                        // last listed entry
+                        if des.drawer.entries[line].is_empty() {
+                            // if the current entry is empty, we don't create a new one
+                            // but go back to the current (empty) entry name
+                            des.edit_entry_name_by_line(line);
                         } else {
-                            des.edit_entry_name_by_line(line + 1);
+                            // we create a new entry and start edit it
+                            // but we must ensure there's no search which could filter it
+                            des.search.clear();
+                            des.drawer.entries.push(Entry::default());
+                            des.edit_entry_name_by_line(des.drawer.entries.len() - 1);
                         }
+                    } else {
+                        des.edit_entry_name_by_line(line + 1);
                     }
                 }
                 return Ok(CmdResult::Stay);
@@ -240,10 +239,12 @@ impl AppState {
         if key == INSERT || as_letter(key) == Some('i') {
             if let DrawerEdit(des) = &mut self.drawer_state {
                 if let NameSelected { line } = &des.focus {
-                    des.edit_entry_name_by_line(*line);
+                    let line = *line;
+                    des.edit_entry_name_by_line(line);
                 }
                 if let ValueSelected { line } = &des.focus {
-                    des.edit_entry_value_by_line(*line);
+                    let line = *line;
+                    des.edit_entry_value_by_line(line);
                 }
             }
             return Ok(CmdResult::Stay);

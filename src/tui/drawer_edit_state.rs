@@ -47,12 +47,12 @@ impl DrawerEditState {
             None
         }
     }
-    pub fn listed_entry(&self, line: usize) -> Option<(usize, Option<&NameMatch>)> {
+    pub fn listed_entry(&self, line: usize) -> Option<(usize, Option<NameMatch>)> {
         if let Some(search_result) = &self.search.result {
             search_result
                 .entries
                 .get(line)
-                .map(|MatchingEntry { idx, name_match }| (*idx, Some(name_match)))
+                .map(|MatchingEntry { idx, name_match }| (*idx, Some(name_match.clone())))
         } else if line < self.drawer.entries.len() {
             Some((line, None))
         } else {
