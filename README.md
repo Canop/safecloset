@@ -14,7 +14,7 @@
 * It hasn't been audited
 * It's not even finished anyway
 
-SafeCloset comes with **absolutely** no guarantee. If you store your crypto wallet's password with 2B€ in SafeCloset and can't read it back, I can do nothing for you.
+SafeCloset comes with **absolutely** no guarantee. And I can do nothing for you if you lose the secrets you stored in SafeCloset.
 
 # Overview
 
@@ -32,9 +32,8 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 * Each drawer is separately crypted with AES-GCM-SIV, with a random one-use nonce and the password/key of your choice. This gives an inherently long to test decrypt algorithm (but you should still use long passphrases for your drawers)
 * You can have one or several drawers with real content. You can be forced to open a drawer at gun point and still keep other drawers secret without any trace
 * When you open a drawer, with its password, you can read it, search it, edit it, close it
-* Drawers are automatically closed on inactivity
+* SafeCloset automatically quits on inactivity
 * The size of the drawer's content isn't observable
-* An attacker having several versions of the closet files can't determine if you've just read or made changes, and if the content grew or shrinked
 * No clear file is ever created, edition is done directly in the TUI (external editors are usually the weakest point)
 * No clear data is ever given to any external library, widget, etc.
 * All data is viewed and edited in the TUI application
@@ -42,7 +41,7 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 * The format of the closet file is described so that another application could be written to decode your closet files in the future (assuming you have the password)
 * SafeCloset can't be queryied by other applications, like browsers. This is a feature.
 * You may have all your secrets in one file easy to keep with you and backup
-* No company can die and lose your secrets: you keep everything
+* No company can die and lose your secrets: you keep everything, with as many copies as necessary, where you want
 * Fast and convenient to use
 * Cross-platform because you don't know where you'll have to use your closet
 * "I'm being watched" mode in which unselected values are hidden. This mode is kept per drawer, and always activated when you launch SafeCloset with the `--hide` option
@@ -56,7 +55,7 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 
 - multi-line values
 - help page with all keyboard shortcuts
-- copy-paste (not sure it's a good idea to allow copying from safecloset)
+- copy-paste (not yet sure it's a good idea to allow copying from safecloset, though)
 - mouse selection
 
 # Implementation details
@@ -88,4 +87,4 @@ The key used for this encryption is a 32 bytes Argon2 hash of the password with 
 1. **Don't use drawers as categories**. They separate audience or security levels and ensure plausible deniability. You're supposed to have one drawer for most of your secrets. Maybe a second one if you have a *very secret* level. Or one with your work secrets that you may open with colleagues nearby. Or one for the family that even the kids can read. This shouldn't be more than 3 or 4 drawers at most.
 1. Backup your closet files. They're not readable as long as your passphrases can't be guessed so you don't have to hide those files and it's most important to not lose them.
 1. Use hard to guess passphrases, but ones that you can remember for a very long time.
-1. You may keep the executables of all OS on your USB keys, so that you can read your secrets everywhere
+1. You may keep the executables of all OS on your USB keys, so that you can read your secrets everywhere.

@@ -79,9 +79,51 @@ impl AppState {
             return Ok(CmdResult::Quit);
         }
 
-        // -- pending removal
+        if key == CONTROL_UP { // moving the selected line up
+            if let DrawerEdit(des) = &mut self.drawer_state {
+                des.close_input(false);
+                let len = des.drawer.entries.len();
+                match des.focus {
+                    NameSelected { line } => {
+                        let new_line = (line + len - 1) % len;
+                        des.drawer.entries.swap(line, new_line);
+                        des.focus = NameSelected { line: new_line };
+                    }
+                    ValueSelected { line } => {
+                        let new_line = (line + len - 1) % len;
+                        des.drawer.entries.swap(line, new_line);
+                        des.focus = ValueSelected { line: new_line };
+                    }
+                    _ => {}
+                }
+            }
+            return Ok(CmdResult::Stay);
+        }
+        if key == CONTROL_DOWN { // moving the selected line down
+            if let DrawerEdit(des) = &mut self.drawer_state {
+                des.close_input(false);
+                let len = des.drawer.entries.len();
+                match des.focus {
+                    NameSelected { line } => {
+                        let new_line = (line + 1) % len;
+                        des.drawer.entries.swap(line, new_line);
+                        des.focus = NameSelected { line: new_line };
+                    }
+                    ValueSelected { line } => {
+                        let new_line = (line + 1) % len;
+                        des.drawer.entries.swap(line, new_line);
+                        des.focus = ValueSelected { line: new_line };
+                    }
+                    _ => {}
+                }
+            }
+            return Ok(CmdResult::Stay);
+        }
+
 
         if let DrawerEdit(des) = &mut self.drawer_state {
+
+            // -- pending removal
             if let PendingRemoval { line } = &des.focus {
                 let line = *line;
                 if let Some(idx) = des.listed_entry_idx(line) {
@@ -99,6 +141,7 @@ impl AppState {
                         des.focus = NameSelected { line };
                     }
                 }
+                return Ok(CmdResult::Stay);
             }
         }
 

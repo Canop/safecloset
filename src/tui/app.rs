@@ -10,7 +10,7 @@ use {
     termimad::{Area, Event, EventSource},
 };
 
-const MAX_INACTIVITY: Duration = Duration::from_secs(90);
+const MAX_INACTIVITY: Duration = Duration::from_secs(45);
 
 /// Run the Terminal User Interface until the user decides to quit.
 ///

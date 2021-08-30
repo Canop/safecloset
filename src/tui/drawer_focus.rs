@@ -6,12 +6,12 @@ use {
 /// and the related data.
 pub enum DrawerFocus {
     NoneSelected,
-    PendingRemoval { line: usize },
     NameSelected { line: usize },
     ValueSelected { line: usize },
     NameEdit { line: usize, input: InputField },
     ValueEdit { line: usize, input: InputField },
     SearchEdit,
+    PendingRemoval { line: usize },
 }
 
 impl DrawerFocus {
@@ -20,12 +20,12 @@ impl DrawerFocus {
     pub fn line(&self) -> Option<usize> {
         match self {
             Self::NoneSelected => None,
-            Self::PendingRemoval { line } => Some(*line),
             Self::NameSelected { line } => Some(*line),
             Self::ValueSelected { line } => Some(*line),
             Self::NameEdit { line, .. } => Some(*line),
             Self::ValueEdit { line, .. } => Some(*line),
             Self::SearchEdit => None,
+            Self::PendingRemoval { line } => Some(*line),
         }
     }
     pub fn is_search(&self) -> bool {
