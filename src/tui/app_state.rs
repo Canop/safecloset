@@ -39,13 +39,15 @@ impl AppState {
 
     /// Save the content of the edited cell if any, then save the whole closet
     fn save(&mut self, reopen_if_open: bool) -> Result<(), SafeClosetError> {
-        self.close_drawer_input(false);
+        time!(self.close_drawer_input(false));
         let drawer_state = std::mem::take(&mut self.drawer_state);
         if let DrawerState::DrawerEdit(des) = drawer_state {
             if reopen_if_open {
-                self.drawer_state = DrawerState::DrawerEdit(des.close_and_reopen(&mut self.closet)?);
+                self.drawer_state = DrawerState::DrawerEdit(
+                    time!(des.close_and_reopen(&mut self.closet)?)
+                );
             } else {
-                self.closet.close_drawer(des.drawer)?;
+                time!(self.closet.close_drawer(des.drawer)?);
             }
         }
         self.closet.save()?;
@@ -119,16 +121,16 @@ impl AppState {
             self.close_drawer_input(false); // if there's an entry input
             if let DrawerCreation(PasswordInputState { input }) = &mut self.drawer_state {
                 let pwd = input.get_content();
-                let open_drawer = self
-                    .closet
-                    .create_drawer(&pwd)
+                let creation = time!(self.closet.create_drawer(&pwd));
+                let open_drawer = creation
                     .map_err(|e| e.into())
                     .and_then(|_| {
-                        self.closet.open_drawer(&pwd).ok_or_else(|| {
-                            SafeClosetError::Internal(
-                                "unexpected failure opening drawer".to_string(),
-                            )
-                        })
+                        time!(self.closet.open_drawer(&pwd))
+                            .ok_or_else(|| {
+                                SafeClosetError::Internal(
+                                    "unexpected failure opening drawer".to_string(),
+                                )
+                            })
                     });
                 match open_drawer {
                     Ok(open_drawer) => {
