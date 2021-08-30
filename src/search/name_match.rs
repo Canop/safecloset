@@ -11,8 +11,8 @@ pub struct NameMatch {
 }
 
 impl NameMatch {
-    // cut the name match in two parts by recomputing the pos
-    // arrays
+
+    // cut the name match in two parts by recomputing the pos arrays
     pub fn cut_after(&mut self, chars_count: usize) -> Self {
         let mut tail = Self {
             score: self.score,
@@ -26,5 +26,6 @@ impl NameMatch {
         }
         tail
     }
+
 }
 

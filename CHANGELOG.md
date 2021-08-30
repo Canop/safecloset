@@ -1,3 +1,6 @@
+### next
+- quit on inactivity
+
 <a name="v0.1.2"></a>
 ### v0.1.2 - 2021-08-24
 - fuzzy search

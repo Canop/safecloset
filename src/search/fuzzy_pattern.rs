@@ -45,6 +45,7 @@ fn is_word_separator(c: char) -> bool {
 }
 
 impl FuzzyPattern {
+
     /// build a pattern which will later be usable for fuzzy search.
     /// A pattern should be reused
     pub fn from(pat: &str) -> Self {
@@ -67,12 +68,6 @@ impl FuzzyPattern {
             chars,
             max_nb_holes,
         }
-    }
-
-    /// an "empty" pattern is one which accepts everything because
-    /// it has no discriminant
-    pub fn is_empty(&self) -> bool {
-        self.chars.is_empty()
     }
 
     fn tight_match_from_index(
@@ -200,12 +195,6 @@ impl FuzzyPattern {
             }
         }
         best_match
-    }
-
-    /// compute the score of the best match
-    pub fn score_of(&self, candidate: &str) -> Option<i32> {
-        self.find(candidate)
-            .map(|nm| nm.score)
     }
 }
 

@@ -594,6 +594,7 @@ dependencies = [
  "aes-gcm-siv",
  "argh",
  "cli-log",
+ "crossbeam",
  "crossterm",
  "log",
  "minimad",

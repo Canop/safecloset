@@ -2,6 +2,7 @@ mod cli;
 mod core;
 mod error;
 mod search;
+mod timer;
 mod tui;
 
 #[macro_use]

@@ -13,7 +13,6 @@ pub struct SearchState {
 }
 
 pub struct SearchResult {
-    pattern: FuzzyPattern,
     pub entries: Vec<MatchingEntry>,
     /// index among filtered entries of the one with the best score
     pub best_line: Option<usize>,
@@ -57,7 +56,7 @@ impl SearchState {
                 }
             }
             debug!("{} matching entries", entries.len());
-            self.result = Some(SearchResult { pattern, entries, best_line });
+            self.result = Some(SearchResult { entries, best_line });
         }
     }
     pub fn has_content(&self) -> bool {

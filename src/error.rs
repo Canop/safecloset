@@ -10,6 +10,9 @@ pub enum SafeClosetError {
     #[error("Termimad error: {0}")]
     Termimad(#[from] termimad::Error),
 
+    #[error("Crossbeam channel error: {0}")]
+    Crossbeam(#[from] crossbeam::channel::RecvError),
+
     #[error("Internal error: {0}")]
     Internal(String),
 }
