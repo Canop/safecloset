@@ -1,9 +1,10 @@
 use {
+    super::ContentSkin,
     crate::{
         core::*,
         search::*,
     },
-    termimad::{Area, InputField},
+    termimad::InputField,
 };
 
 /// State of the search in a drawer
@@ -25,8 +26,9 @@ pub struct MatchingEntry {
 
 impl Default for SearchState {
     fn default() -> Self {
+        let input = ContentSkin::make_input();
         Self {
-            input: InputField::new(Area::uninitialized()),
+            input,
             result: None,
         }
     }
@@ -64,7 +66,7 @@ impl SearchState {
     }
     /// clear the search box
     pub fn clear(&mut self) {
-        self.input.set_content("");
+        self.input.clear();
         self.result = None;
     }
 }

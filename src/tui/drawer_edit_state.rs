@@ -5,7 +5,7 @@ use {
         error::SafeClosetError,
         search::*,
     },
-    termimad::{Area, InputField},
+    termimad::InputField,
 };
 
 /// State of the application when a drawer is open.
@@ -35,6 +35,28 @@ impl From<OpenDrawer> for DrawerEditState {
 
 impl DrawerEditState {
 
+    /// Give the additional height of the selected line due to
+    /// a selected value being several lines
+    pub fn value_height_addition(&self) -> usize {
+        self.page_height.map_or(0, |page_height| {
+                match &self.focus {
+                    DrawerFocus::ValueSelected { line } => {
+                        self.listed_entry_idx(*line).map_or(0, |idx| {
+                            self.drawer.entries[idx]
+                                .value
+                                .chars()
+                                .filter(|&c| c == '\n')
+                                .count()
+                                .min(page_height - 4)
+                        })
+                    }
+                    DrawerFocus::ValueEdit { input, .. } => {
+                        input.content().line_count().min(page_height - 4) - 1
+                    }
+                    _ => 0,
+                }
+            })
+    }
     pub fn listed_entry_idx(&self, line: usize) -> Option<usize> {
         if let Some(search_result) = &self.search.result {
             search_result
@@ -60,13 +82,17 @@ impl DrawerEditState {
         }
     }
     /// return the number of lines which should be displayed in the entries list, taking
-    /// the search into account
+    /// filtering into account
     pub fn listed_entries_count(&self) -> usize {
         if let Some(search_result) = &self.search.result {
             search_result.entries.len()
         } else {
             self.drawer.entries.len()
         }
+    }
+    /// return the total height of the visible entries
+    pub fn content_height(&self) -> usize {
+        self.listed_entries_count() + self.value_height_addition()
     }
 
     /// Must be called on starting editing a name or value
@@ -90,15 +116,27 @@ impl DrawerEditState {
     /// and terminal height, and that the selection is visible, if any.
     ///
     /// It's not necessary to call this other than from set_page_height
-    /// as this function is called before all drawings.
+    /// (which is called before all drawings).
     fn fix_scroll(&mut self) {
         if let Some(page_height) = self.page_height {
-            self.scroll = fix_scroll(
-                self.scroll,
-                self.focus.line(),
-                self.listed_entries_count(),
-                page_height,
-            );
+            let value_height_addition = self.value_height_addition();
+            let content_height = self.listed_entries_count() + value_height_addition;
+            if content_height <= page_height {
+                self.scroll = 0;
+            } else if let Some(selection) = self.focus.line() {
+                if selection < 2 {
+                    self.scroll = 0;
+                } else if self.scroll + 1 >= selection {
+                    self.scroll = selection - 1;
+                } else {
+                    // TODO drink more coffee
+                    while selection + value_height_addition + 1 >= self.scroll + page_height {
+                        self.scroll += 1;
+                    }
+                }
+            } else if self.scroll + page_height > content_height {
+                self.scroll = content_height - page_height;
+            }
         }
     }
     pub fn set_page_height(&mut self, page_height: usize) {
@@ -128,16 +166,17 @@ impl DrawerEditState {
     }
     pub fn edit_entry_name_by_line(&mut self, line: usize) {
         if let Some(idx) = self.listed_entry_idx(line) {
-            let mut input = InputField::new(Area::uninitialized());
-            input.set_content(&self.drawer.entries[idx].name);
+            let mut input = ContentSkin::make_input();
+            input.set_str(&self.drawer.entries[idx].name);
             self.focus = DrawerFocus::NameEdit { line, input };
             self.increment_edit_count();
         }
     }
     pub fn edit_entry_value_by_line(&mut self, line: usize) {
         if let Some(idx) = self.listed_entry_idx(line) {
-            let mut input = InputField::new(Area::uninitialized());
-            input.set_content(&self.drawer.entries[idx].value);
+            let mut input = ContentSkin::make_input();
+            input.new_line_on(InputField::ALT_ENTER);
+            input.set_str(&self.drawer.entries[idx].value);
             self.focus = DrawerFocus::ValueEdit { line, input };
             self.increment_edit_count();
         }

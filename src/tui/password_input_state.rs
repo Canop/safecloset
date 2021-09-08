@@ -1,5 +1,6 @@
 use {
-    termimad::{Area, InputField},
+    super::ContentSkin,
+    termimad::InputField,
 };
 
 pub struct PasswordInputState {
@@ -8,7 +9,7 @@ pub struct PasswordInputState {
 
 impl PasswordInputState {
     pub fn new(hide_chars: bool) -> Self {
-        let mut input = InputField::new(Area::uninitialized());
+        let mut input = ContentSkin::make_input();
         input.password_mode = hide_chars;
         Self { input }
     }

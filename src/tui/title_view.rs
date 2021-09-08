@@ -5,7 +5,7 @@ use {
         style::{Color, Color::*},
     },
     minimad::{mad_inline, Alignment},
-    termimad::{gray, Area, MadSkin},
+    termimad::{ansi, gray, Area, MadSkin},
 };
 
 pub struct TitleView {
@@ -46,6 +46,7 @@ impl View for TitleView {
 fn make_skin() -> MadSkin {
     let mut skin = MadSkin::default();
     skin.paragraph.set_fgbg(AnsiValue(252), AnsiValue(239));
+    skin.bold.set_fg(ansi(222));
     skin.inline_code.set_bg(gray(2));
     skin
 }

@@ -15,9 +15,9 @@ pub struct Timer {
 
 #[derive(Debug, Clone, Copy)]
 enum TimerCommand {
-    RingNow,
+    #[allow(dead_code)] RingNow,
     Reset,
-    Stop,
+    #[allow(dead_code)] Stop,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -85,12 +85,14 @@ impl Timer {
         self.pair.0.lock().unwrap().insert(timer_command);
         self.pair.1.notify_all();
     }
+    #[allow(dead_code)]
     pub fn stop(&self) {
         self.send(TimerCommand::Stop);
     }
     pub fn reset(&self) {
         self.send(TimerCommand::Reset);
     }
+    #[allow(dead_code)]
     pub fn ring_now(&self) {
         self.send(TimerCommand::RingNow);
     }
@@ -98,6 +100,7 @@ impl Timer {
 
 #[cfg(test)]
 mod timer_tests {
+
     use {
         super::*,
         std::time::{Duration, Instant},
@@ -162,5 +165,4 @@ mod timer_tests {
         // but not too long
         assert!(start.elapsed() < 4 * delay);
     }
-
 }

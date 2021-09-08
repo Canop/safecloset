@@ -1,6 +1,7 @@
 ### next
 - quit on inactivity
 - swap entries with ctrl-up and ctrl-down
+- multi-line values
 
 <a name="v0.1.2"></a>
 ### v0.1.2 - 2021-08-24

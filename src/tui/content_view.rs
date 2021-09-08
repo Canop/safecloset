@@ -1,7 +1,7 @@
 use {
     super::*,
     crate::error::SafeClosetError,
-    crossterm::style::{Color, SetBackgroundColor},
+    crossterm::style::Color,
     minimad::{Alignment, Composite},
     termimad::*,
 };
@@ -110,13 +110,13 @@ impl ContentView {
         // entries area
         let mut area = Area::new(0, self.area.top + 3, self.area.width, self.area.height - 3);
         des.set_page_height(area.height as usize);
-        let scrollbar = area.scrollbar(des.scroll as i32, des.listed_entries_count() as i32);
+        let scrollbar = area.scrollbar(des.scroll, des.content_height());
         if scrollbar.is_some() {
             area.width -= 1;
         }
         let name_width_u16 = (area.width / 3).min(30);
         let name_width = name_width_u16 as usize; // I must change termimad to use only usize
-        let value_left = name_width + 2;
+        let value_left = name_width + 2; // 1 for selection mark, one for '|'
         let value_width = area.width as usize - value_left;
         let tbl_style = self.skin.tbl_style(false);
         let normal_style = self.skin.txt_style(false);
@@ -124,7 +124,8 @@ impl ContentView {
         self.go_to_line(w, 1)?;
         tbl_style.queue_str(w, &"─".repeat(name_width + 1))?;
         tbl_style.queue_str(w, "┬")?;
-        tbl_style.queue_str(w, &"─".repeat(value_width + 1))?;
+        let value_header_width = if scrollbar.is_some() { value_width + 1 } else { value_width };
+        tbl_style.queue_str(w, &"─".repeat(value_header_width))?;
         self.go_to_line(w, 2)?;
         if des.focus.is_search() {
             normal_style.queue_str(w, "/")?;
@@ -157,13 +158,23 @@ impl ContentView {
         tbl_style.queue_str(w, "┼")?;
         tbl_style.queue_str(w, &"─".repeat(value_width + 1))?;
         // -- entries
+        let scrollbar_style = match &des.focus {
+            DrawerFocus::NameEdit { .. } | DrawerFocus::ValueEdit { .. } => {
+                &self.skin.unsel_scrollbar
+            }
+            _ => &self.skin.md.scrollbar
+        };
+        let value_height_addition = des.value_height_addition();
         let mut line = des.scroll;
-        for iy in 0..area.height {
-            let y = iy + area.top;
-            w.queue(SetBackgroundColor(self.skin.bg))?;
+        let mut empty_lines = 0;
+        for y in area.top..=area.bottom() {
             self.go_to_line(w, y)?;
-            self.clear_line(w)?;
-            if let Some((idx, name_match)) = des.listed_entry(line) {
+            if empty_lines > 0 {
+                SPACE_FILLING.queue_styled(w, tbl_style, name_width + 1)?;
+                tbl_style.queue_str(w, "│")?;
+                empty_lines -= 1;
+                // we skip the value area, to not overwrite it
+            } else if let Some((idx, name_match)) = des.listed_entry(line) {
                 let entry = &des.drawer.entries[idx];
                 let is_best = des.has_best_search(line);
                 let focus = &mut des.focus;
@@ -196,30 +207,52 @@ impl ContentView {
                 tbl_style.queue_str(w, "│")?;
                 // - value field
                 if let Some(input) = focus.value_input(line) {
-                    input.change_area(value_left as u16, y, value_width as u16);
+                    let h = value_height_addition as u16 + 1;
+                    empty_lines = value_height_addition;
+                    let value_area = Area::new(value_left as u16, y, value_width as u16, h);
+                    input.set_area(value_area);
                     input.display_on(w)?;
                 } else if focus.is_value_selected(line) {
-                    self.skin.sel_md.write_composite_fill(
-                        w,
-                        Composite::from_inline(&entry.value),
-                        value_width.into(),
-                        Alignment::Left,
-                    )?;
+                    if value_height_addition > 0 {
+                        // if there are several lines, we adopt the wrapping mode of termimad for
+                        // a prettier result
+                        let h = value_height_addition as u16 + 1;
+                        empty_lines = value_height_addition;
+                        let value_area = Area::new(value_left as u16, y, value_width as u16, h);
+                        let text = self.skin.sel_md.area_text(&entry.value, &value_area);
+                        let mut text_view = TextView::from(&value_area, &text);
+                        text_view.show_scrollbar = true;
+                        text_view.write_on(w)?;
+                    } else {
+                        let first_line = entry.value.split('\n').next().unwrap();
+                        self.skin.sel_md.write_composite_fill(
+                            w,
+                            Composite::from_inline(first_line),
+                            value_width.into(),
+                            Alignment::Left,
+                        )?;
+                    }
                 } else if des.drawer.settings.hide_values {
                     tbl_style.queue_str(w, &"▦".repeat(value_width as usize))?;
                 } else {
+                    let first_line = entry.value.split('\n').next().unwrap();
                     self.skin.md.write_composite_fill(
                         w,
-                        Composite::from_inline(&entry.value),
+                        Composite::from_inline(first_line),
                         value_width.into(),
                         Alignment::Left,
                     )?;
                 }
-                // - scrollbar
-                if is_thumb(y.into(), scrollbar) {
-                    self.skin.md.scrollbar.thumb.queue(w)?;
-                }
                 line += 1;
+            }
+            // - scrollbar
+            self.go_to(w, area.width, y)?;
+            if let Some((stop, sbottom)) = scrollbar {
+                if stop <= y && y <= sbottom {
+                    scrollbar_style.thumb.queue(w)?;
+                } else {
+                    scrollbar_style.track.queue(w)?;
+                }
             }
         }
         Ok(())

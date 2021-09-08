@@ -28,33 +28,3 @@ impl ScrollCommand {
     }
 }
 
-pub fn is_thumb(y: usize, scrollbar: Option<(u16, u16)>) -> bool {
-    scrollbar.map_or(false, |(sctop, scbottom)| {
-        let y = y as u16;
-        sctop <= y && y <= scbottom
-    })
-}
-
-pub fn fix_scroll(
-    scroll: usize,
-    selection: Option<usize>,
-    content_height: usize,
-    page_height: usize,
-) -> usize {
-    if content_height <= page_height {
-        return 0;
-    }
-    let mut scroll = scroll.min(content_height - page_height - 1);
-    if let Some(sel) = selection {
-        if sel < scroll {
-            scroll = if sel > 0 {
-                sel - 1 // show an unselected line if possible
-            } else {
-                0
-            };
-        } else if sel >= scroll + page_height {
-            scroll = sel - page_height + 1;
-        }
-    }
-    scroll
-}

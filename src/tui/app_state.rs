@@ -122,7 +122,6 @@ impl AppState {
 
 
         if let DrawerEdit(des) = &mut self.drawer_state {
-
             // -- pending removal
             if let PendingRemoval { line } = &des.focus {
                 let line = *line;
@@ -214,8 +213,8 @@ impl AppState {
             return Ok(CmdResult::Stay);
         }
 
-        if let DrawerEdit(des) = &mut self.drawer_state {
-            if key == TAB {
+        if key == TAB {
+            if let DrawerEdit(des) = &mut self.drawer_state {
                 if matches!(des.focus, NoneSelected) {
                     // we remove any search
                     des.search.clear();
@@ -249,6 +248,24 @@ impl AppState {
                 }
                 return Ok(CmdResult::Stay);
             }
+        }
+
+        // --- input
+
+        if let Some(input) = self.drawer_state.input() {
+            if input.apply_key_event(key) {
+                if let DrawerEdit(des) = &mut self.drawer_state {
+                    if des.focus.is_search() {
+                        des.search.update(&des.drawer);
+                    }
+                }
+                return Ok(CmdResult::Stay);
+            }
+        }
+
+        // --- navigation among entries
+
+        if let DrawerEdit(des) = &mut self.drawer_state {
             if key == HOME {
                 des.apply_scroll_command(ScrollCommand::Top);
                 return Ok(CmdResult::Stay);
@@ -266,21 +283,6 @@ impl AppState {
                 return Ok(CmdResult::Stay);
             }
         }
-
-        // --- input
-
-        if let Some(input) = self.drawer_state.input() {
-            if input.apply_keycode_event(key.code) {
-                if let DrawerEdit(des) = &mut self.drawer_state {
-                    if des.focus.is_search() {
-                        des.search.update(&des.drawer);
-                    }
-                }
-                return Ok(CmdResult::Stay);
-            }
-        }
-
-        // --- navigation among entries
 
         if key == INSERT || as_letter(key) == Some('i') {
             if let DrawerEdit(des) = &mut self.drawer_state {

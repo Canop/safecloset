@@ -53,10 +53,10 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 
 # Features not yet implemented
 
-- multi-line values
 - help page with all keyboard shortcuts
-- copy-paste (not yet sure it's a good idea to allow copying from safecloset, though)
+- pasting (I don't think it would be a good idea to allow copying from safecloset)
 - mouse selection
+- password change
 
 # Implementation details
 

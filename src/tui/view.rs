@@ -2,7 +2,7 @@ use {
     super::*,
     crate::error::SafeClosetError,
     crossterm::{
-        cursor, execute,
+        cursor,
         style::{Color, SetBackgroundColor},
         terminal,
     },
@@ -33,12 +33,12 @@ pub trait View: Default {
     ) -> Result<(), SafeClosetError>;
 
     fn go_to(&self, w: &mut W, x: u16, y: u16) -> Result<(), SafeClosetError> {
-        execute!(w, cursor::MoveTo(x, y))?;
+        w.queue(cursor::MoveTo(x, y))?;
         Ok(())
     }
 
     fn go_to_line(&self, w: &mut W, y: u16) -> Result<(), SafeClosetError> {
-        execute!(w, cursor::MoveTo(self.get_area().left, y))?;
+        w.queue(cursor::MoveTo(self.get_area().left, y))?;
         Ok(())
     }
 
@@ -55,7 +55,7 @@ pub trait View: Default {
 
     /// Clear from the cursor to end of line, whatever the area
     fn clear_line(&self, w: &mut W) -> Result<(), SafeClosetError> {
-        execute!(w, terminal::Clear(terminal::ClearType::UntilNewLine))?;
+        w.queue(terminal::Clear(terminal::ClearType::UntilNewLine))?;
         Ok(())
     }
 }

@@ -63,9 +63,7 @@ pub fn run(
     let mut w = writer();
     w.queue(EnterAlternateScreen)?;
     w.queue(cursor::Hide)?;
-    debug!("TUI starts");
     let r = app::run(&mut w, closet, hide_values);
-    debug!("TUI ends");
     w.queue(cursor::Show)?;
     w.queue(LeaveAlternateScreen)?;
     w.flush()?;
