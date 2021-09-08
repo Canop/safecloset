@@ -42,6 +42,7 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 * SafeCloset can't be queryied by other applications, like browsers. This is a feature.
 * You may have all your secrets in one file easy to keep with you and backup
 * No company can die and lose your secrets: you keep everything, with as many copies as necessary, where you want
+* No company can be forced to add some secret stealing code: SafeCloset is small, open-source and repleacable
 * Fast and convenient to use
 * Cross-platform because you don't know where you'll have to use your closet
 * "I'm being watched" mode in which unselected values are hidden. This mode is kept per drawer, and always activated when you launch SafeCloset with the `--hide` option
@@ -58,19 +59,12 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 - mouse selection
 - password change
 
-# Implementation details
-
-Drawer data are serialized in MessagePack before being encrypted with AES-GCM-SIV.
-
-MessagePack, being used with named fields, allows for the later addition of fields while keeping the compatibility with previous closet files.
-
-The key used for this encryption is a 32 bytes Argon2 hash of the password with a closet specific salt.
-
 # Keyboard actions
 
 * <kbd>o</kbd> : Open a drawer
 * <kbd>n</kbd> : Create a drawer (when none is open) or create a drawer entry
-* <kbd>/</kbd> : Start searching the current drawer
+* <kbd>/</kbd> : Start searching the current drawer (do <kbd>enter</kbd> or use the down or up arrow key to freeze it)
+* <kbd>/</kbd> then <kbd>esc</kbd> : Removes the current filtering
 * <kbd>esc</kbd> : Cancel current field edition
 * <kbd>tab</kbd> : Create a new entry or edit the value if you're already editing an entry's name
 * arrow keys: Move selection, selecting either an entry name or a value
@@ -88,3 +82,37 @@ The key used for this encryption is a 32 bytes Argon2 hash of the password with 
 1. Backup your closet files. They're not readable as long as your passphrases can't be guessed so you don't have to hide those files and it's most important to not lose them.
 1. Use hard to guess passphrases, but ones that you can remember for a very long time.
 1. You may keep the executables of all OS on your USB keys, so that you can read your secrets everywhere.
+
+# Storage format
+
+The closet file is a [MessagePack](https://msgpack.org/index.html) encoded structure with the following fields:
+
+* `salt`: a string
+* `drawers`: an array of `ClosedDrawer`
+
+The MessagePack serialization preserves field names and allows future additions.
+
+An instance of `ClosedDrawer` is a structure with the following fields:
+
+* `nonce`: a byte array
+* `content`: a byte array
+
+The `content` is the AES-GCM-SIV encryption of the serializied drawer with the included `nonce`.
+The key used for this encryption is a 256 bits Argon2 hash of the password with the closet's salt.
+
+The serialized drawer is a MessagePack encoded structure with the following fields:
+
+* `check_id`: a string: the closet's salt, used for consistency check
+* `entries`: an array of `Entry`
+* `settings`: an instance of `DrawerSettings`
+* `garbage`: a random byte array
+
+Instances of `Entry` contain the following fields:
+
+* `name`: a string
+* `value`: a string
+
+Instances of `DrawerSettings` contain for now just one optional field:
+
+* `hide_values`: a boolean
+
