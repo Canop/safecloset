@@ -18,7 +18,7 @@ pub struct ContentView {
 impl Default for ContentView {
     fn default() -> Self {
         Self {
-            area: Area::uninitialized(),
+            area: Area::default(),
             skin: ContentSkin::new(),
         }
     }
@@ -108,16 +108,12 @@ impl ContentView {
             return Ok(());
         }
         // entries area
-        let mut area = Area::new(0, self.area.top + 3, self.area.width, self.area.height - 3);
-        des.set_page_height(area.height as usize);
-        let scrollbar = area.scrollbar(des.scroll, des.content_height());
-        if scrollbar.is_some() {
-            area.width -= 1;
-        }
-        let name_width_u16 = (area.width / 3).min(30);
-        let name_width = name_width_u16 as usize; // I must change termimad to use only usize
+        des.update_drawing_layout(&self.area);
+        let layout = des.layout();
+        let scrollbar = des.scrollbar();
+        let name_width = layout.name_width as usize;
         let value_left = name_width + 2; // 1 for selection mark, one for '|'
-        let value_width = area.width as usize - value_left;
+        let value_width = layout.lines_area.width as usize - value_left;
         let tbl_style = self.skin.tbl_style(false);
         let normal_style = self.skin.txt_style(false);
         // -- header
@@ -129,7 +125,7 @@ impl ContentView {
         self.go_to_line(w, 2)?;
         if des.focus.is_search() {
             normal_style.queue_str(w, "/")?;
-            des.search.input.change_area(1, 2, name_width_u16);
+            des.search.input.change_area(1, 2, layout.name_width);
             des.search.input.display_on(w)?;
         } else if des.search.has_content() {
             normal_style.queue_str(w, "/")?;
@@ -164,9 +160,9 @@ impl ContentView {
             }
             _ => &self.skin.md.scrollbar
         };
-        let value_height_addition = des.value_height_addition();
         let mut line = des.scroll;
         let mut empty_lines = 0;
+        let area = &layout.lines_area;
         for y in area.top..=area.bottom() {
             self.go_to_line(w, y)?;
             if empty_lines > 0 {
@@ -188,7 +184,7 @@ impl ContentView {
                 }
                 // - name field
                 if let Some(input) = focus.name_input(line) {
-                    input.change_area(1, y, name_width_u16);
+                    input.change_area(1, y, layout.name_width);
                     input.display_on(w)?;
                 } else {
                     let mut cw = CropWriter::new(w, name_width);
@@ -207,17 +203,17 @@ impl ContentView {
                 tbl_style.queue_str(w, "│")?;
                 // - value field
                 if let Some(input) = focus.value_input(line) {
-                    let h = value_height_addition as u16 + 1;
-                    empty_lines = value_height_addition;
+                    let h = layout.value_height_addition as u16 + 1;
+                    empty_lines = layout.value_height_addition;
                     let value_area = Area::new(value_left as u16, y, value_width as u16, h);
                     input.set_area(value_area);
                     input.display_on(w)?;
                 } else if focus.is_value_selected(line) {
-                    if value_height_addition > 0 {
+                    if layout.value_height_addition > 0 {
                         // if there are several lines, we adopt the wrapping mode of termimad for
                         // a prettier result
-                        let h = value_height_addition as u16 + 1;
-                        empty_lines = value_height_addition;
+                        let h = layout.value_height_addition as u16 + 1;
+                        empty_lines = layout.value_height_addition;
                         let value_area = Area::new(value_left as u16, y, value_width as u16, h);
                         let text = self.skin.sel_md.area_text(&entry.value, &value_area);
                         let mut text_view = TextView::from(&value_area, &text);
@@ -246,8 +242,8 @@ impl ContentView {
                 line += 1;
             }
             // - scrollbar
-            self.go_to(w, area.width, y)?;
             if let Some((stop, sbottom)) = scrollbar {
+                self.go_to(w, area.width, y)?;
                 if stop <= y && y <= sbottom {
                     scrollbar_style.thumb.queue(w)?;
                 } else {

@@ -5,7 +5,7 @@ use {
         error::SafeClosetError,
         search::*,
     },
-    termimad::InputField,
+    termimad::{Area, InputField},
 };
 
 /// State of the application when a drawer is open.
@@ -14,10 +14,10 @@ use {
 pub struct DrawerEditState {
     pub drawer: OpenDrawer,
     pub scroll: usize, // number of lines hidden above the top of the view
-    pub page_height: Option<usize>, // number of lines which can be seen
     pub focus: DrawerFocus,
     edit_count: usize, // a counter to know whether the drawer changed
     pub search: SearchState,
+    layout: DrawerDrawingLayout,
 }
 
 impl From<OpenDrawer> for DrawerEditState {
@@ -25,37 +25,73 @@ impl From<OpenDrawer> for DrawerEditState {
         Self {
             drawer,
             scroll: 0,
-            page_height: None,
             focus: DrawerFocus::NoneSelected,
             edit_count: 0,
             search: SearchState::default(),
+            layout: DrawerDrawingLayout::default(),
         }
     }
 }
 
 impl DrawerEditState {
 
+    /// change the drawer drawing layout to adapt to the
+    /// content area in which it will be
+    pub fn update_drawing_layout(
+        &mut self,
+        content_area: &Area,
+    ) {
+        debug_assert!(content_area.height > 3);
+        self.layout.lines_area.left = 0;
+        self.layout.lines_area.top = content_area.top + 3;
+        let page_height = content_area.height - 3;
+        self.layout.lines_area.width = content_area.width;
+        self.layout.lines_area.height = page_height;
+        self.layout.name_width = (self.layout.lines_area.width / 3).min(30);
+        self.layout.value_height_addition = match &self.focus {
+            DrawerFocus::ValueSelected { line } => {
+                self.listed_entry_idx(*line).map_or(0, |idx| {
+                    self.drawer.entries[idx]
+                        .value
+                        .chars()
+                        .filter(|&c| c == '\n')
+                        .count()
+                        .min(page_height as usize - 4)
+                })
+            }
+            DrawerFocus::ValueEdit { input, .. } => {
+                input.content().line_count().min(page_height as usize - 4) - 1
+            }
+            _ => 0,
+        };
+        self.fix_scroll();
+        self.layout.has_scrollbar = self.content_height() > self.page_height();
+    }
+
+    pub fn clicked_line(&self, y: u16) -> Option<usize> {
+        if y >= self.layout.lines_area.top {
+            let line = y as usize + self.scroll - self.layout.lines_area.top as usize;
+            if line < self.content_height() {
+                return Some(line);
+            }
+        }
+        None
+    }
+
+    pub fn scrollbar(&self) -> Option<(u16, u16)> {
+        self.layout.lines_area.scrollbar(self.scroll, self.content_height())
+    }
+    fn page_height(&self) -> usize {
+        self.layout.lines_area.height as usize
+    }
+    pub fn layout(&self) -> DrawerDrawingLayout {
+        self.layout.clone()
+    }
+
     /// Give the additional height of the selected line due to
     /// a selected value being several lines
     pub fn value_height_addition(&self) -> usize {
-        self.page_height.map_or(0, |page_height| {
-                match &self.focus {
-                    DrawerFocus::ValueSelected { line } => {
-                        self.listed_entry_idx(*line).map_or(0, |idx| {
-                            self.drawer.entries[idx]
-                                .value
-                                .chars()
-                                .filter(|&c| c == '\n')
-                                .count()
-                                .min(page_height - 4)
-                        })
-                    }
-                    DrawerFocus::ValueEdit { input, .. } => {
-                        input.content().line_count().min(page_height - 4) - 1
-                    }
-                    _ => 0,
-                }
-            })
+        self.layout.value_height_addition
     }
     pub fn listed_entry_idx(&self, line: usize) -> Option<usize> {
         if let Some(search_result) = &self.search.result {
@@ -118,30 +154,25 @@ impl DrawerEditState {
     /// It's not necessary to call this other than from set_page_height
     /// (which is called before all drawings).
     fn fix_scroll(&mut self) {
-        if let Some(page_height) = self.page_height {
-            let value_height_addition = self.value_height_addition();
-            let content_height = self.listed_entries_count() + value_height_addition;
-            if content_height <= page_height {
+        let value_height_addition = self.value_height_addition();
+        let content_height = self.listed_entries_count() + value_height_addition;
+        let page_height = self.page_height();
+        if content_height <= page_height {
+            self.scroll = 0;
+        } else if let Some(selection) = self.focus.line() {
+            if selection < 2 {
                 self.scroll = 0;
-            } else if let Some(selection) = self.focus.line() {
-                if selection < 2 {
-                    self.scroll = 0;
-                } else if self.scroll + 1 >= selection {
-                    self.scroll = selection - 1;
-                } else {
-                    // TODO drink more coffee
-                    while selection + value_height_addition + 1 >= self.scroll + page_height {
-                        self.scroll += 1;
-                    }
+            } else if self.scroll + 1 >= selection {
+                self.scroll = selection - 1;
+            } else {
+                // TODO drink more coffee
+                while selection + value_height_addition + 1 >= self.scroll + page_height {
+                    self.scroll += 1;
                 }
-            } else if self.scroll + page_height > content_height {
-                self.scroll = content_height - page_height;
             }
+        } else if self.scroll + page_height > content_height {
+            self.scroll = content_height - page_height;
         }
-    }
-    pub fn set_page_height(&mut self, page_height: usize) {
-        self.page_height = Some(page_height);
-        self.fix_scroll();
     }
     /// Save the drawer, which closes it, then reopen it, keeping the
     /// same state around (scroll and selection)
@@ -149,19 +180,19 @@ impl DrawerEditState {
         let DrawerEditState {
             drawer,
             scroll,
-            page_height,
             focus,
             search,
+            layout,
             ..
         } = self;
         let drawer = closet.close_then_reopen(drawer)?;
         Ok(DrawerEditState {
             drawer,
             scroll,
-            page_height,
             focus,
             search,
             edit_count: 0,
+            layout,
         })
     }
     pub fn edit_entry_name_by_line(&mut self, line: usize) {
@@ -182,9 +213,7 @@ impl DrawerEditState {
         }
     }
     pub fn apply_scroll_command(&mut self, scroll_command: ScrollCommand) {
-        if let Some(page_height) = self.page_height {
-            self.scroll = scroll_command.apply(self.scroll, self.listed_entries_count(), page_height);
-        }
+        self.scroll = scroll_command.apply(self.scroll, self.listed_entries_count(), self.page_height());
     }
     pub fn close_input(&mut self, discard: bool) -> bool {
         if let DrawerFocus::NameEdit { line, input } = &self.focus {

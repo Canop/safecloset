@@ -5,6 +5,7 @@ use {
         error::SafeClosetError,
         timer::Timer,
     },
+    crossterm::event::KeyModifiers,
     crossbeam::select,
     std::time::Duration,
     termimad::{Area, Event, EventSource},
@@ -43,6 +44,11 @@ pub(super) fn run(
                             debug!("user requests quit");
                             quit = true;
                         }
+                        timer.reset();
+                    }
+                    Event::Click(x, y, KeyModifiers::NONE) => {
+                        state.on_click(x, y)?;
+                        timer.reset();
                     }
                     _ => {}
                 }
@@ -50,7 +56,6 @@ pub(super) fn run(
                 if quit {
                     break;
                 }
-                timer.reset();
                 view.draw(w, &mut state)?;
             }
 

@@ -1,4 +1,8 @@
 ### next
+- mouse support in inputs and for cell selection
+
+<a name="v0.1.3"></a>
+### v0.1.3 - 2021-09-08
 - quit on inactivity
 - swap entries with ctrl-up and ctrl-down
 - multi-line values

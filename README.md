@@ -37,13 +37,14 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 * No clear file is ever created, edition is done directly in the TUI (external editors are usually the weakest point)
 * No clear data is ever given to any external library, widget, etc.
 * All data is viewed and edited in the TUI application
-* You can compile SafeCloset yourself. Its code is small and auditable and 100% in Rust
+* You can compile SafeCloset yourself. Its code is small and auditable
+* The code is 100% in Rust. I wouldn't trust anything else today for such a program
 * The format of the closet file is described so that another application could be written to decode your closet files in the future (assuming you have the password)
 * SafeCloset can't be queryied by other applications, like browsers. This is a feature.
 * You may have all your secrets in one file easy to keep with you and backup
 * No company can die and lose your secrets: you keep everything, with as many copies as necessary, where you want
 * No company can be forced to add some secret stealing code: SafeCloset is small, open-source and repleacable
-* Fast and convenient to use
+* Fast and convenient to use - This is where the focus of the design was
 * Cross-platform because you don't know where you'll have to use your closet
 * "I'm being watched" mode in which unselected values are hidden. This mode is kept per drawer, and always activated when you launch SafeCloset with the `--hide` option
 
@@ -54,9 +55,9 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 
 # Features not yet implemented
 
+- sub-drawers
 - help page with all keyboard shortcuts
 - pasting (I don't think it would be a good idea to allow copying from safecloset)
-- mouse selection
 - password change
 
 # Keyboard actions
@@ -69,11 +70,12 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 * <kbd>tab</kbd> : Create a new entry or edit the value if you're already editing an entry's name
 * arrow keys: Move selection, selecting either an entry name or a value
 * <kbd>i</kbd> or <kbd>insert</kbd> : Start editing the selected name or value
-* <kbd>d</kbd> : Remove the selected entry
-* <kbd>ctrl</kbd><kbd>q</kbd> : Quit without saving
+* <kbd>d</kbd> : Remove the selected entry (with confirmation)
+* <kbd>ctrl</kbd><kbd>q</kbd> : Quit without saving (with no confirmation)
 * <kbd>ctrl</kbd><kbd>s</kbd> : Save
 * <kbd>ctrl</kbd><kbd>x</kbd> : Save then quit
 * <kbd>Enter</kbd> : Validate the current edition
+* <kbd>alt</kbd>-<kbd>Enter</kbd> : New line in the currently edited value
 
 # Advices
 

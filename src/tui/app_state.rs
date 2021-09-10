@@ -54,6 +54,36 @@ impl AppState {
         Ok(())
     }
 
+    /// Handle a click event
+    pub fn on_click(&mut self, x: u16, y: u16)-> Result<(), SafeClosetError> {
+
+        // TODO handle click in search input location
+
+        if let Some(input) = self.drawer_state.input() {
+            if input.apply_click_event(x, y) {
+                return Ok(());
+            } else if let DrawerState::DrawerEdit(des) = &mut self.drawer_state {
+                // unfocusing the input, validating it
+                debug!("unfocusing des input");
+                des.focus = DrawerFocus::NoneSelected;
+            }
+        }
+
+        if let DrawerState::DrawerEdit(des) = &mut self.drawer_state {
+            if let Some(clicked_line) = des.clicked_line(y) {
+                use DrawerFocus::*;
+                let in_name = des.layout().is_in_name_column(x);
+                des.focus = if in_name {
+                    NameSelected { line: clicked_line }
+                } else {
+                    ValueSelected { line: clicked_line }
+                };
+            }
+        }
+
+        Ok(())
+    }
+
     /// Handle a key event
     pub fn on_key(&mut self, key: KeyEvent) -> Result<CmdResult, SafeClosetError> {
         use {

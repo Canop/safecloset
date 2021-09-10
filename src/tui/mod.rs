@@ -3,6 +3,7 @@ mod cmd_result;
 mod content_skin;
 mod content_view;
 mod drawer_state;
+mod drawer_drawing_layout;
 mod drawer_edit_state;
 mod drawer_focus;
 mod global_view;
@@ -22,7 +23,8 @@ use {
         error::SafeClosetError,
     },
     crossterm::{
-        self, cursor,
+        cursor,
+        event::{DisableMouseCapture, EnableMouseCapture},
         terminal::{EnterAlternateScreen, LeaveAlternateScreen},
         QueueableCommand,
     },
@@ -35,6 +37,7 @@ pub(crate) use {
     content_skin::*,
     content_view::*,
     drawer_state::*,
+    drawer_drawing_layout::*,
     drawer_edit_state::*,
     drawer_focus::*,
     global_view::*,
@@ -63,7 +66,9 @@ pub fn run(
     let mut w = writer();
     w.queue(EnterAlternateScreen)?;
     w.queue(cursor::Hide)?;
+    w.queue(EnableMouseCapture)?;
     let r = app::run(&mut w, closet, hide_values);
+    w.queue(DisableMouseCapture)?;
     w.queue(cursor::Show)?;
     w.queue(LeaveAlternateScreen)?;
     w.flush()?;
