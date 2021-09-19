@@ -1,5 +1,6 @@
 use {
     super::*,
+    crate::core::OpenDrawer,
     termimad::InputField,
 };
 
@@ -11,6 +12,7 @@ pub enum DrawerState {
     DrawerEdit(DrawerEditState),
 }
 
+
 impl Default for DrawerState {
     fn default() -> Self {
         Self::NoneOpen
@@ -18,6 +20,14 @@ impl Default for DrawerState {
 }
 
 impl DrawerState {
+
+    pub fn edit(drawer: OpenDrawer) -> Self {
+        Self::DrawerEdit(DrawerEditState::from(drawer))
+    }
+    #[allow(dead_code)]
+    pub fn is_edit(&self) -> bool {
+        matches!(self, DrawerState::DrawerEdit(_))
+    }
     pub fn input(&mut self) -> Option<&mut InputField> {
         match self {
             Self::DrawerCreation(PasswordInputState { input }) => Some(input),

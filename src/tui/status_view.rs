@@ -46,7 +46,7 @@ impl StatusView {
             if des.touched() {
                 hints.push("Hit *^q* to quit, *^s* to save, *^x* to save and quit");
             }
-            if !des.drawer.entries.is_empty() {
+            if !des.drawer.content.entries.is_empty() {
                 if matches!(des.focus, DrawerFocus::NameSelected{..}|DrawerFocus::ValueSelected{..}) {
                     hints.push("Hit *^q* to quit, *i* to edit the selected cell");
                 }

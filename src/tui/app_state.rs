@@ -8,20 +8,23 @@ use {
 ///
 /// Needs a closet
 pub struct AppState {
-    pub closet: Closet,
+    pub open_closet: OpenCloset,
     pub drawer_state: DrawerState,
     pub error: Option<String>,
     pub hide_values: bool,
+    // number of drawers created during this session
+    pub created_drawers: usize,
 }
 
 impl AppState {
 
-    pub fn new(closet: Closet, hide_values: bool) -> Self {
+    pub fn new(open_closet: OpenCloset, hide_values: bool) -> Self {
         Self {
-            closet,
+            open_closet,
             drawer_state: DrawerState::NoneOpen,
             error: None,
             hide_values,
+            created_drawers: 0,
         }
     }
 
@@ -44,13 +47,13 @@ impl AppState {
         if let DrawerState::DrawerEdit(des) = drawer_state {
             if reopen_if_open {
                 self.drawer_state = DrawerState::DrawerEdit(
-                    time!(des.close_and_reopen(&mut self.closet)?)
+                    time!(des.save_and_reopen(&mut self.open_closet)?)
                 );
             } else {
-                time!(self.closet.close_drawer(des.drawer)?);
+                time!(self.open_closet.push_back(des.drawer)?);
+                time!(self.open_closet.close_and_save())?;
             }
         }
-        self.closet.save()?;
         Ok(())
     }
 
@@ -84,6 +87,17 @@ impl AppState {
         Ok(())
     }
 
+    /// push back the open drawer, if any, and set the drawer_state to NoneOpen
+    fn push_back_drawer(&mut self) -> Result<(), SafeClosetError> {
+        self.close_drawer_input(true);
+        // if there's an edited drawer, we push it back to the closet
+        let drawer_state = std::mem::take(&mut self.drawer_state);
+        if let DrawerState::DrawerEdit(DrawerEditState { drawer, .. }) = drawer_state {
+            self.open_closet.push_back(drawer)?;
+        }
+        Ok(())
+    }
+
     /// Handle a key event
     pub fn on_key(&mut self, key: KeyEvent) -> Result<CmdResult, SafeClosetError> {
         use {
@@ -91,6 +105,25 @@ impl AppState {
             DrawerState::*,
         };
         self.error = None;
+
+        if key == CONTROL_C { // close drawer (no save)
+            // we're not repushing the drawer, so we're effectively
+            // going up in the closet
+            self.drawer_state = DrawerState::NoneOpen;
+            return Ok(CmdResult::Stay);
+        }
+
+        if key == CONTROL_N { // new drawer
+            self.push_back_drawer()?;
+            self.drawer_state = DrawerCreation(PasswordInputState::new(false));
+            return Ok(CmdResult::Stay);
+        }
+
+        if key == CONTROL_O { // open drawer
+            self.push_back_drawer()?;
+            self.drawer_state = DrawerOpening(PasswordInputState::new(true));
+            return Ok(CmdResult::Stay);
+        }
 
         if key == CONTROL_Q {
             debug!("user requests quit");
@@ -112,16 +145,17 @@ impl AppState {
         if key == CONTROL_UP { // moving the selected line up
             if let DrawerEdit(des) = &mut self.drawer_state {
                 des.close_input(false);
-                let len = des.drawer.entries.len();
+                let entries = &mut des.drawer.content.entries;
+                let len = entries.len();
                 match des.focus {
                     NameSelected { line } => {
                         let new_line = (line + len - 1) % len;
-                        des.drawer.entries.swap(line, new_line);
+                        entries.swap(line, new_line);
                         des.focus = NameSelected { line: new_line };
                     }
                     ValueSelected { line } => {
                         let new_line = (line + len - 1) % len;
-                        des.drawer.entries.swap(line, new_line);
+                        entries.swap(line, new_line);
                         des.focus = ValueSelected { line: new_line };
                     }
                     _ => {}
@@ -132,16 +166,17 @@ impl AppState {
         if key == CONTROL_DOWN { // moving the selected line down
             if let DrawerEdit(des) = &mut self.drawer_state {
                 des.close_input(false);
-                let len = des.drawer.entries.len();
+                let entries = &mut des.drawer.content.entries;
+                let len = entries.len();
                 match des.focus {
                     NameSelected { line } => {
                         let new_line = (line + 1) % len;
-                        des.drawer.entries.swap(line, new_line);
+                        entries.swap(line, new_line);
                         des.focus = NameSelected { line: new_line };
                     }
                     ValueSelected { line } => {
                         let new_line = (line + 1) % len;
-                        des.drawer.entries.swap(line, new_line);
+                        entries.swap(line, new_line);
                         des.focus = ValueSelected { line: new_line };
                     }
                     _ => {}
@@ -159,7 +194,7 @@ impl AppState {
                     // we either confirm (delete) or cancel removal
                     if as_letter(key) == Some('y') {
                         info!("user requests entry removal");
-                        des.drawer.entries.remove(idx);
+                        des.drawer.content.entries.remove(idx);
                         des.focus = if line > 0 {
                             NameSelected { line }
                         } else {
@@ -182,7 +217,7 @@ impl AppState {
                 return Ok(CmdResult::Stay);
             }
             if let DrawerEdit(des) = &mut self.drawer_state {
-                des.drawer.settings.hide_values ^= true;
+                des.drawer.content.settings.hide_values ^= true;
                 return Ok(CmdResult::Stay);
             }
         }
@@ -193,20 +228,11 @@ impl AppState {
             self.close_drawer_input(false); // if there's an entry input
             if let DrawerCreation(PasswordInputState { input }) = &mut self.drawer_state {
                 let pwd = input.get_content();
-                let creation = time!(self.closet.create_drawer(&pwd));
-                let open_drawer = creation
-                    .map_err(|e| e.into())
-                    .and_then(|_| {
-                        time!(self.closet.open_drawer(&pwd))
-                            .ok_or_else(|| {
-                                SafeClosetError::Internal(
-                                    "unexpected failure opening drawer".to_string(),
-                                )
-                            })
-                    });
+                let open_drawer = time!(self.open_closet.create_take_drawer(&pwd));
                 match open_drawer {
                     Ok(open_drawer) => {
-                        self.drawer_state = DrawerEdit(DrawerEditState::from(open_drawer));
+                        self.drawer_state = DrawerState::edit(open_drawer);
+                        self.created_drawers += 1;
                     }
                     Err(e) => {
                         warn!("error in drawer creation: {}", e);
@@ -215,13 +241,13 @@ impl AppState {
                 }
             } else if let DrawerOpening(PasswordInputState { input }) = &mut self.drawer_state {
                 let pwd = input.get_content();
-                let open_drawer = self.closet.open_drawer(&pwd);
+                let open_drawer = self.open_closet.open_take_drawer(&pwd);
                 match open_drawer {
                     Some(mut open_drawer) => {
                         if self.hide_values {
-                            open_drawer.settings.hide_values = true;
+                            open_drawer.content.settings.hide_values = true;
                         }
-                        self.drawer_state = DrawerEdit(DrawerEditState::from(open_drawer));
+                        self.drawer_state = DrawerState::edit(open_drawer);
                     }
                     None => {
                         warn!("no drawer can be opened with this passphrase");
@@ -248,7 +274,7 @@ impl AppState {
                 if matches!(des.focus, NoneSelected) {
                     // we remove any search
                     des.search.clear();
-                    let idx = des.drawer.empty_entry();
+                    let idx = des.drawer.content.empty_entry();
                     des.edit_entry_name_by_line(idx); // as there's no filtering, idx==line
                 } else if let NameSelected { line } = &des.focus {
                     let line = *line;
@@ -261,7 +287,7 @@ impl AppState {
                     let line = *line;
                     if des.listed_entries_count() == line + 1 {
                         // last listed entry
-                        if des.drawer.entries[line].is_empty() {
+                        if des.drawer.content.entries[line].is_empty() {
                             // if the current entry is empty, we don't create a new one
                             // but go back to the current (empty) entry name
                             des.edit_entry_name_by_line(line);
@@ -269,8 +295,8 @@ impl AppState {
                             // we create a new entry and start edit it
                             // but we must ensure there's no search which could filter it
                             des.search.clear();
-                            des.drawer.entries.push(Entry::default());
-                            des.edit_entry_name_by_line(des.drawer.entries.len() - 1);
+                            des.drawer.content.entries.push(Entry::default());
+                            des.edit_entry_name_by_line(des.drawer.content.entries.len() - 1);
                         }
                     } else {
                         des.edit_entry_name_by_line(line + 1);
@@ -424,20 +450,6 @@ impl AppState {
         // --- other simple char shortcuts
 
         if let Some(letter) = as_letter(key) {
-            if matches!(self.drawer_state, NoneOpen) {
-                match letter {
-                    'n' => {
-                        // new drawer
-                        self.drawer_state = DrawerCreation(PasswordInputState::new(false));
-                    }
-                    'o' => {
-                        // open drawer
-                        self.drawer_state = DrawerOpening(PasswordInputState::new(true));
-                    }
-                    _ => {}
-                }
-                return Ok(CmdResult::Stay);
-            }
 
             if let DrawerEdit(des) = &mut self.drawer_state {
                 // if we're here, there's no input
@@ -445,7 +457,7 @@ impl AppState {
                     ('n', _) => {
                         // new entry
                         des.search.clear();
-                        let idx = des.drawer.empty_entry();
+                        let idx = des.drawer.content.empty_entry();
                         des.edit_entry_name_by_line(idx);
                     }
                     ('d', Some(line)) => {

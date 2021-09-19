@@ -6,13 +6,13 @@
 [s2]: https://miaou.dystroy.org/static/shields/room.svg
 [l2]: https://miaou.dystroy.org/3768?rust
 
-**SafeCloset** keeps your secrets in password protected files.
+**SafeCloset** keeps your secrets in password protected files. **SafeCloset** is designed to be convenient and avoid common weaknesses like external editing or clear temporary files written on disk.
 
 # Warning
 
 * This is a personal project
 * It hasn't been audited
-* It's not even finished anyway
+* It's not even finished anyway and the closet format isn't frozen yet
 
 SafeCloset comes with **absolutely** no guarantee. And I can do nothing for you if you lose the secrets you stored in SafeCloset.
 
@@ -24,14 +24,17 @@ A closet contains drawers, each one is found and open with its own password.
 
 A drawer contains a list of (key, value). Values are texts in which you can store a code, a password, comments, a poem, some data, etc.
 
+A drawer can also contains deeper crypted drawers.
+
 ![clear drawer](doc/clear-drawer.png)
 
 # Features
 
 * The closet contains several drawers, some of them automatically created with an unknown password so that nobody can determine which drawers you're able to open, or even how many
 * Each drawer is separately crypted with AES-GCM-SIV, with a random one-use nonce and the password/key of your choice. This gives an inherently long to test decrypt algorithm (but you should still use long passphrases for your drawers)
-* You can have one or several drawers with real content. You can be forced to open a drawer at gun point and still keep other drawers secret without any trace
+* You can have one or several drawers with real content. You can be forced to open a drawer at gun point and still keep other drawers secret without any trace, either at the top level or deeper in the drawer you opened
 * When you open a drawer, with its password, you can read it, search it, edit it, close it
+* In an open drawer you can create new drawers, or open deeper drawers if you know their password
 * SafeCloset automatically quits on inactivity
 * The size of the drawer's content isn't observable
 * No clear file is ever created, edition is done directly in the TUI (external editors are usually the weakest point)
@@ -55,15 +58,18 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 
 # Features not yet implemented
 
-- sub-drawers
 - help page with all keyboard shortcuts
 - pasting (I don't think it would be a good idea to allow copying from safecloset)
 - password change
 
 # Keyboard actions
 
-* <kbd>o</kbd> : Open a drawer
-* <kbd>n</kbd> : Create a drawer (when none is open) or create a drawer entry
+* <kbd>ctrl</kbd><kbd>n</kbd> : Create a drawer (in the open drawer, or at root when none is open)
+* <kbd>ctrl</kbd><kbd>o</kbd> : Open a drawer
+* <kbd>ctrl</kbd><kbd>c</kbd> : Close the current drawer, without saving (you're back in the upper level one if you close a deep drawer)
+* <kbd>ctrl</kbd><kbd>s</kbd> : Save the current drawer and all upper drawers
+* <kbd>ctrl</kbd><kbd>x</kbd> : Save then quit
+* <kbd>ctrl</kbd><kbd>q</kbd> : Quit without saving (with no confirmation)
 * <kbd>/</kbd> : Start searching the current drawer (do <kbd>enter</kbd> or use the down or up arrow key to freeze it)
 * <kbd>/</kbd> then <kbd>esc</kbd> : Removes the current filtering
 * <kbd>esc</kbd> : Cancel current field edition
@@ -71,23 +77,22 @@ A drawer contains a list of (key, value). Values are texts in which you can stor
 * arrow keys: Move selection, selecting either an entry name or a value
 * <kbd>i</kbd> or <kbd>insert</kbd> : Start editing the selected name or value
 * <kbd>d</kbd> : Remove the selected entry (with confirmation)
-* <kbd>ctrl</kbd><kbd>q</kbd> : Quit without saving (with no confirmation)
-* <kbd>ctrl</kbd><kbd>s</kbd> : Save
-* <kbd>ctrl</kbd><kbd>x</kbd> : Save then quit
 * <kbd>Enter</kbd> : Validate the current edition
 * <kbd>alt</kbd>-<kbd>Enter</kbd> : New line in the currently edited value
 
 # Advices
 
 1. Use the search to navigate among entries. That's the most efficient solution. It's OK to have thousands of secrets in your drawer.
+1. You may not need deep drawers. They make you open twice, with two passwords, so don't use them without reason.
 1. **Don't use drawers as categories**. They separate audience or security levels and ensure plausible deniability. You're supposed to have one drawer for most of your secrets. Maybe a second one if you have a *very secret* level. Or one with your work secrets that you may open with colleagues nearby. Or one for the family that even the kids can read. This shouldn't be more than 3 or 4 drawers at most.
 1. Backup your closet files. They're not readable as long as your passphrases can't be guessed so you don't have to hide those files and it's most important to not lose them.
 1. Use hard to guess passphrases, but ones that you can remember for a very long time.
 1. You may keep the executables of all OS on your USB keys, so that you can read your secrets everywhere.
 
+
 # Storage format
 
-The closet file is a [MessagePack](https://msgpack.org/index.html) encoded structure with the following fields:
+The closet file is a [MessagePack](https://msgpack.org/index.html) encoded structure `Closet` with the following fields:
 
 * `salt`: a string
 * `drawers`: an array of `ClosedDrawer`
@@ -96,6 +101,7 @@ The MessagePack serialization preserves field names and allows future additions.
 
 An instance of `ClosedDrawer` is a structure with the following fields:
 
+* `id`: a byte array
 * `nonce`: a byte array
 * `content`: a byte array
 
@@ -104,9 +110,10 @@ The key used for this encryption is a 256 bits Argon2 hash of the password with 
 
 The serialized drawer is a MessagePack encoded structure with the following fields:
 
-* `check_id`: a string: the closet's salt, used for consistency check
+* `id`: a byte array
 * `entries`: an array of `Entry`
 * `settings`: an instance of `DrawerSettings`
+* `closet`: a deeper closet, containing drawers, etc.
 * `garbage`: a random byte array
 
 Instances of `Entry` contain the following fields:
@@ -117,4 +124,3 @@ Instances of `Entry` contain the following fields:
 Instances of `DrawerSettings` contain for now just one optional field:
 
 * `hide_values`: a boolean
-

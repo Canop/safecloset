@@ -1,7 +1,7 @@
 use {
     super::*,
     crate::{
-        core::Closet,
+        core::OpenCloset,
         error::SafeClosetError,
         timer::Timer,
     },
@@ -18,10 +18,10 @@ const MAX_INACTIVITY: Duration = Duration::from_secs(45);
 /// The terminal must be already in alternate and raw mode
 pub(super) fn run(
     w: &mut W,
-    closet: Closet,
+    open_closet: OpenCloset,
     hide_values: bool,
 ) -> Result<(), SafeClosetError> {
-    let mut state = AppState::new(closet, hide_values);
+    let mut state = AppState::new(open_closet, hide_values);
     let mut view = GlobalView::default();
     view.set_area(Area::full_screen());
     view.draw(w, &mut state)?;

@@ -82,7 +82,7 @@ impl Timer {
         (Self { pair }, rx_ring)
     }
     fn send(&self, timer_command: TimerCommand) {
-        self.pair.0.lock().unwrap().insert(timer_command);
+        let _ = self.pair.0.lock().unwrap().insert(timer_command);
         self.pair.1.notify_all();
     }
     #[allow(dead_code)]
@@ -106,7 +106,7 @@ mod timer_tests {
         std::time::{Duration, Instant},
     };
 
-    const MARGIN: Duration = Duration::from_millis(10);
+    const MARGIN: Duration = Duration::from_millis(100);
 
     /// check that the uninterrupted timer rings after the required delay
     #[test]

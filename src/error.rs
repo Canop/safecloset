@@ -12,7 +12,4 @@ pub enum SafeClosetError {
 
     #[error("Crossbeam channel error: {0}")]
     Crossbeam(#[from] crossbeam::channel::RecvError),
-
-    #[error("Internal error: {0}")]
-    Internal(String),
 }

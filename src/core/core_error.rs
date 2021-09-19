@@ -22,8 +22,8 @@ pub enum CoreError {
     #[error("Argon2 password hash error: {0}")]
     Argon2(#[from] argon2::Error),
 
-    #[error("Attempt to close a drawer which isn't the last open one")]
-    WrongOpenId,
+    #[error("Unconsistent data")]
+    UnconsistentData,
 
     #[error("Internal error: {0}")]
     InternalError(String),
@@ -31,6 +31,9 @@ pub enum CoreError {
     #[error("Passphrase already used for an existing drawer")]
     PasswordAlreadyUsed,
 
-    #[error("Invalid CheckId in deserialized drawer")]
-    InvalidCheckId,
+    #[error("No open drawer")]
+    NoOpenDrawer,
+
+    #[error("Invalid Push Back")]
+    InvalidPushBack,
 }

@@ -1,43 +1,52 @@
-use super::*;
+use {
+    super::*,
+    aes_gcm_siv::{aead::Aead},
+};
 
-/// An open drawer, with clear content.
+/// An open drawer, with its content and the pass
+/// making it possible to save it on change
 ///
-/// Note that a drawer can't be saved while it's open.
-/// Or more precisely, if you open a drawer, then try
-/// to close it twice, it will fail.
-/// For this reason, an open drawer isn't clonable.
 pub struct OpenDrawer {
-    /// kept so we can reencrypt
+    pub depth: usize,
     pub(super) password: String,
+    pub content: DrawerContent,
+}
 
-    /// the index of the drawer among current drawer
-    /// (makes sense only for this session as we'll scramble
-    /// drawers on save)
-    pub(super) drawer_idx: usize,
-
-    /// the clear content
-    pub entries: Vec<Entry>,
-
-    /// user settings related to that drawer
-    pub settings: DrawerSettings,
-
-    /// an id preventing some internal API misuses
-    /// (that a drawer isn't closed twice without
-    /// reopening in between, for example)
-    pub(super) open_id: usize,
+impl Identified for OpenDrawer {
+    fn get_id(&self) -> &DrawerId {
+        self.content.get_id()
+    }
 }
 
 impl OpenDrawer {
-    /// Return the index of the first empty entry, creating
-    /// it if necessary
-    pub fn empty_entry(&mut self) -> usize {
-        for (idx, entry) in self.entries.iter().enumerate() {
-            if entry.is_empty() {
-                return idx;
-            }
-        }
-        self.entries.push(Entry::default());
-        self.entries.len() - 1
+
+    pub(crate) fn new(
+        depth: usize,
+        password: String,
+        content: DrawerContent,
+    ) -> Self {
+        Self { depth, password, content }
+    }
+
+    /// change the drawer_content into a closed_drawer
+    pub(crate) fn close(
+        &self,
+        closet: &Closet,
+    ) -> Result<ClosedDrawer, CoreError> {
+        let cipher = closet.cipher(&self.password)?;
+        let serialized_content = rmp_serde::encode::to_vec_named(&self.content)?;
+        let nonce = random_nonce();
+        let crypted_content = cipher
+            .encrypt(&nonce, &*serialized_content)
+            .map_err(|_| CoreError::Aead)?;
+        let nonce = nonce.as_slice().into();
+        let id = self.content.id.clone();
+        Ok(ClosedDrawer::new(
+            id,
+            nonce,
+            crypted_content.into_boxed_slice(),
+        ))
+
     }
 }
 

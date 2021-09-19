@@ -8,6 +8,13 @@ pub struct Entry {
 }
 
 impl Entry {
+    #[allow(dead_code)]
+    pub fn new<N: Into<String>, V: Into<String>>(name: N, value: V) -> Self {
+        Self {
+            name: name.into(),
+            value: value.into(),
+        }
+    }
     pub fn is_empty(&self) -> bool {
         self.name.is_empty() && self.value.is_empty()
     }

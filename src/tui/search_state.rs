@@ -45,7 +45,7 @@ impl SearchState {
             debug!("searching on pattern {:?}", &pattern);
             let mut entries: Vec<MatchingEntry> = Vec::new();
             let mut best_line: Option<usize> = None;
-            for (idx, entry) in drawer.entries.iter().enumerate() {
+            for (idx, entry) in drawer.content.entries.iter().enumerate() {
                 if let Some(name_match) = pattern.find(&entry.name) {
                     if let Some(i) = best_line {
                         if entries[i].name_match.score < name_match.score {

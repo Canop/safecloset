@@ -24,19 +24,28 @@ impl Default for ContentView {
     }
 }
 
-static MD_NO_DRAWER_OPEN: &str = r#"
-Hit *n* to create a new drawer.
+static MD_NEW_CLOSET: &str = r#"
+This is a new closet.
 
-Hit *o* to open an existing one.
+To store secrets, you must create at least a drawer.
+
+This is done with the *^n* key combination (*control-n*).
+"#;
+
+static MD_NO_DRAWER_OPEN: &str = r#"
+Hit *^n* to create a new drawer.
+
+Hit *^o* to open an existing one.
 "#;
 
 static MD_EMPTY_DRAWER: &str = r#"
 This drawer is still empty.
 
-Hit *n* to create a new entry.
+Hit the *n* key to create a new entry.
 "#;
 
-static MD_CREATE_DRAWER: &str = r#"Type the passphrase for the new drawer:"#;
+static MD_CREATE_TOP_DRAWER: &str = r#"Type the passphrase for the new top level drawer:"#;
+static MD_CREATE_DEEP_DRAWER: &str = r#"Type the passphrase for this deep drawer (to create a top level drawer, cancel then close the drawer you're in):"#;
 static MD_OPEN_DRAWER: &str = r#"Type the passphrase of the drawer you want to open:"#;
 static MD_HIDDEN_CHARS: &str = r#"Characters are hidden. Type *^h* to toggle visibility."#;
 static MD_VISIBLE_CHARS: &str = r#"Characters are visible. Type *^h* to hide them."#;
@@ -57,10 +66,18 @@ impl View for ContentView {
         self.clear(w)?;
         match &mut state.drawer_state {
             DrawerState::NoneOpen => {
-                self.skin.md.write_in_area_on(w, MD_NO_DRAWER_OPEN, &self.area)?;
+                if state.open_closet.just_created() && state.created_drawers == 0 {
+                    self.skin.md.write_in_area_on(w, MD_NEW_CLOSET, &self.area)?;
+                } else {
+                    self.skin.md.write_in_area_on(w, MD_NO_DRAWER_OPEN, &self.area)?;
+                }
             }
             DrawerState::DrawerCreation(PasswordInputState { input }) => {
-                self.draw_password_input(w, input, MD_CREATE_DRAWER)?;
+                if state.open_closet.depth() > 0 {
+                    self.draw_password_input( w, input, MD_CREATE_DEEP_DRAWER)?;
+                } else {
+                    self.draw_password_input( w, input, MD_CREATE_TOP_DRAWER)?;
+                }
             }
             DrawerState::DrawerOpening(PasswordInputState { input }) => {
                 self.draw_password_input(w, input, MD_OPEN_DRAWER)?;
@@ -98,7 +115,7 @@ impl ContentView {
         w: &mut W,
         des: &mut DrawerEditState,
     ) -> Result<(), SafeClosetError> {
-        if des.drawer.entries.is_empty() {
+        if des.drawer.content.entries.is_empty() {
             self.skin.md.write_in_area_on(w, MD_EMPTY_DRAWER, &self.area)?;
             return Ok(());
         }
@@ -171,7 +188,7 @@ impl ContentView {
                 empty_lines -= 1;
                 // we skip the value area, to not overwrite it
             } else if let Some((idx, name_match)) = des.listed_entry(line) {
-                let entry = &des.drawer.entries[idx];
+                let entry = &des.drawer.content.entries[idx];
                 let is_best = des.has_best_search(line);
                 let focus = &mut des.focus;
                 // - selection mark
@@ -228,7 +245,7 @@ impl ContentView {
                             Alignment::Left,
                         )?;
                     }
-                } else if des.drawer.settings.hide_values {
+                } else if des.drawer.content.settings.hide_values {
                     tbl_style.queue_str(w, &"▦".repeat(value_width as usize))?;
                 } else {
                     let first_line = entry.value.split('\n').next().unwrap();

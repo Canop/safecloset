@@ -34,7 +34,7 @@ impl View for TitleView {
     }
 
     fn draw(&mut self, w: &mut W, state: &mut AppState) -> Result<(), SafeClosetError> {
-        let path = state.closet.path().to_string_lossy();
+        let path = state.open_closet.path().to_string_lossy();
         let composite = mad_inline!(" **SafeCloset** ` ` $0 ` ` ", &path,);
         self.go_to_line(w, 0)?;
         self.skin

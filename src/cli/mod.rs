@@ -1,7 +1,7 @@
 mod args;
 
 use crate::{
-    core::Closet,
+    core::OpenCloset,
     error::SafeClosetError,
     tui,
 };
@@ -18,7 +18,7 @@ pub fn run() -> Result<(), SafeClosetError> {
     info!("args: {:#?}", &args);
 
     if let Some(path) = args.path {
-        let closet = Closet::open_or_create(path)?;
+        let closet = OpenCloset::open_or_create(path)?;
         tui::run(closet, args.hide)?;
     } else {
         println!("Please provide as argument the path to the closet file to create or open");

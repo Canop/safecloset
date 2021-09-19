@@ -20,8 +20,9 @@ pub struct DrawerEditState {
     layout: DrawerDrawingLayout,
 }
 
-impl From<OpenDrawer> for DrawerEditState {
-    fn from(drawer: OpenDrawer) -> Self {
+impl DrawerEditState {
+
+    pub fn from(drawer: OpenDrawer) -> Self {
         Self {
             drawer,
             scroll: 0,
@@ -31,9 +32,6 @@ impl From<OpenDrawer> for DrawerEditState {
             layout: DrawerDrawingLayout::default(),
         }
     }
-}
-
-impl DrawerEditState {
 
     /// change the drawer drawing layout to adapt to the
     /// content area in which it will be
@@ -51,7 +49,7 @@ impl DrawerEditState {
         self.layout.value_height_addition = match &self.focus {
             DrawerFocus::ValueSelected { line } => {
                 self.listed_entry_idx(*line).map_or(0, |idx| {
-                    self.drawer.entries[idx]
+                    self.drawer.content.entries[idx]
                         .value
                         .chars()
                         .filter(|&c| c == '\n')
@@ -99,7 +97,7 @@ impl DrawerEditState {
                 .entries
                 .get(line)
                 .map(|MatchingEntry { idx, .. }| *idx)
-        } else if line < self.drawer.entries.len() {
+        } else if line < self.drawer.content.entries.len() {
             Some(line)
         } else {
             None
@@ -111,7 +109,7 @@ impl DrawerEditState {
                 .entries
                 .get(line)
                 .map(|MatchingEntry { idx, name_match }| (*idx, Some(name_match.clone())))
-        } else if line < self.drawer.entries.len() {
+        } else if line < self.drawer.content.entries.len() {
             Some((line, None))
         } else {
             None
@@ -123,7 +121,7 @@ impl DrawerEditState {
         if let Some(search_result) = &self.search.result {
             search_result.entries.len()
         } else {
-            self.drawer.entries.len()
+            self.drawer.content.entries.len()
         }
     }
     /// return the total height of the visible entries
@@ -176,7 +174,10 @@ impl DrawerEditState {
     }
     /// Save the drawer, which closes it, then reopen it, keeping the
     /// same state around (scroll and selection)
-    pub fn close_and_reopen(self, closet: &mut Closet) -> Result<Self, SafeClosetError> {
+    pub fn save_and_reopen(
+        self,
+        open_closet: &mut OpenCloset,
+    ) -> Result<Self, SafeClosetError> {
         let DrawerEditState {
             drawer,
             scroll,
@@ -185,7 +186,7 @@ impl DrawerEditState {
             layout,
             ..
         } = self;
-        let drawer = closet.close_then_reopen(drawer)?;
+        let drawer = open_closet.push_back_save_retake(drawer)?;
         Ok(DrawerEditState {
             drawer,
             scroll,
@@ -198,7 +199,7 @@ impl DrawerEditState {
     pub fn edit_entry_name_by_line(&mut self, line: usize) {
         if let Some(idx) = self.listed_entry_idx(line) {
             let mut input = ContentSkin::make_input();
-            input.set_str(&self.drawer.entries[idx].name);
+            input.set_str(&self.drawer.content.entries[idx].name);
             self.focus = DrawerFocus::NameEdit { line, input };
             self.increment_edit_count();
         }
@@ -207,7 +208,7 @@ impl DrawerEditState {
         if let Some(idx) = self.listed_entry_idx(line) {
             let mut input = ContentSkin::make_input();
             input.new_line_on(InputField::ALT_ENTER);
-            input.set_str(&self.drawer.entries[idx].value);
+            input.set_str(&self.drawer.content.entries[idx].value);
             self.focus = DrawerFocus::ValueEdit { line, input };
             self.increment_edit_count();
         }
@@ -221,10 +222,10 @@ impl DrawerEditState {
             if let Some(idx) = self.listed_entry_idx(line) {
                 if !discard {
                     let new_name = input.get_content();
-                    if new_name == self.drawer.entries[idx].name {
+                    if new_name == self.drawer.content.entries[idx].name {
                         self.decrement_edit_count();
                     } else {
-                        self.drawer.entries[idx].name = new_name;
+                        self.drawer.content.entries[idx].name = new_name;
                     }
                 }
                 self.focus = DrawerFocus::NameSelected { line };
@@ -236,10 +237,10 @@ impl DrawerEditState {
             if let Some(idx) = self.listed_entry_idx(line) {
                 if !discard {
                     let new_value = input.get_content();
-                    if new_value == self.drawer.entries[idx].value {
+                    if new_value == self.drawer.content.entries[idx].value {
                         self.decrement_edit_count();
                     } else {
-                        self.drawer.entries[idx].value = new_value;
+                        self.drawer.content.entries[idx].value = new_value;
                     }
                 }
                 self.focus = DrawerFocus::ValueSelected { line };

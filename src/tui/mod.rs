@@ -19,7 +19,7 @@ mod view;
 
 use {
     crate::{
-        core::Closet,
+        core::OpenCloset,
         error::SafeClosetError,
     },
     crossterm::{
@@ -60,14 +60,14 @@ fn writer() -> W {
 }
 
 pub fn run(
-    closet: Closet,
+    open_closet: OpenCloset,
     hide_values: bool,
 ) -> Result<(), SafeClosetError> {
     let mut w = writer();
     w.queue(EnterAlternateScreen)?;
     w.queue(cursor::Hide)?;
     w.queue(EnableMouseCapture)?;
-    let r = app::run(&mut w, closet, hide_values);
+    let r = app::run(&mut w, open_closet, hide_values);
     w.queue(DisableMouseCapture)?;
     w.queue(cursor::Show)?;
     w.queue(LeaveAlternateScreen)?;

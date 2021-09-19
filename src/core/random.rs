@@ -18,6 +18,7 @@ pub fn random_bytes(count: usize) -> Box<[u8]> {
 /// Generate a random length array of random bytes.
 ///
 /// min_size and max_size are both included.
+#[allow(dead_code)]
 pub fn random_bytes_random_size(range: Range<usize>) -> Box<[u8]> {
     random_bytes(thread_rng().gen_range(range))
 }

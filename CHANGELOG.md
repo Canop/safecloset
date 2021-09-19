@@ -1,5 +1,7 @@
-### next
+<a name="v0.2.0"></a>
+### v0.2.0 - 2021-09-19
 - mouse support in inputs and for cell selection
+- sub-drawers
 
 <a name="v0.1.3"></a>
 ### v0.1.3 - 2021-09-08
