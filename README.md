@@ -12,7 +12,8 @@
 
 * This is a personal project
 * It hasn't been audited
-* It's not even finished anyway and the closet format isn't frozen yet
+* It's not even finished anyway
+* The storage format is still expected to change in breaking ways
 
 SafeCloset comes with **absolutely** no guarantee. And I can do nothing for you if you lose the secrets you stored in SafeCloset.
 
