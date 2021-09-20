@@ -30,10 +30,11 @@ impl OpenDrawer {
 
     /// change the drawer_content into a closed_drawer
     pub(crate) fn close(
-        &self,
+        &mut self,
         closet: &Closet,
     ) -> Result<ClosedDrawer, CoreError> {
         let cipher = closet.cipher(&self.password)?;
+        self.content.add_noise();
         let serialized_content = rmp_serde::encode::to_vec_named(&self.content)?;
         let nonce = random_nonce();
         let crypted_content = cipher

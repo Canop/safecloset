@@ -1,7 +1,7 @@
 use {
     super::*,
     aes_gcm_siv::{aead::NewAead, Aes256GcmSiv, Key},
-    rand::{thread_rng, Rng},
+    rand::{thread_rng, Rng, seq::SliceRandom},
     serde::{Deserialize, Serialize},
     std::{
         fs,
@@ -92,7 +92,7 @@ impl Closet {
         password: String,
     ) -> Result<OpenDrawer, CoreError> {
         let drawer_content = DrawerContent::new(depth)?;
-        let open_drawer = OpenDrawer::new(depth, password, drawer_content);
+        let mut open_drawer = OpenDrawer::new(depth, password, drawer_content);
         let closed_drawer = open_drawer.close(&self)?;
         self.drawers.push(closed_drawer);
         Ok(open_drawer)
@@ -148,11 +148,10 @@ impl Closet {
     /// password.
     pub fn close_drawer(
         &mut self,
-        open_drawer: OpenDrawer,
+        mut open_drawer: OpenDrawer,
     ) -> Result<(), CoreError> {
         let closed_drawer = open_drawer.close(&self)?;
         self.push_drawer_back(closed_drawer);
-        // TODO SCRAMBLE
         Ok(())
     }
 
@@ -160,13 +159,16 @@ impl Closet {
         for idx in 0..self.drawers.len() {
             if self.drawers[idx].has_same_id(&drawer) {
                 self.drawers[idx] = drawer;
-                // self.drawers.shuffle(&mut thread_rng()); FIXME SHUFFLE
                 return true;
             }
         }
         false
     }
 
+    /// Change the order of drawers
+    pub fn shuffle_drawers(&mut self) {
+        self.drawers.shuffle(&mut thread_rng());
+    }
 
     /// Close the drawer then reopen it.
     ///

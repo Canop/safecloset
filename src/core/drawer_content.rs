@@ -57,5 +57,13 @@ impl DrawerContent {
         self.entries.len() - 1
     }
 
+
+    /// shuffle the drawers (thus ensuring the last created one
+    /// isn't at the end), add some random bytes which makes the
+    /// content's size undetectable
+    pub fn add_noise(&mut self) {
+        self.garbage = random_bytes_random_size(5..5000);
+        self.closet.shuffle_drawers();
+    }
 }
 
