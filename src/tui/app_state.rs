@@ -359,6 +359,8 @@ impl AppState {
                 if let NameSelected { line } = &des.focus {
                     let line = *line;
                     des.focus = ValueSelected { line };
+                } else if matches!(des.focus, NoneSelected) {
+                    des.focus = NameSelected { line: 0 };
                 }
                 return Ok(CmdResult::Stay);
             }
@@ -366,6 +368,8 @@ impl AppState {
                 if let ValueSelected { line } = &des.focus {
                     let line = *line;
                     des.focus = NameSelected { line };
+                } else if matches!(des.focus, NoneSelected) {
+                    des.focus = NameSelected { line: 0 };
                 }
                 return Ok(CmdResult::Stay);
             }

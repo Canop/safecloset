@@ -144,7 +144,24 @@ impl DrawerEditState {
     /// Tells whether the content was edited since opening
     /// (it may be equal)
     pub fn touched(&self) -> bool {
-        self.edit_count > 0
+        match self.edit_count {
+            0 => false,
+            1 => {
+                // we may have entered an input but done no real change
+                match &self.focus {
+                    DrawerFocus::NameEdit { line, input } => {
+                        self.listed_entry_idx(*line)
+                            .map_or(true, |idx| !input.is_content(&self.drawer.content.entries[idx].name))
+                    }
+                    DrawerFocus::ValueEdit { line, input } => {
+                        self.listed_entry_idx(*line)
+                            .map_or(true, |idx| !input.is_content(&self.drawer.content.entries[idx].value))
+                    }
+                    _ => true,
+                }
+            }
+            _ => true,
+        }
     }
     /// Ensure the scroll is consistent with the size of content
     /// and terminal height, and that the selection is visible, if any.
@@ -220,7 +237,9 @@ impl DrawerEditState {
         if let DrawerFocus::NameEdit { line, input } = &self.focus {
             let line = *line;
             if let Some(idx) = self.listed_entry_idx(line) {
-                if !discard {
+                if discard {
+                    self.decrement_edit_count();
+                } else {
                     let new_name = input.get_content();
                     if new_name == self.drawer.content.entries[idx].name {
                         self.decrement_edit_count();
@@ -235,7 +254,9 @@ impl DrawerEditState {
         if let DrawerFocus::ValueEdit { line, input } = &self.focus {
             let line = *line;
             if let Some(idx) = self.listed_entry_idx(line) {
-                if !discard {
+                if discard {
+                    self.decrement_edit_count();
+                } else {
                     let new_value = input.get_content();
                     if new_value == self.drawer.content.entries[idx].value {
                         self.decrement_edit_count();
