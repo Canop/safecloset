@@ -7,11 +7,9 @@ use {
     },
     crossterm::event::KeyModifiers,
     crossbeam::select,
-    std::time::Duration,
     termimad::{Area, Event, EventSource},
 };
 
-const MAX_INACTIVITY: Duration = Duration::from_secs(45);
 
 /// Run the Terminal User Interface until the user decides to quit.
 ///

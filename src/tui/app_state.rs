@@ -10,6 +10,8 @@ use {
 pub struct AppState {
     pub open_closet: OpenCloset,
     pub drawer_state: DrawerState,
+    // the help state, if help is currently displayed
+    pub help: Option<HelpState>,
     pub error: Option<String>,
     pub hide_values: bool,
     // number of drawers created during this session
@@ -22,6 +24,7 @@ impl AppState {
         Self {
             open_closet,
             drawer_state: DrawerState::NoneOpen,
+            help: None,
             error: None,
             hide_values,
             created_drawers: 0,
@@ -106,12 +109,8 @@ impl AppState {
         };
         self.error = None;
 
-        if key == CONTROL_C { // close drawer (no save)
-            // we're not repushing the drawer, so we're effectively
-            // going up in the closet
-            self.drawer_state = DrawerState::NoneOpen;
-            return Ok(CmdResult::Stay);
-        }
+        // We start with the few actions that can be done the same with or
+        // without the help screen displayed
 
         if key == CONTROL_N { // new drawer
             self.push_back_drawer()?;
@@ -120,6 +119,7 @@ impl AppState {
         }
 
         if key == CONTROL_O { // open drawer
+            self.help = None;
             self.push_back_drawer()?;
             self.drawer_state = DrawerOpening(PasswordInputState::new(true));
             return Ok(CmdResult::Stay);
@@ -141,6 +141,43 @@ impl AppState {
             self.save(false)?;
             return Ok(CmdResult::Quit);
         }
+
+        if key == CONTROL_C {
+            if self.help.is_some() {
+                // close the help
+                self.help = None;
+            } else {
+                // close the drawer
+                self.save(true)?;
+                self.push_back_drawer()?;
+                let _ = self.open_closet.close_deepest_drawer();
+                self.drawer_state = match self.open_closet.take_deepest_open_drawer() {
+                    Some(open_drawer) => DrawerState::edit(open_drawer),
+                    None => DrawerState::NoneOpen,
+                };
+            }
+            return Ok(CmdResult::Stay);
+        }
+
+        if key == ESC {
+            if self.help.is_some() {
+                self.help = None;
+            } else if matches!(self.drawer_state, DrawerCreation(_) | DrawerOpening(_)) {
+                self.drawer_state = NoneOpen;
+            } else if let DrawerEdit(des) = &mut self.drawer_state {
+                if !des.close_input(true) {
+                    des.focus = NoneSelected;
+                }
+            }
+            return Ok(CmdResult::Stay);
+        }
+
+        // If the help is shown, it captures other events
+        if let Some(help_state) = &mut self.help {
+            help_state.apply_key_event(key);
+            return Ok(CmdResult::Stay);
+        }
+
 
         if key == CONTROL_UP { // moving the selected line up
             if let DrawerEdit(des) = &mut self.drawer_state {
@@ -258,17 +295,6 @@ impl AppState {
             return Ok(CmdResult::Stay);
         }
 
-        if key == ESC {
-            if matches!(self.drawer_state, DrawerCreation(_) | DrawerOpening(_)) {
-                self.drawer_state = NoneOpen;
-            } else if let DrawerEdit(des) = &mut self.drawer_state {
-                if !des.close_input(true) {
-                    des.focus = NoneSelected;
-                }
-            }
-            return Ok(CmdResult::Stay);
-        }
-
         if key == TAB {
             if let DrawerEdit(des) = &mut self.drawer_state {
                 if matches!(des.focus, NoneSelected) {
@@ -317,6 +343,13 @@ impl AppState {
                 }
                 return Ok(CmdResult::Stay);
             }
+        }
+
+        // --- help
+
+        if key == F1 || key == QUESTION {
+            self.help = Some(HelpState::default());
+            return Ok(CmdResult::Stay);
         }
 
         // --- navigation among entries

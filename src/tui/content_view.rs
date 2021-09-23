@@ -64,26 +64,31 @@ impl View for ContentView {
 
     fn draw(&mut self, w: &mut W, state: &mut AppState) -> Result<(), SafeClosetError> {
         self.clear(w)?;
-        match &mut state.drawer_state {
-            DrawerState::NoneOpen => {
-                if state.open_closet.just_created() && state.created_drawers == 0 {
-                    self.skin.md.write_in_area_on(w, MD_NEW_CLOSET, &self.area)?;
-                } else {
-                    self.skin.md.write_in_area_on(w, MD_NO_DRAWER_OPEN, &self.area)?;
+        if let Some(help_state) = &mut state.help {
+            help_state.set_area(self.area.clone());
+            help_state.draw(w)?;
+        } else {
+            match &mut state.drawer_state {
+                DrawerState::NoneOpen => {
+                    if state.open_closet.just_created() && state.created_drawers == 0 {
+                        self.skin.md.write_in_area_on(w, MD_NEW_CLOSET, &self.area)?;
+                    } else {
+                        self.skin.md.write_in_area_on(w, MD_NO_DRAWER_OPEN, &self.area)?;
+                    }
                 }
-            }
-            DrawerState::DrawerCreation(PasswordInputState { input }) => {
-                if state.open_closet.depth() > 0 {
-                    self.draw_password_input( w, input, MD_CREATE_DEEP_DRAWER)?;
-                } else {
-                    self.draw_password_input( w, input, MD_CREATE_TOP_DRAWER)?;
+                DrawerState::DrawerCreation(PasswordInputState { input }) => {
+                    if state.open_closet.depth() > 0 {
+                        self.draw_password_input( w, input, MD_CREATE_DEEP_DRAWER)?;
+                    } else {
+                        self.draw_password_input( w, input, MD_CREATE_TOP_DRAWER)?;
+                    }
                 }
-            }
-            DrawerState::DrawerOpening(PasswordInputState { input }) => {
-                self.draw_password_input(w, input, MD_OPEN_DRAWER)?;
-            }
-            DrawerState::DrawerEdit(des) => {
-                self.draw_drawer(w, des)?;
+                DrawerState::DrawerOpening(PasswordInputState { input }) => {
+                    self.draw_password_input(w, input, MD_OPEN_DRAWER)?;
+                }
+                DrawerState::DrawerEdit(des) => {
+                    self.draw_drawer(w, des)?;
+                }
             }
         }
         Ok(())

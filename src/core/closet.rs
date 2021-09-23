@@ -49,7 +49,7 @@ impl Closet {
     }
 
     /// Save the closet to a file
-    pub fn save(&mut self, path: &Path) -> Result<(), CoreError> {
+    pub fn save(&self, path: &Path) -> Result<(), CoreError> {
         if path.exists() {
             let backup_path = path.with_extension("old");
             if backup_path.exists() {
@@ -144,15 +144,13 @@ impl Closet {
         None
     }
 
-    /// Close the passed drawer, scramble the closet, forget the
-    /// password.
+    /// Close the passed drawer, put it back among closed ones
     pub fn close_drawer(
         &mut self,
         mut open_drawer: OpenDrawer,
-    ) -> Result<(), CoreError> {
+    ) -> Result<bool, CoreError> {
         let closed_drawer = open_drawer.close(&self)?;
-        self.push_drawer_back(closed_drawer);
-        Ok(())
+        Ok(self.push_drawer_back(closed_drawer))
     }
 
     fn push_drawer_back(&mut self, drawer: ClosedDrawer) -> bool {

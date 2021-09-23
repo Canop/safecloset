@@ -82,6 +82,8 @@ impl OpenCloset {
     /// Save all the open drawers, then the closet in its file,
     /// then reopen the drawer which was the deepest one before
     /// saving.
+    ///
+    /// If nothing was open, nothing is reopened.
     pub fn save_then_reopen(&mut self) -> Result<Option<&mut OpenDrawer>, CoreError> {
         let mut passwords = Vec::new();
         while !self.open_drawers.is_empty() {
@@ -208,6 +210,7 @@ impl OpenCloset {
         Ok(open_drawer)
     }
 
+    /// Close the deepest open drawer and return its password
     pub fn close_deepest_drawer(&mut self) -> Result<String, CoreError> {
         match self.open_drawers.pop() {
             Some(open_drawer) => {
@@ -252,4 +255,18 @@ impl OpenCloset {
             Err(CoreError::InvalidPushBack)
         }
     }
+
+    //pub fn push_back_and_close(&mut self, open_drawer: OpenDrawer) -> Result<(), CoreError> {
+    //    let depth = self.open_drawers.len();
+    //    let closet = if self.open_drawers.is_empty() {
+    //        &mut self.root_closet
+    //    } else {
+    //        &mut self.open_drawers[depth - 1].content.closet
+    //    };
+    //    if closet.close_drawer(open_drawer)? {
+    //        Ok(())
+    //    } else {
+    //        Err(CoreError::InvalidPushBack)
+    //    }
+    //}
 }

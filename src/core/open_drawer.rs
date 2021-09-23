@@ -47,7 +47,7 @@ impl OpenDrawer {
             nonce,
             crypted_content.into_boxed_slice(),
         ))
-
     }
+
 }
 

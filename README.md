@@ -59,12 +59,12 @@ A drawer can also contains deeper crypted drawers.
 
 # Features not yet implemented
 
-- help page with all keyboard shortcuts
 - pasting (I don't think it would be a good idea to allow copying from safecloset)
 - password change
 
 # Keyboard actions
 
+* <kbd>?</kbd> : Open the help screen
 * <kbd>ctrl</kbd><kbd>n</kbd> : Create a drawer (in the open drawer, or at root when none is open)
 * <kbd>ctrl</kbd><kbd>o</kbd> : Open a drawer
 * <kbd>ctrl</kbd><kbd>c</kbd> : Close the current drawer, without saving (you're back in the upper level one if you close a deep drawer)
@@ -72,10 +72,10 @@ A drawer can also contains deeper crypted drawers.
 * <kbd>ctrl</kbd><kbd>x</kbd> : Save then quit
 * <kbd>ctrl</kbd><kbd>q</kbd> : Quit without saving (with no confirmation)
 * <kbd>/</kbd> : Start searching the current drawer (do <kbd>enter</kbd> or use the down or up arrow key to freeze it)
-* <kbd>/</kbd> then <kbd>esc</kbd> : Removes the current filtering
+* <kbd>/</kbd> then <kbd>esc</kbd> : Remove the current filtering
 * <kbd>esc</kbd> : Cancel current field edition
 * <kbd>tab</kbd> : Create a new entry or edit the value if you're already editing an entry's name
-* arrow keys: Move selection, selecting either an entry name or a value
+* arrow keys : Move selection, selecting either an entry name or a value
 * <kbd>i</kbd> or <kbd>insert</kbd> : Start editing the selected name or value
 * <kbd>d</kbd> : Remove the selected entry (with confirmation)
 * <kbd>Enter</kbd> : Validate the current edition

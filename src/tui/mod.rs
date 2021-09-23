@@ -7,6 +7,8 @@ mod drawer_drawing_layout;
 mod drawer_edit_state;
 mod drawer_focus;
 mod global_view;
+mod help_content;
+mod help_state;
 mod keys;
 mod matched_string;
 mod password_input_state;
@@ -28,7 +30,10 @@ use {
         terminal::{EnterAlternateScreen, LeaveAlternateScreen},
         QueueableCommand,
     },
-    std::io::Write,
+    std::{
+        io::Write,
+        time::Duration,
+    },
 };
 
 pub(crate) use {
@@ -41,6 +46,8 @@ pub(crate) use {
     drawer_edit_state::*,
     drawer_focus::*,
     global_view::*,
+    help_content::*,
+    help_state::*,
     keys::*,
     matched_string::*,
     password_input_state::*,
@@ -50,6 +57,8 @@ pub(crate) use {
     title_view::*,
     view::*,
 };
+
+pub const MAX_INACTIVITY: Duration = Duration::from_secs(60);
 
 /// the type used by all TUI writing functions
 pub type W = std::io::BufWriter<std::io::Stdout>;

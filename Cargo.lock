@@ -589,7 +589,7 @@ dependencies = [
 
 [[package]]
 name = "safecloset"
-version = "0.2.0"
+version = "0.2.1-dev"
 dependencies = [
  "aes-gcm-siv",
  "argh",
