@@ -1,4 +1,5 @@
-### next
+<a name="v0.2.1"></a>
+### v0.2.1 - 2021-09-26
 - help screen
 - ctrl-c to close a drawer or the help screen
 - 'a' key edits a field, cursor at end, while 'i' puts the cursor at start
