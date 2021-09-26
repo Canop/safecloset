@@ -30,6 +30,8 @@ The *^* symbol in SafeCloset means that the *control* key must be pressed.
 | *esc* | Cancel current field edition
 | *tab* | Create a new entry or edit the value if you're already editing an entry's name
 | arrow keys | Move selection, selecting either an entry name or a value
+| *^🠕* | Move selected line up
+| *^🠗* | Move selected line down
 | *i* or *insert* | Start editing the selected name or value, cursor at start
 | *a* | Start editing the selected name or value, cursor at end
 | *d* | Remove the selected entry (with confirmation)
