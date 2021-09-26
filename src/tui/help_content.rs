@@ -19,21 +19,22 @@ The *^* symbol in SafeCloset means that the *control* key must be pressed.
 |:-:|:-:
 |key|action
 |:-:|-
-|*^n* | Create a drawer (inside the current drawer, if one is open)
-|*^o* | Open a drawer
-|*^c* | Close the current drawer (you're back in the upper level one if you close a deep drawer)
-|*^s* | Save the current drawer and all upper drawers
-|*^x* | Save then quit
-|*^q* | Quit without saving (with no confirmation)
-|*/* | Start searching the current drawer (do *Enter* or use the down or up arrow key to freeze it)
-|*/* then *esc* | Remove the current filtering
-|*esc* | Cancel current field edition
-|*tab* | Create a new entry or edit the value if you're already editing an entry's name
-|arrow keys | Move selection, selecting either an entry name or a value
-|*i* or *insert* | Start editing the selected name or value
-|*d* | Remove the selected entry (with confirmation)
-|*Enter* | Validate the current edition
-|*alt*-*Enter* | New line in the currently edited value
+| *^n* | Create a drawer (inside the current drawer, if one is open)
+| *^o* | Open a drawer
+| *^c* | Close the current drawer (you're back in the upper level one if you close a deep drawer)
+| *^s* | Save the current drawer and all upper drawers
+| *^x* | Save then quit
+| *^q* | Quit without saving (with no confirmation)
+| */* | Start searching the current drawer (do *Enter* or use the down or up arrow key to freeze it)
+| */* then *esc* | Remove the current filtering
+| *esc* | Cancel current field edition
+| *tab* | Create a new entry or edit the value if you're already editing an entry's name
+| arrow keys | Move selection, selecting either an entry name or a value
+| *i* or *insert* | Start editing the selected name or value, cursor at start
+| *a* | Start editing the selected name or value, cursor at end
+| *d* | Remove the selected entry (with confirmation)
+| *Enter* | Validate the current edition
+| *alt*-*Enter* | New line in the currently edited value
 |-|-
 
 ## Guarantees

@@ -20,6 +20,24 @@ pub struct DrawerEditState {
     layout: DrawerDrawingLayout,
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum EditionPos {
+    Start,
+    End,
+}
+impl EditionPos {
+    pub fn apply_to_input(self, input: &mut InputField) {
+        match self {
+            Self::Start => {
+                input.move_to_start();
+            }
+            Self::End => {
+                input.move_to_end();
+            }
+        }
+    }
+}
+
 impl DrawerEditState {
 
     pub fn from(drawer: OpenDrawer) -> Self {
@@ -213,19 +231,21 @@ impl DrawerEditState {
             layout,
         })
     }
-    pub fn edit_entry_name_by_line(&mut self, line: usize) {
+    pub fn edit_entry_name_by_line(&mut self, line: usize, pos: EditionPos) {
         if let Some(idx) = self.listed_entry_idx(line) {
             let mut input = ContentSkin::make_input();
             input.set_str(&self.drawer.content.entries[idx].name);
+            pos.apply_to_input(&mut input);
             self.focus = DrawerFocus::NameEdit { line, input };
             self.increment_edit_count();
         }
     }
-    pub fn edit_entry_value_by_line(&mut self, line: usize) {
+    pub fn edit_entry_value_by_line(&mut self, line: usize, pos: EditionPos) {
         if let Some(idx) = self.listed_entry_idx(line) {
             let mut input = ContentSkin::make_input();
             input.new_line_on(InputField::ALT_ENTER);
             input.set_str(&self.drawer.content.entries[idx].value);
+            pos.apply_to_input(&mut input);
             self.focus = DrawerFocus::ValueEdit { line, input };
             self.increment_edit_count();
         }

@@ -44,6 +44,7 @@ impl ContentSkin {
         let bg = gray(2);
         let mut md = MadSkin::default();
         md.set_fg(ansi(230));
+        md.italic = CompoundStyle::with_fg(AnsiValue(222));
         md.set_bg(bg);
         let sel_bg = gray(5);
         let mut sel_md = md.clone();
@@ -56,7 +57,6 @@ impl ContentSkin {
         let mut unsel_scrollbar = sel_md.scrollbar.clone();
         unsel_scrollbar.thumb.set_fg(gray(10));
         unsel_scrollbar.track.set_fg(gray(5));
-        md.italic = CompoundStyle::with_fg(AnsiValue(222));
         Self {
             bg,
             name_fg: AnsiValue(230),

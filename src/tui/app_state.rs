@@ -301,14 +301,14 @@ impl AppState {
                     // we remove any search
                     des.search.clear();
                     let idx = des.drawer.content.empty_entry();
-                    des.edit_entry_name_by_line(idx); // as there's no filtering, idx==line
+                    des.edit_entry_name_by_line(idx, EditionPos::Start); // as there's no filtering, idx==line
                 } else if let NameSelected { line } = &des.focus {
                     let line = *line;
-                    des.edit_entry_value_by_line(line);
+                    des.edit_entry_value_by_line(line, EditionPos::Start);
                 } else if let NameEdit { line, .. } = &des.focus {
                     let line = *line;
                     des.close_input(false);
-                    des.edit_entry_value_by_line(line);
+                    des.edit_entry_value_by_line(line, EditionPos::Start);
                 } else if let ValueSelected { line } | ValueEdit { line, .. } = &des.focus {
                     let line = *line;
                     if des.listed_entries_count() == line + 1 {
@@ -316,16 +316,22 @@ impl AppState {
                         if des.drawer.content.entries[line].is_empty() {
                             // if the current entry is empty, we don't create a new one
                             // but go back to the current (empty) entry name
-                            des.edit_entry_name_by_line(line);
+                            des.edit_entry_name_by_line(line, EditionPos::Start);
                         } else {
                             // we create a new entry and start edit it
                             // but we must ensure there's no search which could filter it
                             des.search.clear();
                             des.drawer.content.entries.push(Entry::default());
-                            des.edit_entry_name_by_line(des.drawer.content.entries.len() - 1);
+                            des.edit_entry_name_by_line(
+                                des.drawer.content.entries.len() - 1,
+                                EditionPos::Start,
+                            );
                         }
                     } else {
-                        des.edit_entry_name_by_line(line + 1);
+                        des.edit_entry_name_by_line(
+                            line + 1,
+                            EditionPos::Start,
+                        );
                     }
                 }
                 return Ok(CmdResult::Stay);
@@ -377,11 +383,25 @@ impl AppState {
             if let DrawerEdit(des) = &mut self.drawer_state {
                 if let NameSelected { line } = &des.focus {
                     let line = *line;
-                    des.edit_entry_name_by_line(line);
+                    des.edit_entry_name_by_line(line, EditionPos::Start);
                 }
                 if let ValueSelected { line } = &des.focus {
                     let line = *line;
-                    des.edit_entry_value_by_line(line);
+                    des.edit_entry_value_by_line(line, EditionPos::Start);
+                }
+            }
+            return Ok(CmdResult::Stay);
+        }
+
+        if as_letter(key) == Some('a') {
+            if let DrawerEdit(des) = &mut self.drawer_state {
+                if let NameSelected { line } = &des.focus {
+                    let line = *line;
+                    des.edit_entry_name_by_line(line, EditionPos::End);
+                }
+                if let ValueSelected { line } = &des.focus {
+                    let line = *line;
+                    des.edit_entry_value_by_line(line, EditionPos::End);
                 }
             }
             return Ok(CmdResult::Stay);
@@ -495,7 +515,7 @@ impl AppState {
                         // new entry
                         des.search.clear();
                         let idx = des.drawer.content.empty_entry();
-                        des.edit_entry_name_by_line(idx);
+                        des.edit_entry_name_by_line(idx, EditionPos::Start);
                     }
                     ('d', Some(line)) => {
                         // delete entry (with confirmation)
