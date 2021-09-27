@@ -1,3 +1,6 @@
+### next
+- `-o` option to immediately prompt for password for drawer opening
+
 <a name="v0.2.1"></a>
 ### v0.2.1 - 2021-09-26
 - help screen

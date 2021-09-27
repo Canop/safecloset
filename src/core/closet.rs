@@ -93,7 +93,7 @@ impl Closet {
     ) -> Result<OpenDrawer, CoreError> {
         let drawer_content = DrawerContent::new(depth)?;
         let mut open_drawer = OpenDrawer::new(depth, password, drawer_content);
-        let closed_drawer = open_drawer.close(&self)?;
+        let closed_drawer = open_drawer.close(self)?;
         self.drawers.push(closed_drawer);
         Ok(open_drawer)
     }
@@ -113,7 +113,7 @@ impl Closet {
         }
         // check no existing drawer already has this password
         for closed_drawer in self.drawers.iter() {
-            if closed_drawer.open(depth, password.to_string(), &self).is_ok() {
+            if closed_drawer.open(depth, password.to_string(), self).is_ok() {
                 return Err(CoreError::PasswordAlreadyUsed);
             }
         }
@@ -149,7 +149,7 @@ impl Closet {
         &mut self,
         mut open_drawer: OpenDrawer,
     ) -> Result<bool, CoreError> {
-        let closed_drawer = open_drawer.close(&self)?;
+        let closed_drawer = open_drawer.close(self)?;
         Ok(self.push_drawer_back(closed_drawer))
     }
 

@@ -1,6 +1,7 @@
 use {
     super::*,
     crate::{
+        cli::Args,
         core::OpenCloset,
         error::SafeClosetError,
         timer::Timer,
@@ -17,9 +18,9 @@ use {
 pub(super) fn run(
     w: &mut W,
     open_closet: OpenCloset,
-    hide_values: bool,
+    args: &Args,
 ) -> Result<(), SafeClosetError> {
-    let mut state = AppState::new(open_closet, hide_values);
+    let mut state = AppState::new(open_closet, args);
     let mut view = GlobalView::default();
     view.set_area(Area::full_screen());
     view.draw(w, &mut state)?;

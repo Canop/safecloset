@@ -1,6 +1,10 @@
 use {
     super::*,
-    crate::{core::*, error::SafeClosetError},
+    crate::{
+        cli::Args,
+        core::*,
+        error::SafeClosetError,
+    },
     crossterm::{self, event::KeyEvent},
 };
 
@@ -20,15 +24,19 @@ pub struct AppState {
 
 impl AppState {
 
-    pub fn new(open_closet: OpenCloset, hide_values: bool) -> Self {
-        Self {
+    pub fn new(open_closet: OpenCloset, args: &Args) -> Self {
+        let mut state = Self {
             open_closet,
             drawer_state: DrawerState::NoneOpen,
             help: None,
             error: None,
-            hide_values,
+            hide_values: args.hide,
             created_drawers: 0,
+        };
+        if args.open && !state.open_closet.just_created() {
+            state.drawer_state = DrawerState::DrawerOpening(PasswordInputState::new(true));
         }
+        state
     }
 
     /// If there's an open drawer input (entry name or value), close it, keeping

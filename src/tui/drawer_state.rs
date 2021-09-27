@@ -5,13 +5,13 @@ use {
 };
 
 /// State of the TUI application relative to drawers
+#[allow(clippy::large_enum_variant)]
 pub enum DrawerState {
     NoneOpen, // no drawer is open
     DrawerCreation(PasswordInputState),
     DrawerOpening(PasswordInputState),
     DrawerEdit(DrawerEditState),
 }
-
 
 impl Default for DrawerState {
     fn default() -> Self {

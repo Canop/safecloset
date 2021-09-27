@@ -142,7 +142,11 @@ impl ContentView {
         self.go_to_line(w, 1)?;
         tbl_style.queue_str(w, &"─".repeat(name_width + 1))?;
         tbl_style.queue_str(w, "┬")?;
-        let value_header_width = if scrollbar.is_some() { value_width + 1 } else { value_width };
+        let value_header_width = if scrollbar.is_some() {
+            value_width + 1
+        } else {
+            value_width
+        };
         tbl_style.queue_str(w, &"─".repeat(value_header_width))?;
         self.go_to_line(w, 2)?;
         if des.focus.is_search() {
@@ -151,7 +155,10 @@ impl ContentView {
             des.search.input.display_on(w)?;
         } else if des.search.has_content() {
             normal_style.queue_str(w, "/")?;
-            let (fitted, width) = StrFit::make_string(&des.search.input.get_content(), name_width.into());
+            let (fitted, width) = StrFit::make_string(
+                &des.search.input.get_content(),
+                name_width,
+            );
             normal_style.queue_str(w, fitted)?;
             if width < name_width {
                 tbl_style.queue_str(w, &" ".repeat(name_width - width))?;
@@ -246,7 +253,7 @@ impl ContentView {
                         self.skin.sel_md.write_composite_fill(
                             w,
                             Composite::from_inline(first_line),
-                            value_width.into(),
+                            value_width,
                             Alignment::Left,
                         )?;
                     }
@@ -257,7 +264,7 @@ impl ContentView {
                     self.skin.md.write_composite_fill(
                         w,
                         Composite::from_inline(first_line),
-                        value_width.into(),
+                        value_width,
                         Alignment::Left,
                     )?;
                 }

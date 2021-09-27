@@ -15,6 +15,10 @@ pub struct Args {
     #[argh(switch, short = 'h')]
     pub hide: bool,
 
+    /// immediately prompt for a password to open a drawer
+    #[argh(switch, short = 'o')]
+    pub open: bool,
+
     #[argh(positional)]
     /// the closet file to open or create
     pub path: Option<PathBuf>,

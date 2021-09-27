@@ -2,11 +2,8 @@
 //! (there will probably be a common crate in the future)
 use {
     super::NameMatch,
-    secular,
     std::fmt::{self, Write},
 };
-
-type CandChars = Vec<char>;
 
 // weights used in match score computing
 const BONUS_MATCH: i32 = 50_000;
@@ -72,7 +69,7 @@ impl FuzzyPattern {
 
     fn tight_match_from_index(
         &self,
-        cand_chars: &CandChars,
+        cand_chars: &[char],
         start_idx: usize, // start index in candidate, in chars
     ) -> MatchSearchResult {
         let mut pos = vec![0; self.chars.len()]; // positions of matching chars in candidate
@@ -166,7 +163,7 @@ impl FuzzyPattern {
         if candidate.len() < self.chars.len() {
             return None;
         }
-        let mut cand_chars: CandChars = Vec::with_capacity(candidate.len());
+        let mut cand_chars: Vec<char> = Vec::with_capacity(candidate.len());
         cand_chars.extend(candidate.chars().map(secular::lower_lay_char));
         if cand_chars.len() < self.chars.len() {
             return None;
