@@ -77,9 +77,14 @@ impl View for StatusView {
 
     fn draw(&mut self, w: &mut W, state: &mut AppState) -> Result<(), SafeClosetError> {
         self.go_to_line(w, self.area.top)?;
-        if let Some(error) = &state.error {
-            let composite = Composite::from_inline(error);
-            self.error_skin.write_composite_fill(
+        if let Some(Message { text, error }) = &state.message {
+            let composite = Composite::from_inline(text);
+            let skin = if *error {
+                &self.error_skin
+            } else {
+                &self.hint_skin
+            };
+            skin.write_composite_fill(
                 w,
                 composite,
                 self.width(),

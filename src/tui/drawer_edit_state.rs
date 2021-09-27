@@ -231,16 +231,19 @@ impl DrawerEditState {
             layout,
         })
     }
-    pub fn edit_entry_name_by_line(&mut self, line: usize, pos: EditionPos) {
+    pub fn edit_entry_name_by_line(&mut self, line: usize, pos: EditionPos) -> bool {
         if let Some(idx) = self.listed_entry_idx(line) {
             let mut input = ContentSkin::make_input();
             input.set_str(&self.drawer.content.entries[idx].name);
             pos.apply_to_input(&mut input);
             self.focus = DrawerFocus::NameEdit { line, input };
             self.increment_edit_count();
+            true
+        } else {
+            false
         }
     }
-    pub fn edit_entry_value_by_line(&mut self, line: usize, pos: EditionPos) {
+    pub fn edit_entry_value_by_line(&mut self, line: usize, pos: EditionPos) -> bool {
         if let Some(idx) = self.listed_entry_idx(line) {
             let mut input = ContentSkin::make_input();
             input.new_line_on(InputField::ALT_ENTER);
@@ -248,6 +251,9 @@ impl DrawerEditState {
             pos.apply_to_input(&mut input);
             self.focus = DrawerFocus::ValueEdit { line, input };
             self.increment_edit_count();
+            true
+        } else {
+            false
         }
     }
     pub fn apply_scroll_command(&mut self, scroll_command: ScrollCommand) {

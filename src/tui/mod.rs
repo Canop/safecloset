@@ -11,6 +11,7 @@ mod help_content;
 mod help_state;
 mod keys;
 mod matched_string;
+mod message;
 mod password_input_state;
 mod search_state;
 mod scroll;
@@ -51,6 +52,7 @@ pub(crate) use {
     help_state::*,
     keys::*,
     matched_string::*,
+    message::*,
     password_input_state::*,
     search_state::*,
     scroll::*,

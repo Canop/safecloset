@@ -16,7 +16,7 @@ pub struct AppState {
     pub drawer_state: DrawerState,
     // the help state, if help is currently displayed
     pub help: Option<HelpState>,
-    pub error: Option<String>,
+    pub message: Option<Message>,
     pub hide_values: bool,
     // number of drawers created during this session
     pub created_drawers: usize,
@@ -29,7 +29,7 @@ impl AppState {
             open_closet,
             drawer_state: DrawerState::NoneOpen,
             help: None,
-            error: None,
+            message: None,
             hide_values: args.hide,
             created_drawers: 0,
         };
@@ -38,6 +38,18 @@ impl AppState {
         }
         state
     }
+
+    fn set_error<S: Into<String>>(&mut self, error: S) {
+        let text = error.into();
+        warn!("error: {:?}", &text);
+        self.message = Some(Message{ text, error: true });
+    }
+    fn set_info<S: Into<String>>(&mut self, info: S) {
+        let text = info.into();
+        debug!("info: {:?}", &text);
+        self.message = Some(Message{ text, error: false });
+    }
+
 
     /// If there's an open drawer input (entry name or value), close it, keeping
     /// the input content if required.
@@ -66,6 +78,52 @@ impl AppState {
             }
         }
         Ok(())
+    }
+
+    /// Handle an event asking for pasting into SafeCloset
+    pub fn paste(&mut self) {
+        use DrawerFocus::*;
+        #[cfg(not(feature = "clipboard"))]
+        {
+            self.set_error("Clipboard feature not enabled at compilation");
+        }
+        #[cfg(feature = "clipboard")]
+        {
+            match terminal_clipboard::get_string() {
+                Ok(pasted) if !pasted.is_empty() => {
+                    if let Some(input) = self.drawer_state.input() {
+                        input.insert_str(pasted);
+                    } else if let DrawerState::DrawerEdit(des) = &mut self.drawer_state {
+                        if let NameSelected { line } = &mut des.focus {
+                            let line = *line;
+                            if des.edit_entry_name_by_line(line, EditionPos::Start) {
+                                if let Some(input) = self.drawer_state.input() {
+                                    input.set_str(pasted);
+                                    input.move_to_end();
+                                    self.set_info("Hit *esc* to cancel pasting");
+                                } else {
+                                    warn!("unexpected lack of input");
+                                }
+                            }
+                        } else if let ValueSelected { line } = &mut des.focus {
+                            let line = *line;
+                            if des.edit_entry_value_by_line(line, EditionPos::Start) {
+                                if let Some(input) = self.drawer_state.input() {
+                                    input.set_str(pasted);
+                                    input.move_to_end();
+                                    self.set_info("Hit *esc* to cancel pasting");
+                                } else {
+                                    warn!("unexpected lack of input");
+                                }
+                            }
+                        }
+                    }
+                }
+                _ => {
+                    self.set_error("nothing to paste");
+                }
+            }
+        }
     }
 
     /// Handle a click event
@@ -115,7 +173,7 @@ impl AppState {
             DrawerFocus::*,
             DrawerState::*,
         };
-        self.error = None;
+        self.message = None;
 
         // We start with the few actions that can be done the same with or
         // without the help screen displayed
@@ -150,7 +208,7 @@ impl AppState {
             return Ok(CmdResult::Quit);
         }
 
-        if key == CONTROL_C {
+        if key == CONTROL_C { // close
             if self.help.is_some() {
                 // close the help
                 self.help = None;
@@ -164,6 +222,11 @@ impl AppState {
                     None => DrawerState::NoneOpen,
                 };
             }
+            return Ok(CmdResult::Stay);
+        }
+
+        if key == CONTROL_V {
+            self.paste();
             return Ok(CmdResult::Stay);
         }
 
@@ -280,8 +343,7 @@ impl AppState {
                         self.created_drawers += 1;
                     }
                     Err(e) => {
-                        warn!("error in drawer creation: {}", e);
-                        self.error = Some(e.to_string());
+                        self.set_error(e.to_string());
                     }
                 }
             } else if let DrawerOpening(PasswordInputState { input }) = &mut self.drawer_state {
@@ -295,8 +357,7 @@ impl AppState {
                         self.drawer_state = DrawerState::edit(open_drawer);
                     }
                     None => {
-                        warn!("no drawer can be opened with this passphrase");
-                        self.error = Some("This passphrase opens no drawer".to_string());
+                        self.set_error("This passphrase opens no drawer");
                     }
                 }
             }
@@ -319,6 +380,7 @@ impl AppState {
                     des.edit_entry_value_by_line(line, EditionPos::Start);
                 } else if let ValueSelected { line } | ValueEdit { line, .. } = &des.focus {
                     let line = *line;
+                    des.close_input(false);
                     if des.listed_entries_count() == line + 1 {
                         // last listed entry
                         if des.drawer.content.entries[line].is_empty() {

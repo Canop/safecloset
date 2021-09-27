@@ -1,5 +1,6 @@
 ### next
 - `-o` option to immediately prompt for password for drawer opening
+- ctrl-v pastes the content of the clipboard (if safecloset is compiled with "clipbpoard" feature)
 
 <a name="v0.2.1"></a>
 ### v0.2.1 - 2021-09-26

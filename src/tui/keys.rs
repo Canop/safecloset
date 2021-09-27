@@ -38,6 +38,7 @@ const_key!(UP, Up);
 const_key!(PAGE_UP, PageUp);
 const_key!(F1, F(1));
 const_key!(CONTROL_C, Char('c'), KeyModifiers::CONTROL);
+const_key!(CONTROL_V, Char('v'), KeyModifiers::CONTROL);
 const_key!(CONTROL_H, Char('h'), KeyModifiers::CONTROL);
 const_key!(CONTROL_N, Char('n'), KeyModifiers::CONTROL);
 const_key!(CONTROL_O, Char('o'), KeyModifiers::CONTROL);
