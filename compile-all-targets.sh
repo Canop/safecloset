@@ -18,7 +18,7 @@ echo "   build cleaned"
 
 # build the linux version
 echo -e "${H2}Compiling the linux version${EH}"
-cargo build --release
+cargo build --release --features clipboard
 strip target/release/safecloset
 mkdir build/x86_64-linux/
 cp target/release/safecloset build/x86_64-linux/
@@ -26,7 +26,7 @@ cp target/release/safecloset build/x86_64-linux/
 # build the windows version
 # use cargo cross
 echo -e "${H2}Compiling the Windows version${EH}"
-cross build --target x86_64-pc-windows-gnu --release
+cross build --target x86_64-pc-windows-gnu --release --features clipboard
 mkdir build/x86_64-pc-windows-gnu
 cp target/x86_64-pc-windows-gnu/release/safecloset.exe build/x86_64-pc-windows-gnu/
 
@@ -40,7 +40,7 @@ cp target/armv7-unknown-linux-gnueabihf/release/safecloset build/armv7-unknown-l
 # build the Android version
 # use cargo cross
 echo -e "${H2}Compiling the Android version${EH}"
-cross build --target aarch64-linux-android --release
+cross build --target aarch64-linux-android --release --features clipboard
 mkdir build/aarch64-linux-android
 cp target/aarch64-linux-android/release/safecloset build/aarch64-linux-android/
 
