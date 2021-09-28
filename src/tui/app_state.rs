@@ -44,6 +44,7 @@ impl AppState {
         warn!("error: {:?}", &text);
         self.message = Some(Message{ text, error: true });
     }
+    #[allow(dead_code)]
     fn set_info<S: Into<String>>(&mut self, info: S) {
         let text = info.into();
         debug!("info: {:?}", &text);
@@ -83,7 +84,6 @@ impl AppState {
 
     /// Handle an event asking for pasting into SafeCloset
     pub fn paste(&mut self) {
-        use DrawerFocus::*;
         #[cfg(not(feature = "clipboard"))]
         {
             self.set_error("Clipboard feature not enabled at compilation");
@@ -91,7 +91,10 @@ impl AppState {
         #[cfg(feature = "clipboard")]
         {
             match terminal_clipboard::get_string() {
-                Ok(pasted) if !pasted.is_empty() => {
+                Ok(mut pasted) if !pasted.is_empty() => {
+                    if !self.drawer_state.is_on_entry_value() {
+                        pasted.truncate(pasted.lines().next().unwrap().len());
+                    }
                     if let Some(input) = self.drawer_state.input() {
                         input.insert_str(pasted);
                     } else if let DrawerState::DrawerEdit(des) = &mut self.drawer_state {

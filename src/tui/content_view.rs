@@ -135,7 +135,7 @@ impl ContentView {
         let scrollbar = des.scrollbar();
         let name_width = layout.name_width as usize;
         let value_left = name_width + 2; // 1 for selection mark, one for '|'
-        let value_width = layout.lines_area.width as usize - value_left;
+        let value_width = layout.value_width();
         let tbl_style = self.skin.tbl_style(false);
         let normal_style = self.skin.txt_style(false);
         // -- header

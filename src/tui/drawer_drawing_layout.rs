@@ -27,6 +27,11 @@ impl DrawerDrawingLayout {
     pub fn is_in_name_column(&self, x: u16) -> bool {
         x <= self.name_width
     }
+    pub fn value_width(&self) -> usize {
+        let name_width = self.name_width as usize;
+        let value_left = name_width + 2; // 1 for selection mark, one for '|'
+        self.lines_area.width as usize - value_left
+    }
 }
 
 

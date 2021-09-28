@@ -42,6 +42,17 @@ impl DrawerState {
         }
     }
     #[allow(dead_code)]
+    pub fn is_on_entry_value(&mut self) -> bool {
+        match self {
+            Self::DrawerEdit(des) => match &mut des.focus {
+                DrawerFocus::NameEdit { .. } => true,
+                DrawerFocus::ValueEdit { .. } => true,
+                _ => false,
+            },
+            _ => false,
+        }
+    }
+    #[allow(dead_code)]
     pub fn has_input(&self) -> bool {
         match self {
             Self::DrawerCreation(PasswordInputState { .. }) => true,

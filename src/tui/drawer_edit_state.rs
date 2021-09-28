@@ -5,7 +5,7 @@ use {
         error::SafeClosetError,
         search::*,
     },
-    termimad::{Area, InputField},
+    termimad::{Area, InputField, FmtText},
 };
 
 /// State of the application when a drawer is open.
@@ -67,11 +67,15 @@ impl DrawerEditState {
         self.layout.value_height_addition = match &self.focus {
             DrawerFocus::ValueSelected { line } => {
                 self.listed_entry_idx(*line).map_or(0, |idx| {
-                    self.drawer.content.entries[idx]
-                        .value
-                        .chars()
-                        .filter(|&c| c == '\n')
-                        .count()
+                    // we compute the number of lines the text would be for
+                    // the available width (taking wrapping into account)
+                    let value_width = self.layout.value_width();
+                    let text = FmtText::from(
+                        termimad::get_default_skin(),
+                        &self.drawer.content.entries[idx].value,
+                        Some(value_width),
+                    );
+                    (text.lines.len() - 1)
                         .min(page_height as usize - 4)
                 })
             }
