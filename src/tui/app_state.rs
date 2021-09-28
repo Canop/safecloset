@@ -84,6 +84,7 @@ impl AppState {
 
     /// Handle an event asking for pasting into SafeCloset
     pub fn paste(&mut self) {
+        use DrawerFocus::*;
         #[cfg(not(feature = "clipboard"))]
         {
             self.set_error("Clipboard feature not enabled at compilation");
