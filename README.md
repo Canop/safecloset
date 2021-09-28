@@ -6,16 +6,13 @@
 [s2]: https://miaou.dystroy.org/static/shields/room.svg
 [l2]: https://miaou.dystroy.org/3768?rust
 
-**SafeCloset** keeps your secrets in password protected files. **SafeCloset** is designed to be convenient and avoid common weaknesses like external editing or clear temporary files written on disk.
+**SafeCloset** keeps your secrets in password protected files.
+**SafeCloset** is designed to be convenient and avoid common weaknesses like external editing or temporary files written on disk.
 
 # Warning
 
-* This is a personal project
-* It hasn't been audited
-* It's not even finished anyway
-* The storage format is still expected to change in breaking ways
-
-SafeCloset comes with **absolutely** no guarantee. And I can do nothing for you if you lose the secrets you stored in SafeCloset.
+**SafeCloset** hasn't been independently audited yet and comes with **absolutely** no guarantee.
+And I can do nothing for you if you lose the secrets you stored in SafeCloset.
 
 # Overview
 
@@ -50,17 +47,95 @@ A drawer can also contains deeper crypted drawers.
 * No company can be forced to add some secret stealing code: SafeCloset is small, open-source and repleacable
 * Fast and convenient to use - This is where the focus of the design was
 * Cross-platform because you don't know where you'll have to use your closet
-* "I'm being watched" mode in which unselected values are hidden. This mode is kept per drawer, and always activated when you launch SafeCloset with the `--hide` option
+* "I'm being watched" mode in which unselected values are hidden. This mode is kept per drawer, always activated when you launch SafeCloset with the `--hide` option, and toggled with <kbd>ctrl</kbd><kbd>h</kbd>
 
 # Non features
 
 * SafeCloset doesn't protect you against keyloggers
 * SafeCloset doesn't protect you from somebody watching your screen while a secret value is displayed (but the rest of the drawer can be kept hidden)
 
-# Features not yet implemented
+# Usage
 
-- pasting (I don't think it would be a good idea to allow copying from safecloset)
-- password change
+*Those screenshots are small, to fit here, but you may use SafeCloset full screen if you want.*
+
+## Create your closet file
+
+Run
+
+```bash
+safecloset some/name.closet
+```
+
+![new closet](doc/new-closet.png)
+
+## Have a glance at the help
+
+Hit <kbd>?</kbd> to go to the help screen, where you'll find the complete list of commands.
+
+![help](doc/help.png)
+
+Hit <kbd>esc</kbd> to get back to the previous screen.
+
+## Create your first drawer
+
+Hit <kbd>ctrl</kbd><kbd>n</kbd>
+
+![drawer creation](doc/drawer-creation.png)
+
+![new drawer](doc/new-drawer.png)
+
+If you want, you can create a deeper drawer there, at any time, by hitting <kbd>ctrl</kbd><kbd>n</kbd>.
+
+Or hit <kbd>n</kbd> to create a new entry, starting with its name then hitting <kbd>tab</kbd> to go fill its value.
+
+![typing entry](doc/typing-entry.png)
+
+Change the selection with the arrow keys.
+Go from input to input with the <kbd>tab</kbd> key. Or edit the currently selected field with <kbd>a</kbd>.
+
+Reorder entries with <kbd>ctrl</kbd><kbd>🠕</kbd> and <kbd>ctrl</kbd><kbd>🠗</kbd>.
+
+In SafeCloset, when editing, searching, opening, etc., the <kbd>enter</kbd> key validates the operation while the <kbd>esc</kbd> key cancels or closes.
+
+You may add newlines in values with <kbd>ctrl</kbd><kbd>enter</kbd>:
+
+![multiline](doc/multiline.png)
+
+*You may notice the values are rendered as Markdown.*
+
+Don't hesitate to store hundreds of secrets in the same drawer as you'll easily find them with the fuzzy search.
+
+Search with the <kbd>/</kbd> key:
+
+![search](doc/search.png)
+
+## Save
+
+Hit <kbd>ctrl</kbd><kbd>s</kbd> to save, or <kbd>ctrl</kbd><kbd>x</kbd> to save and quit.
+
+## Reopen
+
+The same command is used later on to open the closet again:
+
+```bash
+safecloset some/name.closet
+```
+
+It may be a good idea to define an alias so that you have your secrets easily available.
+You could for example have this in you `.bashrc`:
+
+```bash
+function xx {
+	safecloset -o ~/some/name.closet
+}
+```
+
+The `-o` argument makes safecloset immediately prompt for drawer password, so that you don't have to type <kbd>ctrl</kbd><kbd>o</kbd>.
+
+On opening, just type the password of the drawer you want to open (all will be tested until the right one opens):
+
+![drawer opening](doc/drawer-opening.png)
+
 
 # Keyboard actions
 
@@ -81,6 +156,7 @@ A drawer can also contains deeper crypted drawers.
 * <kbd>Enter</kbd> : Validate the current edition
 * <kbd>alt</kbd>-<kbd>Enter</kbd> : New line in the currently edited value
 
+
 # Advices
 
 1. Use the search to navigate among entries. That's the most efficient solution. It's OK to have thousands of secrets in your drawer.
@@ -88,7 +164,7 @@ A drawer can also contains deeper crypted drawers.
 1. **Don't use drawers as categories**. They separate audience or security levels and ensure plausible deniability. You're supposed to have one drawer for most of your secrets. Maybe a second one if you have a *very secret* level. Or one with your work secrets that you may open with colleagues nearby. Or one for the family that even the kids can read. This shouldn't be more than 3 or 4 drawers at most.
 1. Backup your closet files. They're not readable as long as your passphrases can't be guessed so you don't have to hide those files and it's most important to not lose them.
 1. Use hard to guess passphrases, but ones that you can remember for a very long time.
-1. You may keep the executables of all OS on your USB keys, so that you can read your secrets everywhere.
+1. You may keep the executables of all platforms on your USB keys, so that you can read your secrets everywhere.
 
 
 # Storage format
