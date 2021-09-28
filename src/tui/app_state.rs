@@ -67,12 +67,13 @@ impl AppState {
     fn save(&mut self, reopen_if_open: bool) -> Result<(), SafeClosetError> {
         time!(self.close_drawer_input(false));
         let drawer_state = std::mem::take(&mut self.drawer_state);
-        if let DrawerState::DrawerEdit(des) = drawer_state {
+        if let DrawerState::DrawerEdit(mut des) = drawer_state {
             if reopen_if_open {
                 self.drawer_state = DrawerState::DrawerEdit(
                     time!(des.save_and_reopen(&mut self.open_closet)?)
                 );
             } else {
+                des.drawer.content.remove_empty_entries();
                 time!(self.open_closet.push_back(des.drawer)?);
                 time!(self.open_closet.close_and_save())?;
             }
