@@ -28,6 +28,12 @@ impl DrawerState {
     pub fn is_edit(&self) -> bool {
         matches!(self, DrawerState::DrawerEdit(_))
     }
+    pub fn is_pending_removal(&self) -> bool {
+        matches!(
+            self,
+            Self::DrawerEdit(DrawerEditState { focus: DrawerFocus::PendingRemoval{..}, .. }),
+        )
+    }
     pub fn input(&mut self) -> Option<&mut InputField> {
         match self {
             Self::DrawerCreation(PasswordInputState { input }) => Some(input),

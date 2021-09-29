@@ -5,26 +5,36 @@ use {
         style::{Color, Color::*},
     },
     minimad::{Alignment, Composite},
-    termimad::{gray, Area, CompoundStyle, MadSkin},
+    termimad::{ansi, gray, Area, CompoundStyle, MadSkin},
 };
 
 /// The view giving hints or informing of an error, at
 /// the bottom of the screen
+#[derive(Default)]
 pub struct StatusView {
     area: Area,
-    hint_skin: MadSkin,
-    error_skin: MadSkin,
+    skin: StatusSkin,
     drawer_display_count: usize,
 }
 
-impl Default for StatusView {
+struct StatusSkin {
+    hint: MadSkin,
+    info: MadSkin,
+    error: MadSkin,
+}
+
+impl Default for StatusSkin {
     fn default() -> Self {
-        Self {
-            area: Area::uninitialized(),
-            hint_skin: make_hint_skin(),
-            error_skin: make_error_skin(),
-            drawer_display_count: 0,
-        }
+        let mut hint = MadSkin::default();
+        hint.paragraph.set_fgbg(AnsiValue(252), AnsiValue(239));
+        hint.italic = CompoundStyle::with_fg(AnsiValue(222));
+        let mut info = MadSkin::default();
+        info.paragraph.set_fg(AnsiValue(252));
+        info.italic = CompoundStyle::with_fg(AnsiValue(222));
+        info.set_bg(ansi(24));
+        let mut error = MadSkin::default();
+        error.paragraph.set_fgbg(AnsiValue(254), AnsiValue(160));
+        Self { hint, info, error }
     }
 }
 
@@ -77,47 +87,35 @@ impl View for StatusView {
 
     fn draw(&mut self, w: &mut W, state: &mut AppState) -> Result<(), SafeClosetError> {
         self.go_to_line(w, self.area.top)?;
-        if let Some(Message { text, error }) = &state.message {
-            let composite = Composite::from_inline(text);
-            let skin = if *error {
-                &self.error_skin
+        let skin;
+        let text;
+        if state.drawer_state.is_pending_removal() {
+            text = "Hit *y* to confirm entry removal (any other key cancels it)";
+            skin = &self.skin.info;
+        } else if let Some(ref message) = &state.message {
+            skin = if message.error {
+                &self.skin.error
             } else {
-                &self.hint_skin
+                &self.skin.info
             };
-            skin.write_composite_fill(
-                w,
-                composite,
-                self.width(),
-                Alignment::Unspecified,
-            )?;
+            text = &message.text;
         } else {
-            let s = if state.help.is_some() {
+            text = if state.help.is_some() {
                 "Hit *^q* to quit, *esc* to close the help"
             } else if let DrawerState::DrawerEdit(des) = &state.drawer_state {
                 self.rotate_drawer_hint(des)
             } else {
                 "Hit *^q* to quit, *?* for help"
             };
-            self.hint_skin.write_composite_fill(
-                w,
-                Composite::from_inline(s),
-                self.width(),
-                Alignment::Unspecified,
-            )?;
+            skin = &self.skin.hint;
         }
+        let composite = Composite::from_inline(text);
+        skin.write_composite_fill(
+            w,
+            composite,
+            self.width(),
+            Alignment::Unspecified,
+        )?;
         Ok(())
     }
-}
-
-fn make_hint_skin() -> MadSkin {
-    let mut skin = MadSkin::default();
-    skin.paragraph.set_fgbg(AnsiValue(252), AnsiValue(239));
-    skin.italic = CompoundStyle::with_fg(AnsiValue(222)); // 203 ?
-    skin
-}
-
-fn make_error_skin() -> MadSkin {
-    let mut skin = MadSkin::default();
-    skin.paragraph.set_fgbg(AnsiValue(254), AnsiValue(160));
-    skin
 }
