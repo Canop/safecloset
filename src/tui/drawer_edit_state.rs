@@ -51,6 +51,87 @@ impl DrawerEditState {
         }
     }
 
+    pub fn move_line(&mut self, dir: Direction) {
+        use DrawerFocus::*;
+        match dir {
+            Direction::Up => {
+                if self.focus.is_search() {
+                    if let Some(line) = self.best_search_line() {
+                        let line = if line > 0 {
+                            line - 1
+                        } else {
+                            self.listed_entries_count() - 1
+                        };
+                        self.focus = NameSelected { line };
+                    } else {
+                        // there's no match, so there's no point to keep the search
+                        self.search.clear();
+                        self.search.update(&self.drawer);
+                        self.focus = NameSelected { line: 0 };
+                    }
+                    return;
+                }
+                if let NameSelected { line } = &self.focus {
+                    let line = if *line > 0 {
+                        line - 1
+                    } else {
+                        self.listed_entries_count() - 1
+                    };
+                    self.focus = NameSelected { line };
+                }
+                if let ValueSelected { line } = &self.focus {
+                    let line = if *line > 0 {
+                        line - 1
+                    } else {
+                        self.listed_entries_count() - 1
+                    };
+                    self.focus = ValueSelected { line };
+                }
+                if matches!(self.focus, NoneSelected) {
+                    self.focus = NameSelected { line: 0 };
+                }
+            }
+            Direction::Down => {
+                if self.focus.is_search() {
+                    if let Some(line) = self.best_search_line() {
+                        let line = if line < self.listed_entries_count() {
+                            line + 1
+                        } else {
+                            0
+                        };
+                        self.focus = NameSelected { line };
+                    } else {
+                        // there's no match, so there's no point to keep the search
+                        self.search.clear();
+                        self.search.update(&self.drawer);
+                        self.focus = NameSelected { line: 0 };
+                    }
+                    return;
+                }
+                if let NameSelected { line } = &self.focus {
+                    let line = if *line + 1 < self.listed_entries_count() {
+                        line + 1
+                    } else {
+                        0
+                    };
+                    self.focus = NameSelected { line };
+                }
+                if let ValueSelected { line } = &self.focus {
+                    let line = if *line + 1 < self.listed_entries_count() {
+                        line + 1
+                    } else {
+                        0
+                    };
+                    self.focus = ValueSelected { line };
+                }
+                if matches!(self.focus, NoneSelected) {
+                    self.focus = NameSelected { line: 0 };
+                }
+            }
+        }
+    }
+
+
     /// change the drawer drawing layout to adapt to the
     /// content area in which it will be
     pub fn update_drawing_layout(

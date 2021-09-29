@@ -49,6 +49,9 @@ pub(super) fn run(
                         state.on_click(x, y)?;
                         timer.reset();
                     }
+                    Event::Wheel(amount) => {
+                        state.on_mouse_wheel(amount);
+                    }
                     _ => {}
                 }
                 event_source.unblock(quit);

@@ -160,6 +160,15 @@ impl AppState {
         Ok(())
     }
 
+    /// Handle a mouse wheel event
+    pub fn on_mouse_wheel(&mut self, amount: i32) {
+        if let DrawerState::DrawerEdit(des) = &mut self.drawer_state {
+            des.move_line(
+                if amount < 0 { Direction::Up } else { Direction::Down }
+            );
+        }
+    }
+
     /// push back the open drawer, if any, and set the drawer_state to NoneOpen
     fn push_back_drawer(&mut self) -> Result<(), SafeClosetError> {
         self.close_drawer_input(true);
@@ -170,6 +179,7 @@ impl AppState {
         }
         Ok(())
     }
+
 
     /// Handle a key event
     pub fn on_key(&mut self, key: KeyEvent) -> Result<CmdResult, SafeClosetError> {
@@ -505,79 +515,11 @@ impl AppState {
                 return Ok(CmdResult::Stay);
             }
             if key == UP {
-                if des.focus.is_search() {
-                    if let Some(line) = des.best_search_line() {
-                        let line = if line > 0 {
-                            line - 1
-                        } else {
-                            des.listed_entries_count() - 1
-                        };
-                        des.focus = NameSelected { line };
-                    } else {
-                        // there's no match, so there's no point to keep the search
-                        des.search.clear();
-                        des.search.update(&des.drawer);
-                        des.focus = NameSelected { line: 0 };
-                    }
-                    return Ok(CmdResult::Stay);
-                }
-                if let NameSelected { line } = &des.focus {
-                    let line = if *line > 0 {
-                        line - 1
-                    } else {
-                        des.listed_entries_count() - 1
-                    };
-                    des.focus = NameSelected { line };
-                }
-                if let ValueSelected { line } = &des.focus {
-                    let line = if *line > 0 {
-                        line - 1
-                    } else {
-                        des.listed_entries_count() - 1
-                    };
-                    des.focus = ValueSelected { line };
-                }
-                if matches!(des.focus, NoneSelected) {
-                    des.focus = NameSelected { line: 0 };
-                }
+                des.move_line(Direction::Up);
                 return Ok(CmdResult::Stay);
             }
             if key == DOWN {
-                if des.focus.is_search() {
-                    if let Some(line) = des.best_search_line() {
-                        let line = if line < des.listed_entries_count() {
-                            line + 1
-                        } else {
-                            0
-                        };
-                        des.focus = NameSelected { line };
-                    } else {
-                        // there's no match, so there's no point to keep the search
-                        des.search.clear();
-                        des.search.update(&des.drawer);
-                        des.focus = NameSelected { line: 0 };
-                    }
-                    return Ok(CmdResult::Stay);
-                }
-                if let NameSelected { line } = &des.focus {
-                    let line = if *line + 1 < des.listed_entries_count() {
-                        line + 1
-                    } else {
-                        0
-                    };
-                    des.focus = NameSelected { line };
-                }
-                if let ValueSelected { line } = &des.focus {
-                    let line = if *line + 1 < des.listed_entries_count() {
-                        line + 1
-                    } else {
-                        0
-                    };
-                    des.focus = ValueSelected { line };
-                }
-                if matches!(des.focus, NoneSelected) {
-                    des.focus = NameSelected { line: 0 };
-                }
+                des.move_line(Direction::Down);
                 return Ok(CmdResult::Stay);
             }
         }

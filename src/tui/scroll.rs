@@ -7,6 +7,12 @@ pub enum ScrollCommand {
     Pages(i32),
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum Direction {
+    Up,
+    Down,
+}
+
 impl ScrollCommand {
     fn to_lines(self, content_height: usize, page_height: usize) -> i32 {
         match self {
