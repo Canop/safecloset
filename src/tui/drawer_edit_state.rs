@@ -88,6 +88,10 @@ impl DrawerEditState {
         self.layout.has_scrollbar = self.content_height() > self.page_height();
     }
 
+    pub fn update_search(&mut self) {
+        self.search.update(&self.drawer)
+    }
+
     pub fn clicked_line(&self, y: u16) -> Option<usize> {
         if y >= self.layout.lines_area.top {
             let line = y as usize + self.scroll - self.layout.lines_area.top as usize;

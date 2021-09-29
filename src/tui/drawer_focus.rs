@@ -1,4 +1,5 @@
 use {
+    std::fmt,
     termimad::{InputField},
 };
 
@@ -63,3 +64,32 @@ impl DrawerFocus {
         }
     }
 }
+
+impl fmt::Debug for DrawerFocus {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::NoneSelected => {
+                f.debug_struct("NoneSelected").finish()
+            }
+            Self::NameSelected { line } => {
+		f.debug_struct("NameSelected").field("line", line).finish()
+            }
+            Self::ValueSelected { line } => {
+		f.debug_struct("ValueSelected").field("line", line).finish()
+            }
+            Self::NameEdit { line, .. } => {
+		f.debug_struct("NameEdit").field("line", line).finish()
+            }
+            Self::ValueEdit { line, .. } => {
+		f.debug_struct("ValueEdit").field("line", line).finish()
+            }
+            Self::SearchEdit => {
+		f.debug_struct("SearchEdit").finish()
+            }
+            Self::PendingRemoval { line } => {
+		f.debug_struct("PendingRemoval").field("line", line).finish()
+            }
+        }
+    }
+}
+

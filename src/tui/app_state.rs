@@ -84,13 +84,13 @@ impl AppState {
 
     /// Handle an event asking for pasting into SafeCloset
     pub fn paste(&mut self) {
-        use DrawerFocus::*;
         #[cfg(not(feature = "clipboard"))]
         {
             self.set_error("Clipboard feature not enabled at compilation");
         }
         #[cfg(feature = "clipboard")]
         {
+            use DrawerFocus::*;
             match terminal_clipboard::get_string() {
                 Ok(mut pasted) if !pasted.is_empty() => {
                     if !self.drawer_state.is_on_entry_value() {
@@ -141,7 +141,6 @@ impl AppState {
                 return Ok(());
             } else if let DrawerState::DrawerEdit(des) = &mut self.drawer_state {
                 // unfocusing the input, validating it
-                debug!("unfocusing des input");
                 des.focus = DrawerFocus::NoneSelected;
             }
         }
@@ -273,6 +272,7 @@ impl AppState {
                     }
                     _ => {}
                 }
+                des.update_search();
             }
             return Ok(CmdResult::Stay);
         }
@@ -294,6 +294,7 @@ impl AppState {
                     }
                     _ => {}
                 }
+                des.update_search();
             }
             return Ok(CmdResult::Stay);
         }
@@ -309,10 +310,11 @@ impl AppState {
                         info!("user requests entry removal");
                         des.drawer.content.entries.remove(idx);
                         des.focus = if line > 0 {
-                            NameSelected { line }
+                            NameSelected { line: line - 1 }
                         } else {
                             NoneSelected
                         };
+                        des.update_search();
                     } else {
                         info!("user cancels entry removal");
                         des.focus = NameSelected { line };
@@ -409,6 +411,7 @@ impl AppState {
                         );
                     }
                 }
+                des.update_search();
                 return Ok(CmdResult::Stay);
             }
         }
@@ -428,7 +431,7 @@ impl AppState {
 
         // --- help
 
-        if key == F1 || key == QUESTION {
+        if key == F1 || key == QUESTION { // note that F1 is rarely available in terminals
             self.help = Some(HelpState::default());
             return Ok(CmdResult::Stay);
         }

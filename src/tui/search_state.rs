@@ -39,10 +39,8 @@ impl SearchState {
     pub fn update(&mut self, drawer: &OpenDrawer){
         if self.input.is_empty() {
             self.result = None;
-            debug!("no more search");
         } else {
             let pattern = FuzzyPattern::from(&self.input.get_content());
-            debug!("searching on pattern {:?}", &pattern);
             let mut entries: Vec<MatchingEntry> = Vec::new();
             let mut best_line: Option<usize> = None;
             for (idx, entry) in drawer.content.entries.iter().enumerate() {
