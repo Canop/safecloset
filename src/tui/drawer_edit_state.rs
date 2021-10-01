@@ -156,7 +156,7 @@ impl DrawerEditState {
                         &self.drawer.content.entries[idx].value,
                         Some(value_width),
                     );
-                    (text.lines.len() - 1)
+                    (text.lines.len().max(1) - 1)
                         .min(page_height as usize - 4)
                 })
             }
