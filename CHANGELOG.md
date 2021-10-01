@@ -1,3 +1,7 @@
+<a name="v0.2.3"></a>
+### v0.2.3 - 2021-10-01
+- fix a crash on rendering with an empty value
+
 <a name="v0.2.2"></a>
 ### v0.2.2 - 2021-09-29
 - `-o` option to immediately prompt for password for drawer opening
