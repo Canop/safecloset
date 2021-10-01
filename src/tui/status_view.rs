@@ -60,10 +60,10 @@ impl StatusView {
                 if matches!(des.focus, DrawerFocus::NameSelected{..}|DrawerFocus::ValueSelected{..}) {
                     hints.push("Hit *^q* to quit, *i* to edit the selected cell, *?* for help");
                 }
-                hints.push("Hit *^q* to quit, */* to search, *n* to create a new entry");
-                hints.push("Hit *^q* to quit, *?* for help");
+                hints.push("Hit *^x* to save and quit, */* to search, *n* to create a new entry");
+                hints.push("Hit *^x* to save and quit, *?* for help");
                 hints.push("Hit *^q* to quit, */* to search, *^h* to toggle values visibility");
-                hints.push("Hit *^q* to quit, */* to search, arrows to select a cell");
+                hints.push("Hit *^x* to save and quit, */* to search, arrows to select a cell");
                 hints.push("Hit *^q* to quit, *tab* to edit the next cell, *?* for help");
             }
             hints.push("Hit *^q* to quit, *?* for help");
@@ -101,11 +101,11 @@ impl View for StatusView {
             text = &message.text;
         } else {
             text = if state.help.is_some() {
-                "Hit *^q* to quit, *esc* to close the help"
+                "Hit *^x* to save and quit, *esc* to close the help"
             } else if let DrawerState::DrawerEdit(des) = &state.drawer_state {
                 self.rotate_drawer_hint(des)
             } else {
-                "Hit *^q* to quit, *?* for help"
+                "Hit *^x* to save and quit, *?* for help"
             };
             skin = &self.skin.hint;
         }
