@@ -33,6 +33,7 @@ pub(super) fn run(
 
             // user events
             recv(events) -> event => {
+                // debug!("user event: {:?}", &event);
                 match event? {
                     Event::Resize(width, height) => {
                         view.set_area(Area::new(0, 0, width, height));

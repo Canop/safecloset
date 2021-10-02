@@ -97,7 +97,7 @@ Reorder entries with <kbd>ctrl</kbd><kbd>🠕</kbd> and <kbd>ctrl</kbd><kbd>🠗
 
 In SafeCloset, when editing, searching, opening, etc., the <kbd>enter</kbd> key validates the operation while the <kbd>esc</kbd> key cancels or closes.
 
-You may add newlines in values with <kbd>ctrl</kbd><kbd>enter</kbd>:
+You may add newlines in values with <kbd>alt</kbd><kbd>enter</kbd>:
 
 ![multiline](doc/multiline.png)
 

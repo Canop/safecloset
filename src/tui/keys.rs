@@ -20,6 +20,8 @@ macro_rules! const_key {
 
 // we define a few constants which make it easier to check key events
 const_key!(ENTER, Enter);
+const_key!(CONTROL_ENTER, Enter, KeyModifiers::CONTROL);
+const_key!(ALT_ENTER, Enter, KeyModifiers::ALT);
 //const_key!(BACKSPACE, Backspace);
 //const_key!(BACK_TAB, BackTab, KeyModifiers::SHIFT); // backtab needs shift
 //const_key!(DELETE, Delete);
