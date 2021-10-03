@@ -36,7 +36,7 @@ The *^* symbol in SafeCloset means that the *control* key must be pressed.
 | *a* | Start editing the selected name or value, cursor at end
 | *d* | Remove the selected entry (with confirmation)
 | *Enter* | Validate the current edition
-| *alt*-*Enter* | New line in the currently edited value
+| *alt*-*Enter* or *^enter* | New line in the currently edited value
 |-|-
 
 ## Guarantees

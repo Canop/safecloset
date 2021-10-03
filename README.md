@@ -156,7 +156,7 @@ On opening, just type the password of the drawer you want to open (all will be t
 * <kbd>i</kbd> or <kbd>insert</kbd> : Start editing the selected name or value
 * <kbd>d</kbd> : Remove the selected entry (with confirmation)
 * <kbd>Enter</kbd> : Validate the current edition
-* <kbd>alt</kbd>-<kbd>Enter</kbd> : New line in the currently edited value
+* <kbd>alt</kbd><kbd>Enter</kbd> or <kbd>ctrl</kbd><kbd>Enter</kbd>: New line in the currently edited value
 
 
 # Advices
