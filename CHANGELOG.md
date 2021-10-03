@@ -1,3 +1,7 @@
+<a name="v0.2.4"></a>
+### v0.2.4 - 2021-10-03
+- now both ctrl-enter and alt-enter can be used to insert a new line in a value (but many terminals support only one of them)
+
 <a name="v0.2.3"></a>
 ### v0.2.3 - 2021-10-01
 - fix a crash on rendering with an empty value
