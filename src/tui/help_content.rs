@@ -21,7 +21,7 @@ The *^* symbol in SafeCloset means that the *control* key must be pressed.
 |:-:|-
 | *^n* | Create a drawer (inside the current drawer, if one is open)
 | *^o* | Open a drawer
-| *^c* | Close the current drawer (you're back in the upper level one if you close a deep drawer)
+| *^u* | Goes up, closing the current drawer (you're back in the upper level one if you close a deep drawer)
 | *^s* | Save the current drawer and all upper drawers
 | *^x* | Save then quit
 | *^q* | Quit without saving (with no confirmation)

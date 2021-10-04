@@ -46,6 +46,7 @@ const_key!(CONTROL_N, Char('n'), KeyModifiers::CONTROL);
 const_key!(CONTROL_O, Char('o'), KeyModifiers::CONTROL);
 const_key!(CONTROL_Q, Char('q'), KeyModifiers::CONTROL);
 const_key!(CONTROL_S, Char('s'), KeyModifiers::CONTROL);
+const_key!(CONTROL_U, Char('u'), KeyModifiers::CONTROL);
 const_key!(CONTROL_X, Char('x'), KeyModifiers::CONTROL);
 const_key!(CONTROL_UP, Up, KeyModifiers::CONTROL);
 const_key!(CONTROL_DOWN, Down, KeyModifiers::CONTROL);

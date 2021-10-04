@@ -222,7 +222,7 @@ impl AppState {
             return Ok(CmdResult::Quit);
         }
 
-        if key == CONTROL_C { // close
+        if key == CONTROL_U { // up the drawer chain, close the current one
             if self.help.is_some() {
                 // close the help
                 self.help = None;

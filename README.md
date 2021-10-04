@@ -138,18 +138,6 @@ On opening, just type the password of the drawer you want to open (all will be t
 
 ![drawer opening](doc/drawer-opening.png)
 
-
-
-# Advices
-
-1. Use the search to navigate among entries. That's the most efficient solution. It's OK to have thousands of secrets in your drawer.
-1. You may not need deep drawers. They make you open twice, with two passwords, so don't use them without reason.
-1. Don't use drawers as categories. They separate audience or security levels and ensure plausible deniability. You're supposed to have one drawer for most of your secrets. Maybe a second one if you have a *very secret* level. Or one with your work secrets that you may open with colleagues nearby. Or one for the family that even the kids can read. This shouldn't be more than 3 or 4 drawers at most.
-1. Backup your closet files. They're not readable as long as your passphrases can't be guessed so you don't have to hide those files and it's most important to not lose them.
-1. Use hard to guess passphrases, but ones that you can remember for a very long time.
-1. You may keep the executables of all platforms on your USB keys, so that you can read your secrets everywhere.
-1. Don't forget to have your closet file in your backup plan
-
 # Storage format
 
 The closet file is a [MessagePack](https://msgpack.org/index.html) encoded structure `Closet` with the following fields:
