@@ -9,6 +9,9 @@
 **SafeCloset** keeps your secrets in password protected files.
 **SafeCloset** is designed to be convenient and avoid common weaknesses like external editing or temporary files written on disk.
 
+
+**[SafeCloset documentation](https://dystroy.org/safecloset)**
+
 # Warning
 
 **SafeCloset** hasn't been independently audited yet and comes with **absolutely** no guarantee.
