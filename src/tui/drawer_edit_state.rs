@@ -198,6 +198,28 @@ impl DrawerEditState {
     pub fn value_height_addition(&self) -> usize {
         self.layout.value_height_addition
     }
+    #[allow(dead_code)]
+    pub fn current_cell(&self) -> Option<&str> {
+        use DrawerFocus::*;
+        match &self.focus {
+            NameSelected { line } | NameEdit { line, .. } => {
+                self.listed_entry_idx(*line)
+                    .and_then(|idx| self.drawer.content.entries.get(idx))
+                    .map(|entry| entry.name.as_str())
+            }
+            ValueSelected { line } | ValueEdit { line, .. } => {
+                self.listed_entry_idx(*line)
+                    .and_then(|idx| self.drawer.content.entries.get(idx))
+                    .map(|entry| entry.value.as_str())
+            }
+            _ => {
+                None
+            }
+        }
+    }
+    /// give the index of the entry from its line among the listed
+    /// entries (either all entries or only the ones matching if there's
+    /// a search)
     pub fn listed_entry_idx(&self, line: usize) -> Option<usize> {
         if let Some(search_result) = &self.search.result {
             search_result

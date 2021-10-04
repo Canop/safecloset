@@ -82,6 +82,30 @@ impl AppState {
         Ok(())
     }
 
+    /// Handle an event asking for copying from SafeCloset
+    pub fn copy(&mut self) {
+        #[cfg(not(feature = "clipboard"))]
+        {
+            self.set_error("Clipboard feature not enabled at compilation");
+        }
+        #[cfg(feature = "clipboard")]
+        {
+            if let DrawerState::DrawerEdit(des) = &self.drawer_state {
+                if let Some(cell) = des.current_cell() {
+                    if let Err(e) = terminal_clipboard::set_string(cell) {
+                        self.set_error(e.to_string());
+                    } else {
+                        self.set_info("cell copied in the clipboard, be cautious");
+                    }
+                } else {
+                    self.set_error("you can only copy from a selected name or value");
+                }
+            } else {
+                self.set_error("you can only copy from an open drawer");
+            }
+        }
+    }
+
     /// Handle an event asking for pasting into SafeCloset
     pub fn paste(&mut self) {
         #[cfg(not(feature = "clipboard"))]
@@ -236,6 +260,11 @@ impl AppState {
                     None => DrawerState::NoneOpen,
                 };
             }
+            return Ok(CmdResult::Stay);
+        }
+
+        if key == CONTROL_C {
+            self.copy();
             return Ok(CmdResult::Stay);
         }
 
