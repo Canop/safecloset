@@ -22,7 +22,7 @@ A closet contains drawers, each one is found and open with its own password.
 
 A drawer contains a list of (key, value). Values are texts in which you can store a code, a password, comments, a poem, some data, etc.
 
-A drawer can also contains deeper crypted drawers.
+A drawer can also contain deeper crypted drawers.
 
 ![clear drawer](doc/clear-drawer.png)
 
@@ -97,7 +97,7 @@ Reorder entries with <kbd>ctrl</kbd><kbd>🠕</kbd> and <kbd>ctrl</kbd><kbd>🠗
 
 In SafeCloset, when editing, searching, opening, etc., the <kbd>enter</kbd> key validates the operation while the <kbd>esc</kbd> key cancels or closes.
 
-You may add newlines in values with <kbd>alt</kbd><kbd>enter</kbd>:
+You may add newlines in values with <kbd>ctrl</kbd><kbd>enter</kbd> or <kbd>alt</kbd><kbd>enter</kbd>:
 
 ![multiline](doc/multiline.png)
 
@@ -139,25 +139,6 @@ On opening, just type the password of the drawer you want to open (all will be t
 ![drawer opening](doc/drawer-opening.png)
 
 
-# Keyboard actions
-
-* <kbd>?</kbd> : Open the help screen
-* <kbd>ctrl</kbd><kbd>n</kbd> : Create a drawer (in the open drawer, or at root when none is open)
-* <kbd>ctrl</kbd><kbd>o</kbd> : Open a drawer
-* <kbd>ctrl</kbd><kbd>c</kbd> : Close the current drawer, without saving (you're back in the upper level one if you close a deep drawer)
-* <kbd>ctrl</kbd><kbd>s</kbd> : Save the current drawer and all upper drawers
-* <kbd>ctrl</kbd><kbd>x</kbd> : Save then quit
-* <kbd>ctrl</kbd><kbd>q</kbd> : Quit without saving (with no confirmation)
-* <kbd>/</kbd> : Start searching the current drawer (do <kbd>enter</kbd> or use the down or up arrow key to freeze it)
-* <kbd>/</kbd> then <kbd>esc</kbd> : Remove the current filtering
-* <kbd>esc</kbd> : Cancel current field edition
-* <kbd>tab</kbd> : Create a new entry or edit the value if you're already editing an entry's name
-* arrow keys : Move selection, selecting either an entry name or a value
-* <kbd>i</kbd> or <kbd>insert</kbd> : Start editing the selected name or value
-* <kbd>d</kbd> : Remove the selected entry (with confirmation)
-* <kbd>Enter</kbd> : Validate the current edition
-* <kbd>alt</kbd><kbd>Enter</kbd> or <kbd>ctrl</kbd><kbd>Enter</kbd>: New line in the currently edited value
-
 
 # Advices
 
@@ -167,7 +148,7 @@ On opening, just type the password of the drawer you want to open (all will be t
 1. Backup your closet files. They're not readable as long as your passphrases can't be guessed so you don't have to hide those files and it's most important to not lose them.
 1. Use hard to guess passphrases, but ones that you can remember for a very long time.
 1. You may keep the executables of all platforms on your USB keys, so that you can read your secrets everywhere.
-
+1. Don't forget to have your closet file in your backup plan
 
 # Storage format
 

@@ -22,7 +22,7 @@ pub use {
     random::*,
 };
 
-pub const MIN_PASSWORD_LENGTH: usize = 12;
+pub const MIN_PASSWORD_LENGTH: usize = 2;
 
 /// test most opening, saving, reopening, etc. operations in
 /// a complex scenario
