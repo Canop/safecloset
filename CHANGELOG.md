@@ -1,5 +1,7 @@
-### next
+<a name="v0.2.5"></a>
+### v0.2.5 - 2021-10-05
 - closing a drawer (and going to the upper drawer) is now done with ctrl-u
+- on some platforms, ctrl-c copies the selected cell (if safecloset is compiled with "clipbpoard" feature)
 
 <a name="v0.2.4"></a>
 ### v0.2.4 - 2021-10-03

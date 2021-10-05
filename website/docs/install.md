@@ -21,7 +21,9 @@ cargo install --features clipboard --path .
 
 Binaries are made available at every release on [GitHub](https://github.com/Canop/safecloset/releases).
 
-When you download executable files, you'll have to ensure the shell can find them. An easy solution is to put them in `/usr/local/bin`. You may also have to set them executable using `chmod +x safecloset`.
+When you download executable files, you'll have to ensure the shell can find them. An easy solution is to put them in `/usr/local/bin`.
+
+You may also have to set them executable using `chmod +x safecloset`.
 
 # From crates.io
 

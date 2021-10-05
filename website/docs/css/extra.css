@@ -73,6 +73,7 @@ pre {
 	color: var(--code-fg);
 	background: var(--code-bg);
 	border: solid 1px var(--code-bg);
+	padding: 6px 0 4px 6px;
 }
 
 code {

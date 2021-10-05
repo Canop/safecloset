@@ -59,7 +59,7 @@ SafeCloset is designed for fast sessions. Here are three examples of standard us
 
 If the value is multiline, you may have to select it to read it entirely:
 
-- hit <kbd>enter</kbd to freeze the search
+- hit <kbd>enter</kbd> to freeze the search
 - navigate with the arrow keys to the desired value, it automatically opens
 
 You don't have to bother closing SafeCloset as it will automatically close after 60 seconds.
@@ -153,9 +153,6 @@ Use <kbd>ctrl</kbd><kbd>↑</kbd> and <kbd>ctrl</kbd><kbd>↓</kbd> to move the 
 
 If you have some text in the clipboard, you may paste it in the current cell with <kbd>ctrl</kbd><kbd>v</kbd>.
 
-
-!!!Note
-	You can't currently copy *from* SafeCloset, as it looks a little too much like a security hazard, but this may change in the future.
 
 # Advice
 
