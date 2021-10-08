@@ -470,7 +470,10 @@ impl AppState {
 
         // --- help
 
-        if key == F1 || key == QUESTION { // note that F1 is rarely available in terminals
+        if key == F1 || key == QUESTION || key == SHIFT_QUESTION {
+            // notes:
+            //  - F1 is rarely available in terminals
+            //  - shift-? is here because on Windows on some keyboard I receive it for the ?
             self.help = Some(HelpState::default());
             return Ok(CmdResult::Stay);
         }

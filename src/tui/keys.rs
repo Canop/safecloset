@@ -33,6 +33,7 @@ const_key!(ESC, Esc);
 const_key!(HOME, Home);
 const_key!(LEFT, Left);
 const_key!(QUESTION, Char('?'));
+const_key!(SHIFT_QUESTION, Char('?'), KeyModifiers::SHIFT);
 const_key!(RIGHT, Right);
 //const_key!(SPACE, Char(' '));
 const_key!(TAB, Tab);
