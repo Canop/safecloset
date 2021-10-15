@@ -41,7 +41,7 @@ impl DrawerState {
             Self::DrawerEdit(des) => match &mut des.focus {
                 DrawerFocus::NameEdit { input, .. } => Some(input),
                 DrawerFocus::ValueEdit { input, .. } => Some(input),
-                DrawerFocus::SearchEdit => Some(&mut des.search.input),
+                DrawerFocus::SearchEdit { .. } => Some(&mut des.search.input),
                 _ => None,
             },
             _ => None,
@@ -66,7 +66,7 @@ impl DrawerState {
             Self::DrawerEdit(des) => match &des.focus {
                 DrawerFocus::NameEdit { .. } => true,
                 DrawerFocus::ValueEdit { .. } => true,
-                DrawerFocus::SearchEdit => true,
+                DrawerFocus::SearchEdit { .. } => true,
                 _ => false,
             },
             _ => false,

@@ -11,7 +11,7 @@ pub enum DrawerFocus {
     ValueSelected { line: usize },
     NameEdit { line: usize, input: InputField },
     ValueEdit { line: usize, input: InputField },
-    SearchEdit,
+    SearchEdit { previous_line: Option<usize> },
     PendingRemoval { line: usize },
 }
 
@@ -25,12 +25,12 @@ impl DrawerFocus {
             Self::ValueSelected { line } => Some(*line),
             Self::NameEdit { line, .. } => Some(*line),
             Self::ValueEdit { line, .. } => Some(*line),
-            Self::SearchEdit => None,
+            Self::SearchEdit { .. } => None,
             Self::PendingRemoval { line } => Some(*line),
         }
     }
     pub fn is_search(&self) -> bool {
-        matches!(self, DrawerFocus::SearchEdit)
+        matches!(self, DrawerFocus::SearchEdit { .. })
     }
     pub fn is_pending_removal(&self) -> bool {
         matches!(self, DrawerFocus::PendingRemoval { .. })
@@ -83,7 +83,7 @@ impl fmt::Debug for DrawerFocus {
             Self::ValueEdit { line, .. } => {
 		f.debug_struct("ValueEdit").field("line", line).finish()
             }
-            Self::SearchEdit => {
+            Self::SearchEdit { .. } => {
 		f.debug_struct("SearchEdit").finish()
             }
             Self::PendingRemoval { line } => {

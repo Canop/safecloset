@@ -292,7 +292,6 @@ impl AppState {
             return Ok(CmdResult::Stay);
         }
 
-
         if key == CONTROL_UP { // moving the selected line up
             if let DrawerEdit(des) = &mut self.drawer_state {
                 des.close_input(false);
@@ -338,7 +337,6 @@ impl AppState {
             return Ok(CmdResult::Stay);
         }
 
-
         if let DrawerEdit(des) = &mut self.drawer_state {
             // -- pending removal
             if let PendingRemoval { line } = &des.focus {
@@ -375,8 +373,6 @@ impl AppState {
                 return Ok(CmdResult::Stay);
             }
         }
-
-        // --
 
         if key == ENTER {
             self.close_drawer_input(false); // if there's an entry input
@@ -478,8 +474,6 @@ impl AppState {
             return Ok(CmdResult::Stay);
         }
 
-        // --- navigation among entries
-
         if let DrawerEdit(des) = &mut self.drawer_state {
             if key == HOME {
                 des.apply_scroll_command(ScrollCommand::Top);
@@ -529,20 +523,42 @@ impl AppState {
 
         if let DrawerEdit(des) = &mut self.drawer_state {
             if key == RIGHT {
-                if let NameSelected { line } = &des.focus {
-                    let line = *line;
-                    des.focus = ValueSelected { line };
-                } else if matches!(des.focus, NoneSelected) {
-                    des.focus = NameSelected { line: 0 };
+                match &des.focus {
+                    SearchEdit { previous_line } => {
+                        // we're here because apply_event on the input returned false,
+                        // which means the right arrow key was ignored because it was
+                        // at the end of the input. We'll assume the user wants to
+                        // select the value of the selected line
+                        if let Some(line) = des.best_search_line() {
+                            des.focus = ValueSelected { line };
+                        } else if let Some(&line) = previous_line.as_ref() {
+                            des.focus = ValueSelected { line };
+                        }
+                    }
+                    NameSelected { line } => {
+                        let line = *line;
+                        des.focus = ValueSelected { line };
+                    }
+                    NoneSelected => {
+                        des.focus = NameSelected { line: 0 };
+                    }
+                    _ => {}
                 }
                 return Ok(CmdResult::Stay);
             }
             if key == LEFT {
-                if let ValueSelected { line } = &des.focus {
-                    let line = *line;
-                    des.focus = NameSelected { line };
-                } else if matches!(des.focus, NoneSelected) {
-                    des.focus = NameSelected { line: 0 };
+                match &des.focus {
+                    NameSelected { .. } => {
+                        des.focus = SearchEdit { previous_line: des.focus.line() };
+                    }
+                    ValueSelected { line } => {
+                        let line = *line;
+                        des.focus = NameSelected { line };
+                    }
+                    NoneSelected => {
+                        des.focus = NameSelected { line: 0 };
+                    }
+                    _ => {}
                 }
                 return Ok(CmdResult::Stay);
             }
@@ -575,7 +591,7 @@ impl AppState {
                     }
                     ('/', _) => {
                         // start searching
-                        des.focus = SearchEdit;
+                        des.focus = SearchEdit { previous_line: des.focus.line() };
                     }
                     _ => {}
                 }

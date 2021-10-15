@@ -406,8 +406,8 @@ impl DrawerEditState {
                 return true;
             }
         }
-        if self.focus.is_search() {
-            self.focus = match self.best_search_line() {
+        if let DrawerFocus::SearchEdit { previous_line } = self.focus {
+            self.focus = match self.best_search_line().or(previous_line) {
                 Some(line) => DrawerFocus::NameSelected { line },
                 None => DrawerFocus::NoneSelected,
             };

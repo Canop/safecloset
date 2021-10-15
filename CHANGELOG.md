@@ -1,3 +1,6 @@
+### next
+- various improvements on behaviors of focusing and unfocusing the search input
+
 <a name="v0.2.5"></a>
 ### v0.2.5 - 2021-10-05
 - closing a drawer (and going to the upper drawer) is now done with ctrl-u
