@@ -63,12 +63,16 @@ impl StatusView {
                     hints.push("Hit *^q* to quit, *i* to edit the selected cell, *?* for help");
                 }
                 hints.push("Hit *^x* to save and quit, */* to search, *n* to create a new entry");
-                hints.push("Hit *^x* to save and quit, *?* for help");
                 hints.push("Hit *^q* to quit, */* to search, *^h* to toggle values visibility");
                 hints.push("Hit *^x* to save and quit, */* to search, arrows to select a cell");
-                hints.push("Hit *^q* to quit, *tab* to edit the next cell, *?* for help");
+                hints.push("Hit *^q* to quit, *tab* to edit the next cell");
+                if !des.has_input() {
+                    hints.push("Hit *^x* to save and quit, *?* for help");
+                }
             }
-            hints.push("Hit *^q* to quit, *?* for help");
+            if !des.has_input() {
+                hints.push("Hit *^q* to quit, *?* for help");
+            }
         }
         let idx = (self.drawer_display_count / 3 ) % hints.len();
         self.drawer_display_count += 1;
@@ -106,8 +110,10 @@ impl View for StatusView {
                 "Hit *^x* to save and quit, *esc* to close the help"
             } else if let DrawerState::DrawerEdit(des) = &state.drawer_state {
                 self.rotate_drawer_hint(des)
+            } else if matches!(state.drawer_state, DrawerState::NoneOpen) {
+                "Hit *^q* to quit, *?* for help"
             } else {
-                "Hit *^x* to save and quit, *?* for help"
+                "Hit *^q* to quit"
             };
             skin = &self.skin.hint;
         }

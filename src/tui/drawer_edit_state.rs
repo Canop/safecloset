@@ -431,5 +431,13 @@ impl DrawerEditState {
             None
         }
     }
+    pub fn has_input(&self) -> bool {
+        match &self.focus {
+            DrawerFocus::NameEdit { .. } => true,
+            DrawerFocus::ValueEdit { .. } => true,
+            DrawerFocus::SearchEdit { .. } => true,
+            _ => false,
+        }
+    }
 }
 
