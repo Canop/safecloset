@@ -1,6 +1,8 @@
-### next
-- various improvements on behaviors of focusing and unfocusing the search input
+<a name="v0.2.6"></a>
+### v0.2.6 - 2021-10-22
+- various improvements on focusing and unfocusing the search input
 - when editing a multiline value, ctrl-down and ctrl-up swap lines
+- improve suggestions in status bar
 
 <a name="v0.2.5"></a>
 ### v0.2.5 - 2021-10-05
