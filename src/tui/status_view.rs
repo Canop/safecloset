@@ -4,8 +4,10 @@ use {
     crossterm::{
         style::{Color, Color::*},
     },
-    minimad::{Alignment, Composite},
-    termimad::{ansi, gray, Area, CompoundStyle, MadSkin},
+    termimad::{
+        minimad::{Alignment, Composite},
+        ansi, gray, Area, CompoundStyle, MadSkin,
+    },
 };
 
 /// The view giving hints or informing of an error, at

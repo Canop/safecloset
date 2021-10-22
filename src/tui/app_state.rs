@@ -294,19 +294,21 @@ impl AppState {
 
         if key == CONTROL_UP { // moving the selected line up
             if let DrawerEdit(des) = &mut self.drawer_state {
-                des.close_input(false);
                 let entries = &mut des.drawer.content.entries;
                 let len = entries.len();
-                match des.focus {
+                match &mut des.focus {
                     NameSelected { line } => {
-                        let new_line = (line + len - 1) % len;
-                        entries.swap(line, new_line);
+                        let new_line = (*line + len - 1) % len;
+                        entries.swap(*line, new_line);
                         des.focus = NameSelected { line: new_line };
                     }
                     ValueSelected { line } => {
-                        let new_line = (line + len - 1) % len;
-                        entries.swap(line, new_line);
+                        let new_line = (*line + len - 1) % len;
+                        entries.swap(*line, new_line);
                         des.focus = ValueSelected { line: new_line };
+                    }
+                    ValueEdit { input, .. }  => {
+                        input.move_current_line_up();
                     }
                     _ => {}
                 }
@@ -316,19 +318,21 @@ impl AppState {
         }
         if key == CONTROL_DOWN { // moving the selected line down
             if let DrawerEdit(des) = &mut self.drawer_state {
-                des.close_input(false);
                 let entries = &mut des.drawer.content.entries;
                 let len = entries.len();
-                match des.focus {
+                match &mut des.focus {
                     NameSelected { line } => {
-                        let new_line = (line + 1) % len;
-                        entries.swap(line, new_line);
+                        let new_line = (*line + 1) % len;
+                        entries.swap(*line, new_line);
                         des.focus = NameSelected { line: new_line };
                     }
                     ValueSelected { line } => {
-                        let new_line = (line + 1) % len;
-                        entries.swap(line, new_line);
+                        let new_line = (*line + 1) % len;
+                        entries.swap(*line, new_line);
                         des.focus = ValueSelected { line: new_line };
+                    }
+                    ValueEdit { input, .. }  => {
+                        input.move_current_line_down();
                     }
                     _ => {}
                 }
