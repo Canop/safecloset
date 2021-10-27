@@ -240,11 +240,11 @@ impl AppState {
             return Ok(CmdResult::Stay);
         }
 
-        if key == CONTROL_X {
-            debug!("user requests save and quit");
-            self.save(false)?;
-            return Ok(CmdResult::Quit);
-        }
+        // if key == CONTROL_X {
+        //     debug!("user requests save and quit");
+        //     self.save(false)?;
+        //     return Ok(CmdResult::Quit);
+        // }
 
         if key == CONTROL_U { // up the drawer chain, close the current one
             if self.help.is_some() {

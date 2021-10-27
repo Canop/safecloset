@@ -56,18 +56,18 @@ impl StatusView {
                 hints.push("Hit */* then *esc* to clear the search");
             }
             if des.touched() {
-                hints.push("Hit *^q* to quit, *^s* to save, *^x* to save and quit");
+                hints.push("Hit *^s* to save, *^q* to quit");
             }
             if !des.drawer.content.entries.is_empty() {
                 if matches!(des.focus, DrawerFocus::NameSelected{..}|DrawerFocus::ValueSelected{..}) {
                     hints.push("Hit *^q* to quit, *i* to edit the selected cell, *?* for help");
                 }
-                hints.push("Hit *^x* to save and quit, */* to search, *n* to create a new entry");
+                hints.push("Hit *^q* to quit, */* to search, *n* to create a new entry");
                 hints.push("Hit *^q* to quit, */* to search, *^h* to toggle values visibility");
-                hints.push("Hit *^x* to save and quit, */* to search, arrows to select a cell");
+                hints.push("Hit *^q* to save, */* to search, arrows to select a cell");
                 hints.push("Hit *^q* to quit, *tab* to edit the next cell");
                 if !des.has_input() {
-                    hints.push("Hit *^x* to save and quit, *?* for help");
+                    hints.push("Hit *^s* to save, *^q* to quit, *?* for help");
                 }
             }
             if !des.has_input() {
@@ -107,7 +107,7 @@ impl View for StatusView {
             text = &message.text;
         } else {
             text = if state.help.is_some() {
-                "Hit *^x* to save and quit, *esc* to close the help"
+                "Hit *^q* to quit, *esc* to close the help"
             } else if let DrawerState::DrawerEdit(des) = &state.drawer_state {
                 self.rotate_drawer_hint(des)
             } else if matches!(state.drawer_state, DrawerState::NoneOpen) {

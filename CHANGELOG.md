@@ -1,3 +1,6 @@
+### next
+- ctrl-x no longer saves and quits
+
 <a name="v0.2.6"></a>
 ### v0.2.6 - 2021-10-22
 - various improvements on focusing and unfocusing the search input
