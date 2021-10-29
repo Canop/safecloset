@@ -1,6 +1,6 @@
 [package]
 name = "safecloset"
-version = "0.2.6"
+version = "0.3.0-dev"
 edition = "2021"
 authors = ["dystroy <denys.seguret@gmail.com>"]
 repository = "https://github.com/Canop/safecloset"
@@ -12,7 +12,7 @@ readme = "README.md"
 rust-version = "1.56"
 
 [features]
-default = []
+default = ["clipboard"]
 clipboard = ["terminal-clipboard"]
 
 [dependencies]
@@ -27,7 +27,7 @@ rmp-serde = "0.15.5"
 rust-argon2 = "0.8.3"
 secular = { version = "1.0", features = ["normalization"] }
 serde = { version = "1.0.128", features = ["derive"] }
-termimad = "0.16.4"
+termimad = "0.17.0"
 terminal-clipboard = { version = "0.3", optional = true }
 thiserror = "1.0.26"
 unicode-width = "0.1.8"

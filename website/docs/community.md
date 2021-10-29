@@ -1,5 +1,9 @@
 
+# Sponsorship
+
 **SafeCloset** is developed by [Denys Séguret](https://twitter.com/DenysSeguret), also known as [Canop](https://github.com/Canop) or [dystroy](https://dystroy.org).
+
+**SafeCloset** is free for everybody, and everbody's welcome to ask for advice or new features. But if you *want* to help me find time to improve it, and to develop [other free programs](https://dystroy.org), consider [sponsoring me](https://github.com/sponsors/Canop). There's absolutely no moral obligation to do so, though.
 
 # Chat
 

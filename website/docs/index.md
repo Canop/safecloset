@@ -73,9 +73,9 @@ Search with the <kbd>/</kbd> key:
 
 When in the search input, remove the search with <kbd>esc</kbd>, freeze it with <kbd>enter</kbd>.
 
-## Save
+## Save and quit
 
-Hit <kbd>ctrl</kbd><kbd>s</kbd> to save, or <kbd>ctrl</kbd><kbd>x</kbd> to save and quit.
+Hit <kbd>ctrl</kbd><kbd>s</kbd> to save, then <kbd>ctrl</kbd><kbd>q</kbd> to quit.
 
 ## Reopen
 

@@ -10,7 +10,6 @@ Key | Action
 <kbd>ctrl</kbd><kbd>o</kbd> | Open a drawer
 <kbd>ctrl</kbd><kbd>u</kbd> | Close the current drawer, without saving (you're back in the upper level one if you close a deep drawer)
 <kbd>ctrl</kbd><kbd>s</kbd> | Save the current drawer and all upper drawers
-<kbd>ctrl</kbd><kbd>x</kbd> | Save then quit
 <kbd>ctrl</kbd><kbd>q</kbd> | Quit without saving (with no confirmation)
 <kbd>/</kbd> | Start searching the current drawer. Do <kbd>enter</kbd> or use the down or up arrow key to freeze it. Do <kbd>esc</kbd> to cancel the search
 <kbd>/</kbd> then <kbd>esc</kbd> | Remove the current filtering
@@ -21,6 +20,9 @@ arrow keys | Move selection, selecting either an entry name or a value (or move 
 <kbd>d</kbd> | Remove the selected entry (with confirmation)
 <kbd>Enter</kbd> | Validate the current edition
 <kbd>alt</kbd><kbd>Enter</kbd> or <kbd>ctrl</kbd><kbd>Enter</kbd>| New line in the currently edited value
+<kbd>ctrl</kbd><kbd>c</kbd> | Copy
+<kbd>ctrl</kbd><kbd>x</kbd> | Cut
+<kbd>ctrl</kbd><kbd>v</kbd> | Paste
 
 Note that single key shortcuts can't be used when in an input field. To leave an input field, hit <kbd>esc</kbd>.
 
@@ -72,7 +74,7 @@ You don't have to bother closing SafeCloset as it will automatically close after
 - hit <kbd>tab</kbd> to go to the value input, and fill it
 - validate the value with <kbd>enter</kbd>
 - maybe move the entry with <kbd>ctrl</kbd><kbd>up</kbd>
-- hit <kbd>ctrl</kbd><kbd>x</kbd> to save and quit
+- hit <kbd>ctrl</kbd><kbd>s</kbd> then <kbd>ctrl</kbd><kbd>q</kbd> to save and quit
 
 ## Edit an entry's value
 
@@ -82,7 +84,7 @@ You don't have to bother closing SafeCloset as it will automatically close after
 - hit the right arrow key to select the value
 - hit <kbd>a</kbd> to edit the field (hit <kbd>i</kbd> if you prefer to have the cursor on start)
 - edit the field, then hit <kbd>enter</kbd> to validate the change
-- hit <kbd>ctrl</kbd><kbd>x</kbd> to save and quit
+- hit <kbd>ctrl</kbd><kbd>s</kbd> then <kbd>ctrl</kbd><kbd>q</kbd> to save and quit
 
 # Create a drawer
 
@@ -98,7 +100,7 @@ To create a deep drawer, from the initial screen you get at closet creation or o
 
 ## Deep drawer
 
-If you're a secret agent expecting to be tortured any day, you may be bothered by the fact an attacker having all the versions of the closet file can determine how many shallow drawers you'll really editing.
+If you're a secret agent expecting to be tortured any day, you may be bothered by the fact an attacker having all the versions of the closet file can determine how many shallow drawers you're really editing.
 
 A deep drawer is hidden inside another drawer, and it's not possible to know whether you edited a parent or a deeper drawer.
 
@@ -116,11 +118,9 @@ To open a deep drawer, you must first open its parent.
 
 # Close
 
-To save and quit, hit <kbd>ctrl</kbd><kbd>x</kbd>.
+To save, do <kbd>ctrl</kbd><kbd>s</kbd>.
 
-To just save, do <kbd>ctrl</kbd><kbd>s</kbd>.
-
-To quit without saving, hit <kbd>ctrl</kbd><kbd>q</kbd>.
+To quit, hit <kbd>ctrl</kbd><kbd>q</kbd>.
 
 To close the current drawer (which lets you be back in the upper one if you're in a deep drawer), hist <kbd>ctrl</kbd><kbd>u</kbd>.
 

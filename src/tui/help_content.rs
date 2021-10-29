@@ -23,7 +23,6 @@ The *^* symbol in SafeCloset means that the *control* key must be pressed.
 | *^o* | Open a drawer
 | *^u* | Goes up, closing the current drawer (you're back in the upper level one if you close a deep drawer)
 | *^s* | Save the current drawer and all upper drawers
-| *^x* | Save then quit
 | *^q* | Quit without saving (with no confirmation)
 | */* | Start searching the current drawer (do *Enter* or use the down or up arrow key to freeze it)
 | */* then *esc* | Remove the current filtering
@@ -35,6 +34,9 @@ The *^* symbol in SafeCloset means that the *control* key must be pressed.
 | *i* or *insert* | Start editing the selected name or value, cursor at start
 | *a* | Start editing the selected name or value, cursor at end
 | *d* | Remove the selected entry (with confirmation)
+| *^c* | Copy the selection (or the entire field if not edited)
+| *^x* | Cut the selection
+| *^v* | Paste
 | *Enter* | Validate the current edition
 | *alt*-*Enter* or *^enter* | New line in the currently edited value
 |-|-

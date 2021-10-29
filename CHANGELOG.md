@@ -1,5 +1,9 @@
 ### next
 - ctrl-x no longer saves and quits
+- clipboard feature now default
+- support of selection in inputs (with shift arrow keys or mouse drag)
+- ctrl-x, ctrl-c, ctrl-v are shortcuts for cutting, copying, pasting in inputs
+- more mouse support (for example mouse wheel in inputs)
 
 <a name="v0.2.6"></a>
 ### v0.2.6 - 2021-10-22

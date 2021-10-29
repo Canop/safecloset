@@ -17,13 +17,6 @@ pub struct DrawerDrawingLayout {
 }
 
 impl DrawerDrawingLayout {
-    // pub fn line_width(&self) -> usize {
-    //     let mut w = self.lines_area.width as usize;
-    //     if self.has_scrollbar {
-    //         w -= 1;
-    //     }
-    //     w
-    // }
     pub fn is_in_name_column(&self, x: u16) -> bool {
         x <= self.name_width
     }

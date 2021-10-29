@@ -6,11 +6,10 @@ use {
         error::SafeClosetError,
         timer::Timer,
     },
-    crossterm::event::KeyModifiers,
+    crossterm::event::Event,
     crossbeam::select,
-    termimad::{Area, Event, EventSource},
+    termimad::{Area, EventSource},
 };
-
 
 /// Run the Terminal User Interface until the user decides to quit.
 ///
@@ -27,14 +26,14 @@ pub(super) fn run(
     let event_source = EventSource::new()?;
     let events = event_source.receiver();
     let (timer, timer_rx) = Timer::new(MAX_INACTIVITY);
-    let mut quit = false;
     loop {
         select! {
-
             // user events
-            recv(events) -> event => {
+            recv(events) -> timed_event => {
                 // debug!("user event: {:?}", &event);
-                match event? {
+                let timed_event = timed_event?;
+                let mut quit = false;
+                match timed_event.event {
                     Event::Resize(width, height) => {
                         view.set_area(Area::new(0, 0, width, height));
                     }
@@ -46,14 +45,10 @@ pub(super) fn run(
                         }
                         timer.reset();
                     }
-                    Event::Click(x, y, KeyModifiers::NONE) => {
-                        state.on_click(x, y)?;
+                    Event::Mouse(mouse_event) => {
+                        state.on_mouse_event(mouse_event, timed_event.double_click)?;
                         timer.reset();
                     }
-                    Event::Wheel(amount) => {
-                        state.on_mouse_wheel(amount);
-                    }
-                    _ => {}
                 }
                 event_source.unblock(quit);
                 if quit {
@@ -70,7 +65,6 @@ pub(super) fn run(
                 event_source.unblock(true);
                 break;
             }
-
         }
     }
     Ok(())

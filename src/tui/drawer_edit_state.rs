@@ -175,7 +175,16 @@ impl DrawerEditState {
 
     pub fn clicked_line(&self, y: u16) -> Option<usize> {
         if y >= self.layout.lines_area.top {
-            let line = y as usize + self.scroll - self.layout.lines_area.top as usize;
+            let mut line = y as usize + self.scroll - self.layout.lines_area.top as usize;
+            if let Some(selected_line) = self.focus.line() {
+                if line > selected_line {
+                    if line <= selected_line + self.layout.value_height_addition {
+                        line = selected_line
+                    } else {
+                        line -= self.layout.value_height_addition;
+                    }
+                }
+            }
             if line < self.content_height() {
                 return Some(line);
             }

@@ -5,7 +5,10 @@ use {
         core::*,
         error::SafeClosetError,
     },
-    crossterm::{self, event::KeyEvent},
+    crossterm::event::{
+        KeyEvent, KeyModifiers,
+        MouseButton, MouseEvent, MouseEventKind,
+    },
 };
 
 /// TUI Application state, containing a drawer state.
@@ -90,18 +93,46 @@ impl AppState {
         }
         #[cfg(feature = "clipboard")]
         {
-            if let DrawerState::DrawerEdit(des) = &self.drawer_state {
+            if let Some(input) = self.drawer_state.input() {
+                let s = input.copy_selection();
+                if let Err(e) = terminal_clipboard::set_string(&s) {
+                    self.set_error(e.to_string());
+                } else if !s.is_empty() {
+                    self.set_info("string copied to the clipboard, be cautious");
+                }
+            } else if let DrawerState::DrawerEdit(des) = &self.drawer_state {
                 if let Some(cell) = des.current_cell() {
                     if let Err(e) = terminal_clipboard::set_string(cell) {
                         self.set_error(e.to_string());
                     } else {
-                        self.set_info("cell copied in the clipboard, be cautious");
+                        self.set_info("cell copied to the clipboard, be cautious");
                     }
                 } else {
                     self.set_error("you can only copy from a selected name or value");
                 }
             } else {
                 self.set_error("you can only copy from an open drawer");
+            }
+        }
+    }
+
+    /// Handle an event asking for cutting from SafeCloset
+    pub fn cut(&mut self) {
+        #[cfg(not(feature = "clipboard"))]
+        {
+            self.set_error("Clipboard feature not enabled at compilation");
+        }
+        #[cfg(feature = "clipboard")]
+        {
+            if let Some(input) = self.drawer_state.input() {
+                let s = input.cut_selection();
+                if let Err(e) = terminal_clipboard::set_string(&s) {
+                    self.set_error(e.to_string());
+                } else if !s.is_empty() {
+                    self.set_info("string copied to the clipboard, be cautious");
+                }
+            } else {
+                self.set_error("you can only copy from an edited input");
             }
         }
     }
@@ -121,7 +152,7 @@ impl AppState {
                         pasted.truncate(pasted.lines().next().unwrap().len());
                     }
                     if let Some(input) = self.drawer_state.input() {
-                        input.insert_str(pasted);
+                        input.replace_selection(pasted);
                     } else if let DrawerState::DrawerEdit(des) = &mut self.drawer_state {
                         if let NameSelected { line } = &mut des.focus {
                             let line = *line;
@@ -155,42 +186,64 @@ impl AppState {
         }
     }
 
-    /// Handle a click event
-    pub fn on_click(&mut self, x: u16, y: u16)-> Result<(), SafeClosetError> {
+    pub fn on_mouse_event(
+        &mut self,
+        mouse_event: MouseEvent,
+        double_click: bool,
+    )-> Result<(), SafeClosetError> {
 
         // TODO handle click in search input location
 
         if let Some(input) = self.drawer_state.input() {
-            if input.apply_click_event(x, y) {
+            if input.apply_mouse_event(mouse_event, double_click) {
                 return Ok(());
             } else if let DrawerState::DrawerEdit(des) = &mut self.drawer_state {
                 // unfocusing the input, validating it
                 des.focus = DrawerFocus::NoneSelected;
             }
         }
-
         if let DrawerState::DrawerEdit(des) = &mut self.drawer_state {
-            if let Some(clicked_line) = des.clicked_line(y) {
-                use DrawerFocus::*;
-                let in_name = des.layout().is_in_name_column(x);
-                des.focus = if in_name {
-                    NameSelected { line: clicked_line }
-                } else {
-                    ValueSelected { line: clicked_line }
-                };
+            let MouseEvent {
+                kind,
+                row, column,
+                modifiers,
+            } = mouse_event;
+            match kind {
+                MouseEventKind::Up(MouseButton::Left) => {
+                    if modifiers == KeyModifiers::NONE {
+                        debug!("clicked line: {:?}", des.clicked_line(row));
+                        if let Some(clicked_line) = des.clicked_line(row) {
+                            use DrawerFocus::*;
+                            // if we're here we know the clicked input isn't focused
+                            let in_name = des.layout().is_in_name_column(column);
+                            if in_name {
+                                if des.focus.is_name_selected(clicked_line) {
+                                    des.edit_entry_name_by_line(clicked_line, EditionPos::Start);
+                                } else {
+                                    des.focus = NameSelected { line: clicked_line };
+                                }
+                            } else {
+                                if des.focus.is_value_selected(clicked_line) {
+                                    des.edit_entry_value_by_line(clicked_line, EditionPos::Start);
+                                } else {
+                                    des.focus = ValueSelected { line: clicked_line };
+                                }
+
+                            }
+                        }
+                    }
+                }
+                MouseEventKind::ScrollUp => {
+                    des.move_line(Direction::Up);
+                }
+                MouseEventKind::ScrollDown => {
+                    des.move_line(Direction::Down);
+                }
+                _ => {}
             }
         }
 
         Ok(())
-    }
-
-    /// Handle a mouse wheel event
-    pub fn on_mouse_wheel(&mut self, amount: i32) {
-        if let DrawerState::DrawerEdit(des) = &mut self.drawer_state {
-            des.move_line(
-                if amount < 0 { Direction::Up } else { Direction::Down }
-            );
-        }
     }
 
     /// push back the open drawer, if any, and set the drawer_state to NoneOpen
@@ -270,6 +323,11 @@ impl AppState {
 
         if key == CONTROL_V {
             self.paste();
+            return Ok(CmdResult::Stay);
+        }
+
+        if key == CONTROL_X {
+            self.cut();
             return Ok(CmdResult::Stay);
         }
 

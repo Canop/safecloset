@@ -163,6 +163,6 @@ mod timer_tests {
         // twice the delay
         assert!(start.elapsed() > 2 * delay);
         // but not too long
-        assert!(start.elapsed() < 4 * delay);
+        assert!(start.elapsed() < 5 * delay);
     }
 }
