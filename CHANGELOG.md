@@ -1,4 +1,5 @@
-### next
+<a name="v0.3.0"></a>
+### v0.3.0 - 2021-10-30
 - ctrl-x no longer saves and quits
 - clipboard feature now default
 - support of selection in inputs (with shift arrow keys or mouse drag)
