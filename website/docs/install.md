@@ -11,12 +11,6 @@ Fetch the [Canop/safecloset](https://github.com/Canop/safecloset) repository, mo
 cargo install --path .
 ```
 
-If you want to enable the clipboard feature (to copy to SafeCloset), do
-
-```bash
-cargo install --features clipboard --path .
-```
-
 # From precompiled binaries
 
 Binaries are made available at every release on [GitHub](https://github.com/Canop/safecloset/releases).
@@ -33,6 +27,3 @@ Once it's installed, use cargo to install safecloset:
 
     cargo install safecloset
 
-If you want to enable the clipboard feature (to copy to SafeCloset), do
-
-    cargo install safecloset --features clipboard
