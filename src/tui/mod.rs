@@ -1,3 +1,4 @@
+mod action;
 mod app_state;
 mod cmd_result;
 mod content_skin;
@@ -11,6 +12,8 @@ mod help_content;
 mod help_state;
 mod keys;
 mod matched_string;
+mod menu_state;
+mod menu_view;
 mod message;
 mod password_input_state;
 mod search_state;
@@ -39,6 +42,7 @@ use {
 };
 
 pub(crate) use {
+    action::*,
     app_state::*,
     cmd_result::*,
     content_skin::*,
@@ -52,6 +56,8 @@ pub(crate) use {
     help_state::*,
     keys::*,
     matched_string::*,
+    menu_state::*,
+    menu_view::*,
     message::*,
     password_input_state::*,
     search_state::*,

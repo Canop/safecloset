@@ -56,11 +56,12 @@ impl StatusView {
                 hints.push("Hit */* then *esc* to clear the search");
             }
             if des.touched() {
-                hints.push("Hit *^s* to save, *^q* to quit");
+                hints.push("Hit *^s* to save, *^q* to quit, *esc* for menu");
             }
             if !des.drawer.content.entries.is_empty() {
                 if matches!(des.focus, DrawerFocus::NameSelected{..}|DrawerFocus::ValueSelected{..}) {
                     hints.push("Hit *^q* to quit, *i* to edit the selected cell, *?* for help");
+                    hints.push("Hit *^q* to quit, *i* to edit the selected cell, *esc* for menu");
                 }
                 hints.push("Hit *^q* to quit, */* to search, *n* to create a new entry");
                 hints.push("Hit *^q* to quit, */* to search, *^h* to toggle values visibility");
@@ -68,9 +69,11 @@ impl StatusView {
                 hints.push("Hit *^q* to quit, *tab* to edit the next cell");
                 if !des.has_input() {
                     hints.push("Hit *^s* to save, *^q* to quit, *?* for help");
+                    hints.push("Hit *^s* to save, *^q* to quit, *esc* for the menu");
                 }
             }
             if !des.has_input() {
+                hints.push("Hit *^q* to quit, *esc* for the menu");
                 hints.push("Hit *^q* to quit, *?* for help");
             }
         }

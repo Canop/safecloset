@@ -6,22 +6,13 @@ use {
 };
 
 /// The view covering the whole terminal
+#[derive(Default)]
 pub struct GlobalView {
     area: Area,
     title: TitleView,
     content: ContentView,
     status: StatusView,
-}
-
-impl Default for GlobalView {
-    fn default() -> Self {
-        Self {
-            area: Area::uninitialized(),
-            title: TitleView::default(),
-            content: ContentView::default(),
-            status: StatusView::default(),
-        }
-    }
+    menu: MenuView,
 }
 
 impl View for GlobalView {
@@ -32,6 +23,8 @@ impl View for GlobalView {
             .set_area(Area::new(0, 1, self.area.width, self.area.height - 2));
         self.status
             .set_area(Area::new(0, self.area.height - 1, self.area.width, 1));
+        self.menu
+            .set_area(MenuView::best_area_in(&self.area));
     }
     fn get_area(&self) -> &Area {
         &self.area
@@ -44,6 +37,7 @@ impl View for GlobalView {
         self.title.draw(w, state)?;
         self.content.draw(w, state)?;
         self.status.draw(w, state)?;
+        self.menu.draw(w, state)?;
         w.flush()?;
         Ok(())
     }

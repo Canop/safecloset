@@ -1,6 +1,9 @@
-use crossterm::event::{
-    KeyCode::{self, *},
-    KeyEvent, KeyModifiers,
+use {
+    crossterm::event::{
+        KeyCode::{self, *},
+        KeyEvent,
+        KeyModifiers,
+    },
 };
 
 macro_rules! const_key {
@@ -39,7 +42,6 @@ const_key!(RIGHT, Right);
 const_key!(TAB, Tab);
 const_key!(UP, Up);
 const_key!(PAGE_UP, PageUp);
-const_key!(F1, F(1));
 const_key!(CONTROL_C, Char('c'), KeyModifiers::CONTROL);
 const_key!(CONTROL_V, Char('v'), KeyModifiers::CONTROL);
 const_key!(CONTROL_H, Char('h'), KeyModifiers::CONTROL);
@@ -63,4 +65,34 @@ pub fn as_letter(key: KeyEvent) -> Option<char> {
         } => Some(l),
         _ => None,
     }
+}
+
+
+/// build a human description of a key event
+pub fn key_event_desc(key: KeyEvent) -> String {
+    let mut s = String::new();
+    if key.modifiers.contains(KeyModifiers::CONTROL) {
+        s.push('^');
+    }
+    if key.modifiers.contains(KeyModifiers::ALT) {
+        s.push('⌥');
+    }
+    match key.code {
+        Char('\r') | Char('\n') | Enter => {
+            s.push('⏎');
+        }
+        Char(c) if key.modifiers.contains(KeyModifiers::SHIFT) => {
+            s.push(c.to_ascii_uppercase());
+        }
+        Char(c) => {
+            s.push(c.to_ascii_lowercase());
+        }
+        F(u) => {
+            s.push_str(&format!("F{}", u));
+        }
+        _ => {
+            s.push_str(&format!("{:?}", key.code)); // FIXME check
+        }
+    }
+    s
 }

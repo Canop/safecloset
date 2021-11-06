@@ -11,14 +11,14 @@ use {
     },
 };
 
-/// TUI Application state, containing a drawer state.
-///
-/// Needs a closet
+/// TUI Application state
 pub struct AppState {
     pub open_closet: OpenCloset,
     pub drawer_state: DrawerState,
     // the help state, if help is currently displayed
     pub help: Option<HelpState>,
+    // the menu, if any
+    pub menu: Option<MenuState>,
     pub message: Option<Message>,
     pub hide_values: bool,
     // number of drawers created during this session
@@ -32,6 +32,7 @@ impl AppState {
             open_closet,
             drawer_state: DrawerState::NoneOpen,
             help: None,
+            menu: None,
             message: None,
             hide_values: args.hide,
             created_drawers: 0,
@@ -257,6 +258,155 @@ impl AppState {
         Ok(())
     }
 
+    pub fn on_action(&mut self, action: Action) -> Result<CmdResult, SafeClosetError> {
+        use {
+            DrawerFocus::*,
+            DrawerState::*,
+        };
+        debug!("executing action {:?}", action);
+        match action {
+            Action::Back => {
+                if self.menu.is_some() {
+                    self.menu = None;
+                } else if self.help.is_some() {
+                    self.help = None;
+                } else if matches!(self.drawer_state, DrawerCreation(_) | DrawerOpening(_)) {
+                    self.drawer_state = NoneOpen;
+                } else if self.close_drawer_input(true) {
+                    debug!("closing drawer input");
+                } else {
+                    debug!("opening menu");
+                    let mut menu = MenuState::default();
+                    self.fill_menu(&mut menu.actions);
+                    self.menu = Some(menu);
+                }
+            }
+            Action::NewDrawer => {
+                self.help = None;
+                self.menu = None;
+                self.push_back_drawer()?;
+                self.drawer_state = DrawerCreation(PasswordInputState::new(false));
+            }
+            Action::OpenDrawer => {
+                self.help = None;
+                self.menu = None;
+                self.push_back_drawer()?;
+                self.drawer_state = DrawerOpening(PasswordInputState::new(true));
+            }
+            Action::SaveDrawer => {
+                if self.drawer_state.is_edit() {
+                    self.help = None;
+                    self.menu = None;
+                    debug!("user requests save, keep state");
+                    self.save(true)?;
+                } else {
+                    self.set_error("no open drawer");
+                }
+            }
+            Action::CloseDrawer => {
+                self.help = None;
+                self.menu = None;
+                self.save(true)?;
+                self.push_back_drawer()?;
+                let _ = self.open_closet.close_deepest_drawer();
+                self.drawer_state = match self.open_closet.take_deepest_open_drawer() {
+                    Some(open_drawer) => DrawerState::edit(open_drawer),
+                    None => DrawerState::NoneOpen,
+                };
+            }
+            Action::Help => {
+                self.help = Some(HelpState::default());
+                self.menu = None;
+            }
+            Action::Quit => {
+                debug!("user requests quit");
+                return Ok(CmdResult::Quit);
+            }
+            Action::MoveLineUp => {
+                if let DrawerEdit(des) = &mut self.drawer_state {
+                    let entries = &mut des.drawer.content.entries;
+                    let len = entries.len();
+                    match &mut des.focus {
+                        NameSelected { line } => {
+                            let new_line = (*line + len - 1) % len;
+                            entries.swap(*line, new_line);
+                            des.focus = NameSelected { line: new_line };
+                        }
+                        ValueSelected { line } => {
+                            let new_line = (*line + len - 1) % len;
+                            entries.swap(*line, new_line);
+                            des.focus = ValueSelected { line: new_line };
+                        }
+                        ValueEdit { input, .. }  => {
+                            input.move_current_line_up();
+                        }
+                        _ => {}
+                    }
+                    des.update_search();
+                }
+            }
+            Action::MoveLineDown => {
+                if let DrawerEdit(des) = &mut self.drawer_state {
+                    let entries = &mut des.drawer.content.entries;
+                    let len = entries.len();
+                    match &mut des.focus {
+                        NameSelected { line } => {
+                            let new_line = (*line + 1) % len;
+                            entries.swap(*line, new_line);
+                            des.focus = NameSelected { line: new_line };
+                        }
+                        ValueSelected { line } => {
+                            let new_line = (*line + 1) % len;
+                            entries.swap(*line, new_line);
+                            des.focus = ValueSelected { line: new_line };
+                        }
+                        ValueEdit { input, .. }  => {
+                            input.move_current_line_down();
+                        }
+                        _ => {}
+                    }
+                    des.update_search();
+                }
+            }
+            Action::ToggleHiding => {
+                // toggle visibility of password or values
+                self.help = None;
+                self.menu = None;
+                if let DrawerCreation(pis) | DrawerOpening(pis) = &mut self.drawer_state {
+                    pis.input.password_mode ^= true;
+                    return Ok(CmdResult::Stay);
+                }
+                if let DrawerEdit(des) = &mut self.drawer_state {
+                    des.drawer.content.settings.hide_values ^= true;
+                    return Ok(CmdResult::Stay);
+                }
+            }
+            Action::Copy => {
+                self.copy();
+            }
+            Action::Cut => {
+                self.cut();
+            }
+            Action::Paste => {
+                self.paste();
+            }
+        }
+        Ok(CmdResult::Stay)
+    }
+
+    /// Add the relevant possible actions to the menu
+    pub fn fill_menu(&self, actions: &mut Vec<Action>) {
+        actions.push(Action::Back);
+        actions.push(Action::NewDrawer);
+        actions.push(Action::OpenDrawer);
+        if self.drawer_state.is_edit() {
+            actions.push(Action::SaveDrawer);
+            actions.push(Action::CloseDrawer);
+            actions.push(Action::ToggleHiding);
+        }
+        actions.push(Action::Help);
+        actions.push(Action::Quit);
+    }
 
     /// Handle a key event
     pub fn on_key(&mut self, key: KeyEvent) -> Result<CmdResult, SafeClosetError> {
@@ -266,141 +416,34 @@ impl AppState {
         };
         self.message = None;
 
-        // We start with the few actions that can be done the same with or
-        // without the help screen displayed
-
-        if key == CONTROL_N { // new drawer
-            self.push_back_drawer()?;
-            self.drawer_state = DrawerCreation(PasswordInputState::new(false));
-            return Ok(CmdResult::Stay);
-        }
-
-        if key == CONTROL_O { // open drawer
-            self.help = None;
-            self.push_back_drawer()?;
-            self.drawer_state = DrawerOpening(PasswordInputState::new(true));
-            return Ok(CmdResult::Stay);
-        }
-
-        if key == CONTROL_Q {
-            debug!("user requests quit");
-            return Ok(CmdResult::Quit);
-        }
-
-        if key == CONTROL_S {
-            debug!("user requests save, keep state");
-            self.save(true)?;
-            return Ok(CmdResult::Stay);
-        }
-
-        // if key == CONTROL_X {
-        //     debug!("user requests save and quit");
-        //     self.save(false)?;
-        //     return Ok(CmdResult::Quit);
-        // }
-
-        if key == CONTROL_U { // up the drawer chain, close the current one
-            if self.help.is_some() {
-                // close the help
-                self.help = None;
-            } else {
-                // close the drawer
-                self.save(true)?;
-                self.push_back_drawer()?;
-                let _ = self.open_closet.close_deepest_drawer();
-                self.drawer_state = match self.open_closet.take_deepest_open_drawer() {
-                    Some(open_drawer) => DrawerState::edit(open_drawer),
-                    None => DrawerState::NoneOpen,
-                };
-            }
-            return Ok(CmdResult::Stay);
-        }
-
-        if key == CONTROL_C {
-            self.copy();
-            return Ok(CmdResult::Stay);
-        }
-
-        if key == CONTROL_V {
-            self.paste();
-            return Ok(CmdResult::Stay);
-        }
-
-        if key == CONTROL_X {
-            self.cut();
-            return Ok(CmdResult::Stay);
-        }
-
-        if key == ESC {
-            if self.help.is_some() {
-                self.help = None;
-            } else if matches!(self.drawer_state, DrawerCreation(_) | DrawerOpening(_)) {
-                self.drawer_state = NoneOpen;
-            } else if let DrawerEdit(des) = &mut self.drawer_state {
-                if !des.close_input(true) {
-                    des.focus = NoneSelected;
+        if let Some(input) = self.drawer_state.input() {
+            if input.apply_key_event(key) {
+                if let DrawerEdit(des) = &mut self.drawer_state {
+                    if des.focus.is_search() {
+                        des.search.update(&des.drawer);
+                    }
                 }
+                return Ok(CmdResult::Stay);
             }
-            return Ok(CmdResult::Stay);
         }
 
-        // If the help is shown, it captures other events
+        if let Some(action) = Action::for_key(key) {
+            return self.on_action(action);
+        }
+
+        if let Some(menu_state) = self.menu.as_mut() {
+            return menu_state.on_key(key)
+                .map_or(Ok(CmdResult::Stay), |a| self.on_action(a));
+        }
+
         if let Some(help_state) = &mut self.help {
             help_state.apply_key_event(key);
             return Ok(CmdResult::Stay);
         }
 
-        if key == CONTROL_UP { // moving the selected line up
-            if let DrawerEdit(des) = &mut self.drawer_state {
-                let entries = &mut des.drawer.content.entries;
-                let len = entries.len();
-                match &mut des.focus {
-                    NameSelected { line } => {
-                        let new_line = (*line + len - 1) % len;
-                        entries.swap(*line, new_line);
-                        des.focus = NameSelected { line: new_line };
-                    }
-                    ValueSelected { line } => {
-                        let new_line = (*line + len - 1) % len;
-                        entries.swap(*line, new_line);
-                        des.focus = ValueSelected { line: new_line };
-                    }
-                    ValueEdit { input, .. }  => {
-                        input.move_current_line_up();
-                    }
-                    _ => {}
-                }
-                des.update_search();
-            }
-            return Ok(CmdResult::Stay);
-        }
-        if key == CONTROL_DOWN { // moving the selected line down
-            if let DrawerEdit(des) = &mut self.drawer_state {
-                let entries = &mut des.drawer.content.entries;
-                let len = entries.len();
-                match &mut des.focus {
-                    NameSelected { line } => {
-                        let new_line = (*line + 1) % len;
-                        entries.swap(*line, new_line);
-                        des.focus = NameSelected { line: new_line };
-                    }
-                    ValueSelected { line } => {
-                        let new_line = (*line + 1) % len;
-                        entries.swap(*line, new_line);
-                        des.focus = ValueSelected { line: new_line };
-                    }
-                    ValueEdit { input, .. }  => {
-                        input.move_current_line_down();
-                    }
-                    _ => {}
-                }
-                des.update_search();
-            }
-            return Ok(CmdResult::Stay);
-        }
-
+        // -- pending removal
+        // FIXME make it a menu & actions instead
         if let DrawerEdit(des) = &mut self.drawer_state {
-            // -- pending removal
             if let PendingRemoval { line } = &des.focus {
                 let line = *line;
                 if let Some(idx) = des.listed_entry_idx(line) {
@@ -419,19 +462,6 @@ impl AppState {
                         des.focus = NameSelected { line };
                     }
                 }
-                return Ok(CmdResult::Stay);
-            }
-        }
-
-        // -- toggle visibility of password or values
-
-        if key == CONTROL_H {
-            if let DrawerCreation(pis) | DrawerOpening(pis) = &mut self.drawer_state {
-                pis.input.password_mode ^= true;
-                return Ok(CmdResult::Stay);
-            }
-            if let DrawerEdit(des) = &mut self.drawer_state {
-                des.drawer.content.settings.hide_values ^= true;
                 return Ok(CmdResult::Stay);
             }
         }
@@ -511,29 +541,6 @@ impl AppState {
                 des.update_search();
                 return Ok(CmdResult::Stay);
             }
-        }
-
-        // --- input
-
-        if let Some(input) = self.drawer_state.input() {
-            if input.apply_key_event(key) {
-                if let DrawerEdit(des) = &mut self.drawer_state {
-                    if des.focus.is_search() {
-                        des.search.update(&des.drawer);
-                    }
-                }
-                return Ok(CmdResult::Stay);
-            }
-        }
-
-        // --- help
-
-        if key == F1 || key == QUESTION || key == SHIFT_QUESTION {
-            // notes:
-            //  - F1 is rarely available in terminals
-            //  - shift-? is here because on Windows on some keyboard I receive it for the ?
-            self.help = Some(HelpState::default());
-            return Ok(CmdResult::Stay);
         }
 
         if let DrawerEdit(des) = &mut self.drawer_state {
@@ -633,8 +640,6 @@ impl AppState {
                 return Ok(CmdResult::Stay);
             }
         }
-
-        // --- other simple char shortcuts
 
         if let Some(letter) = as_letter(key) {
 

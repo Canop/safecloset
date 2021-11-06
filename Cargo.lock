@@ -625,7 +625,7 @@ dependencies = [
 
 [[package]]
 name = "safecloset"
-version = "0.3.0"
+version = "0.4.0-dev"
 dependencies = [
  "aes-gcm-siv",
  "argh",
@@ -755,9 +755,9 @@ dependencies = [
 
 [[package]]
 name = "termimad"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "65099744de84765fa303b9dbf5fe7756844c2b5ffdaa571609220f271e90d747"
+checksum = "ef7c6e48a7c803bbddd2669a81cbbc59ba1582d5adf5ef62ac4a28b6d70e00df"
 dependencies = [
  "crossbeam",
  "crossterm",
@@ -768,9 +768,9 @@ dependencies = [
 
 [[package]]
 name = "terminal-clipboard"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2f39144c8166526298d0d398008de92ab16be2ef8ba0a299a173b9cfe20579c"
+checksum = "58a7bd0c28e9221173c7d32e774bc3c5432fe788f91984dd1b78c501b5e7d1df"
 dependencies = [
  "clipboard-win",
  "once_cell",
