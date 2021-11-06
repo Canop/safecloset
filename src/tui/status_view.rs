@@ -99,7 +99,7 @@ impl View for StatusView {
         let skin;
         let text;
         if state.drawer_state.is_pending_removal() {
-            text = "Hit *y* to confirm entry removal (any other key cancels it)";
+            text = "Hit *y* to confirm entry removal or *esc* to cancel it";
             skin = &self.skin.info;
         } else if let Some(ref message) = &state.message {
             skin = if message.error {

@@ -258,6 +258,30 @@ impl AppState {
         Ok(())
     }
 
+    /// delete entry (with confirmation)
+    fn propose_entry_removal(&mut self) {
+        if let DrawerState::DrawerEdit(des) = &mut self.drawer_state {
+            if let Some(line) = des.focus.line() {
+                des.focus = DrawerFocus::PendingRemoval { line };
+                let mut menu = MenuState::default();
+                menu.actions.push(Action::ConfirmEntryRemoval);
+                menu.actions.push(Action::Back);
+                menu.selection = 1;
+                self.menu = Some(menu);
+            }
+        }
+    }
+    fn cancel_entry_removal(&mut self) {
+        if let DrawerState::DrawerEdit(des) = &mut self.drawer_state {
+            if let DrawerFocus::PendingRemoval { line } = &des.focus {
+                let line = *line;
+                des.focus = DrawerFocus::NameSelected { line };
+                self.menu = None;
+                self.help = None;
+            }
+        }
+    }
+
     pub fn on_action(&mut self, action: Action) -> Result<CmdResult, SafeClosetError> {
         use {
             DrawerFocus::*,
@@ -266,7 +290,9 @@ impl AppState {
         debug!("executing action {:?}", action);
         match action {
             Action::Back => {
-                if self.menu.is_some() {
+                if self.drawer_state.is_pending_removal() {
+                    self.cancel_entry_removal();
+                } else if self.menu.is_some() {
                     self.menu = None;
                 } else if self.help.is_some() {
                     self.help = None;
@@ -382,13 +408,56 @@ impl AppState {
                 }
             }
             Action::Copy => {
+                self.help = None;
+                self.menu = None;
                 self.copy();
             }
             Action::Cut => {
+                self.help = None;
+                self.menu = None;
                 self.cut();
             }
             Action::Paste => {
+                self.help = None;
+                self.menu = None;
                 self.paste();
+            }
+            Action::ConfirmEntryRemoval => {
+                self.help = None;
+                self.menu = None;
+                info!("user requests entry removal");
+                if let DrawerEdit(des) = &mut self.drawer_state {
+                    if let PendingRemoval { line } = &des.focus {
+                        let line = *line;
+                        if let Some(idx) = des.listed_entry_idx(line) {
+                            // we either confirm (delete) or cancel removal
+                            des.drawer.content.entries.remove(idx);
+                            des.focus = if line > 0 {
+                                NameSelected { line: line - 1 }
+                            } else {
+                                NoneSelected
+                            };
+                            des.update_search();
+                        }
+                    }
+                }
+            }
+            Action::NewEntry => {
+                if let DrawerEdit(des) = &mut self.drawer_state {
+                    self.help = None;
+                    self.menu = None;
+                    des.search.clear();
+                    let idx = des.drawer.content.empty_entry();
+                    des.edit_entry_name_by_line(idx, EditionPos::Start);
+                }
+            }
+            Action::RemoveLine => {
+                self.propose_entry_removal();
+            }
+            Action::Search => {
+                if let DrawerEdit(des) = &mut self.drawer_state {
+                    des.focus = SearchEdit { previous_line: des.focus.line() };
+                }
             }
         }
         Ok(CmdResult::Stay)
@@ -439,31 +508,6 @@ impl AppState {
         if let Some(help_state) = &mut self.help {
             help_state.apply_key_event(key);
             return Ok(CmdResult::Stay);
-        }
-
-        // -- pending removal
-        // FIXME make it a menu & actions instead
-        if let DrawerEdit(des) = &mut self.drawer_state {
-            if let PendingRemoval { line } = &des.focus {
-                let line = *line;
-                if let Some(idx) = des.listed_entry_idx(line) {
-                    // we either confirm (delete) or cancel removal
-                    if as_letter(key) == Some('y') {
-                        info!("user requests entry removal");
-                        des.drawer.content.entries.remove(idx);
-                        des.focus = if line > 0 {
-                            NameSelected { line: line - 1 }
-                        } else {
-                            NoneSelected
-                        };
-                        des.update_search();
-                    } else {
-                        info!("user cancels entry removal");
-                        des.focus = NameSelected { line };
-                    }
-                }
-                return Ok(CmdResult::Stay);
-            }
         }
 
         if key == ENTER {
@@ -637,31 +681,6 @@ impl AppState {
             }
             if key == DOWN {
                 des.move_line(Direction::Down);
-                return Ok(CmdResult::Stay);
-            }
-        }
-
-        if let Some(letter) = as_letter(key) {
-
-            if let DrawerEdit(des) = &mut self.drawer_state {
-                // if we're here, there's no input
-                match (letter, des.focus.line()) {
-                    ('n', _) => {
-                        // new entry
-                        des.search.clear();
-                        let idx = des.drawer.content.empty_entry();
-                        des.edit_entry_name_by_line(idx, EditionPos::Start);
-                    }
-                    ('d', Some(line)) => {
-                        // delete entry (with confirmation)
-                        des.focus = PendingRemoval { line };
-                    }
-                    ('/', _) => {
-                        // start searching
-                        des.focus = SearchEdit { previous_line: des.focus.line() };
-                    }
-                    _ => {}
-                }
                 return Ok(CmdResult::Stay);
             }
         }

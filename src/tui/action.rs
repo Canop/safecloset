@@ -57,5 +57,9 @@ make_actions! {
     Copy "*C*opy" CONTROL_C,
     Cut "*Cut" CONTROL_X,
     Paste "Paste" CONTROL_V,
+    NewEntry "New Entry" N,
+    ConfirmEntryRemoval "Confirm Entry Removal" Y,
+    RemoveLine "Remove Line" D,
+    Search "Search" SLASH,
 }
 

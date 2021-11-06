@@ -36,6 +36,10 @@ const_key!(ESC, Esc);
 const_key!(HOME, Home);
 const_key!(LEFT, Left);
 const_key!(QUESTION, Char('?'));
+const_key!(SLASH, Char('/'));
+const_key!(D, Char('d'));
+const_key!(Y, Char('y'));
+const_key!(N, Char('n'));
 const_key!(SHIFT_QUESTION, Char('?'), KeyModifiers::SHIFT);
 const_key!(RIGHT, Right);
 //const_key!(SPACE, Char(' '));
@@ -53,8 +57,6 @@ const_key!(CONTROL_U, Char('u'), KeyModifiers::CONTROL);
 const_key!(CONTROL_X, Char('x'), KeyModifiers::CONTROL);
 const_key!(CONTROL_UP, Up, KeyModifiers::CONTROL);
 const_key!(CONTROL_DOWN, Down, KeyModifiers::CONTROL);
-
-
 
 /// return the raw char if the event is a letter event
 pub fn as_letter(key: KeyEvent) -> Option<char> {
