@@ -41,11 +41,20 @@ impl DrawerFocus {
             _ => false,
         }
     }
+    pub fn is_line_pending_removal(&self, entry_line: usize) -> bool {
+        match self {
+            Self::PendingRemoval { line } => *line == entry_line,
+            _ => false,
+        }
+    }
     pub fn is_value_selected(&self, entry_line: usize) -> bool {
         match self {
             Self::ValueSelected { line } => *line == entry_line,
             _ => false,
         }
+    }
+    pub fn is_entry_edit(&self) -> bool {
+        matches!(self, DrawerFocus::NameEdit { .. } | DrawerFocus::ValueEdit { .. })
     }
     /// return the input editing the name of the entry
     /// of given index, if it's currently edited

@@ -318,7 +318,6 @@ impl DrawerEditState {
             } else if self.scroll + 1 >= selection {
                 self.scroll = selection - 1;
             } else {
-                // TODO drink more coffee
                 while selection + value_height_addition + 1 >= self.scroll + page_height {
                     self.scroll += 1;
                 }

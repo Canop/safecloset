@@ -24,7 +24,6 @@ impl DrawerState {
     pub fn edit(drawer: OpenDrawer) -> Self {
         Self::DrawerEdit(DrawerEditState::from(drawer))
     }
-    #[allow(dead_code)]
     pub fn is_edit(&self) -> bool {
         matches!(self, DrawerState::DrawerEdit(_))
     }

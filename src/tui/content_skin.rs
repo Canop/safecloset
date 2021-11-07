@@ -19,24 +19,19 @@ pub struct ContentSkin {
     /// view background
     pub bg: Color,
 
-    pub name_fg: Color,
+    normal_styles: Styles,
+    selected_styles: Styles,
+    faded_styles: Styles,
 
-    pub sel_bg: Color,
+}
+
+#[derive(Clone)]
+pub struct Styles {
+    /// skin for all the markdown parts
+    pub md: MadSkin,
 
     /// style of pattern matching chars
     pub char_match: CompoundStyle,
-
-    /// style of pattern matching chars whith selection background
-    pub sel_char_match: CompoundStyle,
-
-    /// skin for all the markdown parts, when not applying a selection bagkground
-    pub md: MadSkin,
-
-    /// skin for the markdown parts with a selection background
-    pub sel_md: MadSkin,
-
-    /// style for the global scrollbar when not active because of a focused input
-    pub unsel_scrollbar: ScrollBarStyle,
 }
 
 impl ContentSkin {
@@ -46,54 +41,57 @@ impl ContentSkin {
         md.set_fg(ansi(230));
         md.italic = CompoundStyle::with_fg(AnsiValue(222));
         md.set_bg(bg);
-        let sel_bg = gray(5);
-        let mut sel_md = md.clone();
-        sel_md.set_bg(sel_bg);
-        sel_md.scrollbar.thumb.set_fg(gray(10));
-        sel_md.scrollbar.track.set_fg(gray(5));
         let char_match_fg = AnsiValue(41);
         let char_match = CompoundStyle::with_fgbg(char_match_fg, bg);
-        let sel_char_match = CompoundStyle::with_fgbg(char_match_fg, sel_bg);
-        let mut unsel_scrollbar = sel_md.scrollbar.clone();
-        unsel_scrollbar.thumb.set_fg(gray(10));
-        unsel_scrollbar.track.set_fg(gray(5));
+        let normal_styles = Styles { md, char_match };
+
+        let sel_bg = gray(5);
+        let mut selected_styles = normal_styles.clone();
+        selected_styles.md.set_bg(sel_bg);
+        selected_styles.md.scrollbar.thumb.set_fg(gray(10));
+        selected_styles.md.scrollbar.track.set_fg(gray(5));
+        selected_styles.char_match = CompoundStyle::with_fgbg(char_match_fg, sel_bg);
+
+        let mut faded_styles = normal_styles.clone();
+        faded_styles.md.set_fg(gray(7));
+        faded_styles.md.italic.set_fg(AnsiValue(101));
+        faded_styles.md.inline_code.set_fg(gray(9));
+        faded_styles.md.code_block.set_fg(gray(9));
+        faded_styles.md.scrollbar.thumb.set_fg(gray(10));
+        faded_styles.md.scrollbar.track.set_fg(gray(5));
+
         Self {
             bg,
-            name_fg: AnsiValue(230),
-            sel_bg,
-            char_match,
-            sel_char_match,
-            md,
-            sel_md,
-            unsel_scrollbar,
+            normal_styles,
+            selected_styles,
+            faded_styles,
         }
     }
     /// build an input field with the application's skin
     pub fn make_input() -> InputField {
         let mut input_field = InputField::default();
         input_field.set_normal_style(CompoundStyle::with_fgbg(ansi(230), gray(0)));
-        //input_field.set_unfocused_style(CompoundStyle::with_fgbg(
         input_field
     }
-    pub fn match_style(&self, selected: bool) -> &CompoundStyle {
-        if selected {
-            &self.sel_char_match
+    pub fn styles(&self, selected: bool, faded: bool) -> &Styles {
+        if faded {
+            &self.faded_styles
+        } else if selected {
+            &self.selected_styles
         } else {
-            &self.char_match
+            &self.normal_styles
         }
     }
-    pub fn txt_style(&self, selected: bool) -> &CompoundStyle {
-        if selected {
-            &self.sel_md.paragraph.compound_style
-        } else {
-            &self.md.paragraph.compound_style
-        }
+    pub fn match_style(&self, selected: bool, faded: bool) -> &CompoundStyle {
+        &self.styles(selected, faded).char_match
     }
-    pub fn tbl_style(&self, selected: bool) -> &CompoundStyle {
-        if selected {
-            &self.sel_md.table.compound_style
-        } else {
-            &self.md.table.compound_style
-        }
+    pub fn txt_style(&self, selected: bool, faded: bool) -> &CompoundStyle {
+        &self.styles(selected, faded).md.paragraph.compound_style
+    }
+    pub fn tbl_style(&self, selected: bool, faded: bool) -> &CompoundStyle {
+        &self.styles(selected, faded).md.table.compound_style
+    }
+    pub fn scrollbar_style(&self, selected: bool, faded: bool) -> &ScrollBarStyle {
+        &self.styles(selected, faded).md.scrollbar
     }
 }
