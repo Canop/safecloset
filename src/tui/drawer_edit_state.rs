@@ -13,7 +13,7 @@ use {
 /// Contains the open drawer and an entry state.
 pub struct DrawerEditState {
     pub drawer: OpenDrawer,
-    pub scroll: usize, // number of lines hidden above the top of the view
+    pub scroll: usize, // number of listed entries hidden above the top of the view
     pub focus: DrawerFocus,
     edit_count: usize, // a counter to know whether the drawer changed
     pub search: SearchState,
@@ -210,7 +210,29 @@ impl DrawerEditState {
     }
 
     pub fn scrollbar(&self) -> Option<(u16, u16)> {
-        self.layout.lines_area.scrollbar(self.scroll, self.content_height())
+        let content_height = self.layout.content_height;
+        let page_height = self.page_height();
+        if page_height >= content_height {
+            return None;
+        }
+        let heights = &self.layout.value_heights_by_line;
+        let real_hidden_before = heights[0..self.scroll].iter().sum::<usize>() as f64;
+        let real_from_scroll = heights[self.scroll..].iter().sum::<usize>() as f64;
+        let real_hidden_after = real_from_scroll - page_height as f64;
+        let hidden_before = if real_hidden_before > 0.0 {
+            (page_height as u16 * real_hidden_before as u16 / content_height as u16).max(1)
+        } else {
+            0
+        };
+        let hidden_after = if real_hidden_after > 0.0 {
+            (page_height as u16 * real_hidden_after as u16 / content_height as u16).max(1)
+        } else {
+            0
+        };
+        Some((
+            self.layout.lines_area.top + hidden_before,
+            self.layout.lines_area.bottom() - hidden_after
+        ))
     }
     fn page_height(&self) -> usize {
         self.layout.lines_area.height as usize
@@ -279,18 +301,6 @@ impl DrawerEditState {
     pub fn content_height(&self) -> usize {
         self.layout.content_height
     }
-    /// return the total height of listed entries before the given one
-    pub fn content_height_before(&self, line: usize) -> usize {
-        if line == 0 {
-            0
-        } else {
-            self.layout.value_heights_by_line
-                .iter()
-                .take(line - 1)
-                .sum()
-        }
-    }
-
     /// Must be called on starting editing a name or value
     pub fn increment_edit_count(&mut self) {
         self.edit_count += 1;
@@ -337,13 +347,21 @@ impl DrawerEditState {
         if content_height <= page_height {
             self.scroll = 0;
         } else if let Some(selection) = self.focus.line() {
-            let hbl = self.content_height_before(selection);
-            if hbl < self.scroll {
-                // selected line top not visible
-                self.scroll = hbl;
-            } else if hbl + heights[selection] > self.scroll + page_height {
-                // selected line bottom not visible
-                self.scroll = hbl + heights[selection] - page_height;
+            if self.scroll >= selection {
+                self.scroll = selection;
+            } else {
+                // let's ensure the end of the selection is visible
+                while heights[self.scroll..=selection].iter().sum::<usize>() > page_height {
+                    self.scroll += 1;
+                }
+                // let's ensure there's not too much void at end
+                let last_entry = self.listed_entries_count() - 1;
+                while
+                    self.scroll > selection
+                    && heights[self.scroll-1..=last_entry].iter().sum::<usize>() >= page_height
+                {
+                    self.scroll -= 1;
+                }
             }
         }
     }
