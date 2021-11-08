@@ -56,6 +56,7 @@ Instances of `Entry` contain the following fields:
 * `name`: a string
 * `value`: a string
 
-Instances of `DrawerSettings` contain for now just one optional field:
+Instances of `DrawerSettings` contain the following fields:
 
 * `hide_values`: a boolean
+* `open_all_values`: a boolean (optional, false if not present)

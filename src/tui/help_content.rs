@@ -24,9 +24,11 @@ The *^* symbol in SafeCloset means that the *control* key must be pressed.
 | *^u* | Goes up, closing the current drawer (you're back in the upper level one if you close a deep drawer)
 | *^s* | Save the current drawer and all upper drawers
 | *^q* | Quit without saving (with no confirmation)
+| *^h* | Toggle hiding either password chars or unselected values
+| *^a* | Toggle open all values
 | */* | Start searching the current drawer (do *Enter* or use the down or up arrow key to freeze it)
 | */* then *esc* | Remove the current filtering
-| *esc* | Cancel current field edition
+| *esc* | Cancel current field edition or open a menu
 | *tab* | Create a new entry or edit the value if you're already editing an entry's name
 | arrow keys | Move selection, selecting either an entry name or a value
 | *^↑* | Move selected line up

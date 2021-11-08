@@ -7,12 +7,16 @@ use {
 pub struct DrawerSettings {
     /// whether to hide unselected entry values
     pub hide_values: bool,
+    /// whether to show the whole content of all values
+    #[serde(default)]
+    pub open_all_values: bool,
 }
 
 impl Default for DrawerSettings {
     fn default() -> Self {
         Self {
             hide_values: false,
+            open_all_values: false,
         }
     }
 }

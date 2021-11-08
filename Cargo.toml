@@ -16,8 +16,8 @@ default = ["clipboard"]
 clipboard = ["terminal-clipboard"]
 
 [dependencies]
-aes-gcm-siv = "0.10.2"
-argh = "0.1.5"
+aes-gcm-siv = "0.10.3"
+argh = "0.1.6"
 cli-log = "2.0.0"
 crossbeam = "0.8"
 crossterm = "0.21.0"

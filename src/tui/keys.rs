@@ -46,6 +46,7 @@ const_key!(RIGHT, Right);
 const_key!(TAB, Tab);
 const_key!(UP, Up);
 const_key!(PAGE_UP, PageUp);
+const_key!(CONTROL_A, Char('a'), KeyModifiers::CONTROL);
 const_key!(CONTROL_C, Char('c'), KeyModifiers::CONTROL);
 const_key!(CONTROL_V, Char('v'), KeyModifiers::CONTROL);
 const_key!(CONTROL_H, Char('h'), KeyModifiers::CONTROL);

@@ -1,5 +1,6 @@
 ### next
 - the esc key opens a menu displaying relevant commands and their keys
+- ctrl-A toggles having all values always open (choice is kept in drawer settings) - Fix #8
 
 <a name="v0.3.0"></a>
 ### v0.3.0 - 2021-10-30

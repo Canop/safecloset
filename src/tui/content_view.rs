@@ -205,8 +205,11 @@ impl ContentView {
                 // we skip the value area, to not overwrite it
             } else if let Some((idx, name_match)) = des.listed_entry(line) {
                 let entry = &des.drawer.content.entries[idx];
+                let value_height = layout.value_heights_by_line[line];
                 let is_best = des.has_best_search(line);
                 let focus = &mut des.focus;
+                let faded = faded && !focus.is_line_pending_removal(line);
+                empty_lines = value_height - 1;
                 // - selection mark
                 if is_best {
                     unsel_styles.char_match.queue_str(w, "▶")?;
@@ -222,7 +225,6 @@ impl ContentView {
                 } else {
                     let mut cw = CropWriter::new(w, name_width);
                     let selected = is_best || focus.is_name_selected(line);
-                    let faded = faded && !focus.is_line_pending_removal(line);
                     let field_txt_style = self.skin.txt_style(selected, faded);
                     let ms = MatchedString::new(
                         name_match,
@@ -236,44 +238,48 @@ impl ContentView {
                 // - separator
                 tbl_style.queue_str(w, "│")?;
                 // - value field
+                let value_area = Area::new(
+                    value_left as u16,
+                    y,
+                    value_width as u16,
+                    value_height as u16,
+                );
                 if let Some(input) = focus.value_input(line) {
-                    let h = layout.value_height_addition as u16 + 1;
-                    empty_lines = layout.value_height_addition;
-                    let value_area = Area::new(value_left as u16, y, value_width as u16, h);
                     input.set_area(value_area);
                     input.display_on(w)?;
-                } else if focus.is_value_selected(line) || focus.is_line_pending_removal(line) {
-                    let faded = faded && !focus.is_line_pending_removal(line);
-                    let sel_styles = self.skin.styles(true, faded);
-                    if layout.value_height_addition > 0 {
-                        // if there are several lines, we adopt the wrapping mode of termimad for
-                        // a prettier result
-                        let h = layout.value_height_addition as u16 + 1;
-                        empty_lines = layout.value_height_addition;
-                        let value_area = Area::new(value_left as u16, y, value_width as u16, h);
-                        let text = sel_styles.md.area_text(&entry.value, &value_area);
+                } else {
+                    let selected = focus.is_value_selected(line);
+                    let forced_open = selected || focus.is_line_pending_removal(line);
+                    let hide_values = des.drawer.content.settings.hide_values;
+                    let open_all_values = des.drawer.content.settings.open_all_values;
+                    let (open, hidden) = if forced_open {
+                        (true, false)
+                    } else if hide_values {
+                        (false, true)
+                    } else if open_all_values {
+                        (true, false)
+                    } else {
+                        (false, false)
+                    };
+                    if hidden {
+                        self.skin.txt_style(false, true)
+                            .queue_str(w, &"▦".repeat(value_width as usize))?;
+                    } else if open {
+                        let styles = self.skin.styles(selected, faded);
+                        let text = styles.md.area_text(&entry.value, &value_area);
                         let mut text_view = TextView::from(&value_area, &text);
                         text_view.show_scrollbar = true;
                         text_view.write_on(w)?;
                     } else {
+                        let styles = self.skin.styles(selected, faded);
                         let first_line = entry.value.split('\n').next().unwrap();
-                        sel_styles.md.write_composite_fill(
+                        styles.md.write_composite_fill(
                             w,
                             Composite::from_inline(first_line),
                             value_width,
                             Alignment::Left,
                         )?;
                     }
-                } else if des.drawer.content.settings.hide_values {
-                    self.skin.txt_style(false, true).queue_str(w, &"▦".repeat(value_width as usize))?;
-                } else {
-                    let first_line = entry.value.split('\n').next().unwrap();
-                    self.skin.styles(false, faded).md.write_composite_fill(
-                        w,
-                        Composite::from_inline(first_line),
-                        value_width,
-                        Alignment::Left,
-                    )?;
                 }
                 line += 1;
             }

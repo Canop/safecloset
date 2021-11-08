@@ -212,8 +212,7 @@ impl AppState {
             match kind {
                 MouseEventKind::Up(MouseButton::Left) => {
                     if modifiers == KeyModifiers::NONE {
-                        debug!("clicked line: {:?}", des.clicked_line(row));
-                        if let Some(clicked_line) = des.clicked_line(row) {
+                        if let Some(clicked_line) = des.clicked_line(row as usize) {
                             use DrawerFocus::*;
                             // if we're here we know the clicked input isn't focused
                             let in_name = des.layout().is_in_name_column(column);
@@ -407,6 +406,14 @@ impl AppState {
                     return Ok(CmdResult::Stay);
                 }
             }
+            Action::OpenAllValues | Action::CloseAllValues=> {
+                self.help = None;
+                self.menu = None;
+                if let DrawerEdit(des) = &mut self.drawer_state {
+                    des.drawer.content.settings.open_all_values ^= true;
+                    return Ok(CmdResult::Stay);
+                }
+            }
             Action::Copy => {
                 self.help = None;
                 self.menu = None;
@@ -468,10 +475,15 @@ impl AppState {
         actions.push(Action::Back);
         actions.push(Action::NewDrawer);
         actions.push(Action::OpenDrawer);
-        if self.drawer_state.is_edit() {
+        if let DrawerState::DrawerEdit(des) = &self.drawer_state {
             actions.push(Action::SaveDrawer);
             actions.push(Action::CloseDrawer);
             actions.push(Action::ToggleHiding);
+            if des.drawer.content.settings.open_all_values {
+                actions.push(Action::CloseAllValues);
+            } else {
+                actions.push(Action::OpenAllValues);
+            }
         }
         actions.push(Action::Help);
         actions.push(Action::Quit);

@@ -14,6 +14,7 @@ pub struct SearchState {
 }
 
 pub struct SearchResult {
+    /// filtered entries
     pub entries: Vec<MatchingEntry>,
     /// index among filtered entries of the one with the best score
     pub best_line: Option<usize>,

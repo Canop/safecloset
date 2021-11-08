@@ -132,8 +132,13 @@ impl DrawerEditState {
     }
 
 
-    /// change the drawer drawing layout to adapt to the
-    /// content area in which it will be
+    /// update the drawer drawing layout.
+    ///
+    /// Must be called before every drawing as it depends on about everything:
+    /// - the content area in which it will be
+    /// - the filtering state
+    /// - the settings
+    /// - the entries
     pub fn update_drawing_layout(
         &mut self,
         content_area: &Area,
@@ -145,26 +150,42 @@ impl DrawerEditState {
         self.layout.lines_area.width = content_area.width;
         self.layout.lines_area.height = page_height;
         self.layout.name_width = (self.layout.lines_area.width / 3).min(30);
-        self.layout.value_height_addition = match &self.focus {
-            DrawerFocus::ValueSelected { line } => {
-                self.listed_entry_idx(*line).map_or(0, |idx| {
-                    // we compute the number of lines the text would be for
-                    // the available width (taking wrapping into account)
-                    let value_width = self.layout.value_width();
-                    let text = FmtText::from(
-                        termimad::get_default_skin(),
-                        &self.drawer.content.entries[idx].value,
-                        Some(value_width),
-                    );
-                    (text.lines.len().max(1) - 1)
-                        .min(page_height as usize - 4)
-                })
-            }
-            DrawerFocus::ValueEdit { input, .. } => {
-                input.content().line_count().min(page_height as usize - 4) - 1
-            }
-            _ => 0,
-        };
+        let dc = &self.drawer.content;
+        let open_all_values = dc.settings.open_all_values && !dc.settings.hide_values;
+        let value_width = self.layout.value_width();
+        let lines_count = self.listed_entries_count();
+        self.layout.content_height = 0;
+        self.layout.value_heights_by_line.clear();
+        for l in 0..lines_count {
+            let idx = self.listed_entry_idx(l).unwrap(); // SAFETY: we iter among valid lines
+            let height = match &self.focus {
+                DrawerFocus::ValueEdit { input, line } if l == *line => {
+                    // this line's value is edited, its height is given by the
+                    // number of lines computed by the input
+                    input.content().line_count().min(page_height as usize - 5)
+                }
+                _ => {
+                    let open = open_all_values || self.focus.is_value_selected(l);
+                    if open {
+                        // we compute the number of lines the text would be for
+                        // the available width, taking wrapping into account
+                        let text = FmtText::from(
+                            termimad::get_default_skin(),
+                            &self.drawer.content.entries[idx].value,
+                            Some(value_width),
+                        );
+                        text.lines.len().max(1).min(page_height as usize - 5)
+                    } else {
+                        // this line's value is neither open nor selected, we display
+                        // just the first line of the value (or a line of squares if
+                        // unselected values are hidden)
+                        1
+                    }
+                }
+            };
+            self.layout.content_height += height;
+            self.layout.value_heights_by_line.push(height);
+        }
         self.fix_scroll();
         self.layout.has_scrollbar = self.content_height() > self.page_height();
     }
@@ -173,19 +194,15 @@ impl DrawerEditState {
         self.search.update(&self.drawer)
     }
 
-    pub fn clicked_line(&self, y: u16) -> Option<usize> {
-        if y >= self.layout.lines_area.top {
-            let mut line = y as usize + self.scroll - self.layout.lines_area.top as usize;
-            if let Some(selected_line) = self.focus.line() {
-                if line > selected_line {
-                    if line <= selected_line + self.layout.value_height_addition {
-                        line = selected_line
-                    } else {
-                        line -= self.layout.value_height_addition;
-                    }
-                }
-            }
-            if line < self.content_height() {
+    pub fn clicked_line(&self, y: usize) -> Option<usize> {
+        let heights = self.layout.value_heights_by_line
+            .iter()
+            .enumerate()
+            .skip(self.scroll);
+        let mut sum_heights = self.layout.lines_area.top as usize;
+        for (line, height) in heights {
+            sum_heights += height;
+            if sum_heights > y {
                 return Some(line);
             }
         }
@@ -202,11 +219,6 @@ impl DrawerEditState {
         self.layout.clone()
     }
 
-    /// Give the additional height of the selected line due to
-    /// a selected value being several lines
-    pub fn value_height_addition(&self) -> usize {
-        self.layout.value_height_addition
-    }
     #[allow(dead_code)]
     pub fn current_cell(&self) -> Option<&str> {
         use DrawerFocus::*;
@@ -226,7 +238,8 @@ impl DrawerEditState {
             }
         }
     }
-    /// give the index of the entry from its line among the listed
+
+    /// Give the index of the entry from its line among the listed
     /// entries (either all entries or only the ones matching if there's
     /// a search)
     pub fn listed_entry_idx(&self, line: usize) -> Option<usize> {
@@ -262,9 +275,20 @@ impl DrawerEditState {
             self.drawer.content.entries.len()
         }
     }
-    /// return the total height of the visible entries
+    /// return the total height of listed entries (the ones not filtered out)
     pub fn content_height(&self) -> usize {
-        self.listed_entries_count() + self.value_height_addition()
+        self.layout.content_height
+    }
+    /// return the total height of listed entries before the given one
+    pub fn content_height_before(&self, line: usize) -> usize {
+        if line == 0 {
+            0
+        } else {
+            self.layout.value_heights_by_line
+                .iter()
+                .take(line - 1)
+                .sum()
+        }
     }
 
     /// Must be called on starting editing a name or value
@@ -279,7 +303,7 @@ impl DrawerEditState {
             warn!("internal error: edit count decremented when nul");
         }
     }
-    /// Tells whether the content was edited since opening
+    /// Tell whether the content was edited since opening
     /// (it may be equal)
     pub fn touched(&self) -> bool {
         match self.edit_count {
@@ -307,23 +331,20 @@ impl DrawerEditState {
     /// It's not necessary to call this other than from set_page_height
     /// (which is called before all drawings).
     fn fix_scroll(&mut self) {
-        let value_height_addition = self.value_height_addition();
-        let content_height = self.listed_entries_count() + value_height_addition;
+        let content_height = self.layout.content_height;
         let page_height = self.page_height();
+        let heights = &self.layout.value_heights_by_line;
         if content_height <= page_height {
             self.scroll = 0;
         } else if let Some(selection) = self.focus.line() {
-            if selection < 2 {
-                self.scroll = 0;
-            } else if self.scroll + 1 >= selection {
-                self.scroll = selection - 1;
-            } else {
-                while selection + value_height_addition + 1 >= self.scroll + page_height {
-                    self.scroll += 1;
-                }
+            let hbl = self.content_height_before(selection);
+            if hbl < self.scroll {
+                // selected line top not visible
+                self.scroll = hbl;
+            } else if hbl + heights[selection] > self.scroll + page_height {
+                // selected line bottom not visible
+                self.scroll = hbl + heights[selection] - page_height;
             }
-        } else if self.scroll + page_height > content_height {
-            self.scroll = content_height - page_height;
         }
     }
     /// Save the drawer, which closes it, then reopen it, keeping the

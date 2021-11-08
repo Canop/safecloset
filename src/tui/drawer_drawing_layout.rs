@@ -9,9 +9,10 @@ pub struct DrawerDrawingLayout {
 
     pub name_width: u16,
 
-    /// the additional height of the selected line due to
-    /// a selected value being several lines
-    pub value_height_addition: usize,
+    /// heights of values, excluding entries filtered out by search
+    pub value_heights_by_line: Vec<usize>,
+
+    pub content_height: usize,
 
     pub has_scrollbar: bool,
 }
