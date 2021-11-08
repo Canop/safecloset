@@ -11,6 +11,8 @@ Key | Action
 <kbd>ctrl</kbd><kbd>u</kbd> | Close the current drawer, without saving (you're back in the upper level one if you close a deep drawer)
 <kbd>ctrl</kbd><kbd>s</kbd> | Save the current drawer and all upper drawers
 <kbd>ctrl</kbd><kbd>q</kbd> | Quit without saving (with no confirmation)
+<kbd>ctrl</kbd><kbd>h</kbd> | Toggle hidding password chars or unselected values
+<kbd>ctrl</kbd><kbd>a</kbd> | Toggle opening all values or just the selected one
 <kbd>/</kbd> | Start searching the current drawer. Do <kbd>enter</kbd> or use the down or up arrow key to freeze it. Do <kbd>esc</kbd> to cancel the search
 <kbd>/</kbd> then <kbd>esc</kbd> | Remove the current filtering
 <kbd>esc</kbd> | Cancel current field edition

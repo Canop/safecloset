@@ -62,6 +62,6 @@ make_actions! {
     RemoveLine "Remove Line" D,
     Search "Search" SLASH,
     OpenAllValues "Open *A*ll Values" CONTROL_A,
-    CloseAllValues "Close *A*ll Values" CONTROL_A,
+    CloseAllValues "Close *A*ll unselected Values" CONTROL_A,
 }
 

@@ -73,6 +73,12 @@ Search with the <kbd>/</kbd> key:
 
 When in the search input, remove the search with <kbd>esc</kbd>, freeze it with <kbd>enter</kbd>.
 
+## Check the menu
+
+The menu opens on a hit on <kbd>esc</kbd>. It features the essential commands and their shortcuts:
+
+![menu](img/menu.png)
+
 ## Save and quit
 
 Hit <kbd>ctrl</kbd><kbd>s</kbd> to save, then <kbd>ctrl</kbd><kbd>q</kbd> to quit.
