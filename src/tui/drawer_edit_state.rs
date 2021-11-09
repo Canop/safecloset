@@ -131,7 +131,6 @@ impl DrawerEditState {
         }
     }
 
-
     /// update the drawer drawing layout.
     ///
     /// Must be called before every drawing as it depends on about everything:
@@ -259,6 +258,19 @@ impl DrawerEditState {
                 None
             }
         }
+    }
+
+    pub fn entry_line(&self, idx: usize) -> Option<usize> {
+        if let Some(search_result) = &self.search.result {
+            for (line, matching_entry) in search_result.entries.iter().enumerate() {
+                if matching_entry.idx == idx {
+                    return Some(line);
+                }
+            }
+        } else if idx < self.drawer.content.entries.len() {
+            return Some(idx);
+        }
+        None
     }
 
     /// Give the index of the entry from its line among the listed
@@ -416,7 +428,11 @@ impl DrawerEditState {
         }
     }
     pub fn apply_scroll_command(&mut self, scroll_command: ScrollCommand) {
-        self.scroll = scroll_command.apply(self.scroll, self.listed_entries_count(), self.page_height());
+        self.scroll = scroll_command.apply(
+            self.scroll,
+            self.listed_entries_count(),
+            self.page_height(),
+        );
     }
     pub fn close_input(&mut self, discard: bool) -> bool {
         if let DrawerFocus::NameEdit { line, input } = &self.focus {
@@ -453,16 +469,18 @@ impl DrawerEditState {
                 return true;
             }
         }
-        if let DrawerFocus::SearchEdit { previous_line } = self.focus {
-            self.focus = match self.best_search_line().or(previous_line) {
-                Some(line) => DrawerFocus::NameSelected { line },
-                None => DrawerFocus::NoneSelected,
-            };
+        if let DrawerFocus::SearchEdit { previous_idx } = self.focus {
             if discard {
                 // FIXME be back to previous focus ?
                 self.search.clear();
             }
             self.search.update(&self.drawer);
+            self.focus = self.best_search_line()
+                .or(previous_idx.and_then(|idx| self.entry_line(idx)))
+                .map_or(
+                    DrawerFocus::NoneSelected,
+                    |line| DrawerFocus::NameSelected { line },
+                );
             return true;
         }
         false

@@ -11,7 +11,7 @@ pub enum DrawerFocus {
     ValueSelected { line: usize },
     NameEdit { line: usize, input: InputField },
     ValueEdit { line: usize, input: InputField },
-    SearchEdit { previous_line: Option<usize> },
+    SearchEdit { previous_idx: Option<usize> },
     PendingRemoval { line: usize },
 }
 

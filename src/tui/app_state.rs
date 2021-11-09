@@ -463,7 +463,13 @@ impl AppState {
             }
             Action::Search => {
                 if let DrawerEdit(des) = &mut self.drawer_state {
-                    des.focus = SearchEdit { previous_line: des.focus.line() };
+                    if let Some(line) = des.focus.line() {
+                        des.search.set_best_line(line);
+                    }
+                    let previous_idx = des.focus
+                        .line()
+                        .and_then(|line| des.listed_entry_idx(line));
+                    des.focus = SearchEdit { previous_idx };
                 }
             }
         }
@@ -649,7 +655,9 @@ impl AppState {
         if let DrawerEdit(des) = &mut self.drawer_state {
             if key == RIGHT {
                 match &des.focus {
-                    SearchEdit { previous_line } => {
+                    SearchEdit { previous_idx } => {
+                        let previous_line = previous_idx
+                            .and_then(|idx| des.entry_line(idx));
                         // we're here because apply_event on the input returned false,
                         // which means the right arrow key was ignored because it was
                         // at the end of the input. We'll assume the user wants to
@@ -674,7 +682,9 @@ impl AppState {
             if key == LEFT {
                 match &des.focus {
                     NameSelected { .. } => {
-                        des.focus = SearchEdit { previous_line: des.focus.line() };
+                        let previous_idx = des.focus.line()
+                            .and_then(|line| des.listed_entry_idx(line));
+                        des.focus = SearchEdit { previous_idx };
                     }
                     ValueSelected { line } => {
                         let line = *line;

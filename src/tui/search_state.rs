@@ -36,6 +36,11 @@ impl Default for SearchState {
 }
 
 impl SearchState {
+    pub fn set_best_line(&mut self, best_line: usize) {
+        if let Some(result) = self.result.as_mut() {
+            result.best_line = Some(best_line);
+        }
+    }
     /// recompute the result from the input content
     pub fn update(&mut self, drawer: &OpenDrawer){
         if self.input.is_empty() {
@@ -46,8 +51,8 @@ impl SearchState {
             let mut best_line: Option<usize> = None;
             for (idx, entry) in drawer.content.entries.iter().enumerate() {
                 if let Some(name_match) = pattern.find(&entry.name) {
-                    if let Some(i) = best_line {
-                        if entries[i].name_match.score < name_match.score {
+                    if let Some(bl) = best_line {
+                        if entries[bl].name_match.score < name_match.score {
                             best_line = Some(entries.len());
                         }
                     } else {

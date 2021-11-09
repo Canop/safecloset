@@ -9,8 +9,8 @@
 	--top-nav-bg: var(--sidenav-bg);
 	--sidenav-fg: #fff;
 	--link-fg: #555c53;
-	--code-fg: #ccc;
-	--code-bg: #3a423b;
+	--code-fg: #eee;
+	--code-bg: #777f6e;
 }
 
 body::before {
