@@ -53,12 +53,7 @@ impl ContentSkin {
         selected_styles.char_match = CompoundStyle::with_fgbg(char_match_fg, sel_bg);
 
         let mut faded_styles = normal_styles.clone();
-        faded_styles.md.set_fg(gray(7));
-        faded_styles.md.italic.set_fg(AnsiValue(101));
-        faded_styles.md.inline_code.set_fg(gray(9));
-        faded_styles.md.code_block.set_fg(gray(9));
-        faded_styles.md.scrollbar.thumb.set_fg(gray(10));
-        faded_styles.md.scrollbar.track.set_fg(gray(5));
+        faded_styles.md.blend_with(bg, 0.6);
 
         Self {
             bg,
