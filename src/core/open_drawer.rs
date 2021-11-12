@@ -3,9 +3,8 @@ use {
     aes_gcm_siv::{aead::Aead},
 };
 
-/// An open drawer, with its content and the pass
+/// An open uncrypted drawer, with its content and the pass
 /// making it possible to save it on change
-///
 pub struct OpenDrawer {
     pub depth: usize,
     pub(super) password: String,
@@ -28,7 +27,7 @@ impl OpenDrawer {
         Self { depth, password, content }
     }
 
-    /// change the drawer_content into a closed_drawer
+    /// Change the drawer_content into a closed_drawer
     pub(crate) fn close(
         &mut self,
         closet: &Closet,

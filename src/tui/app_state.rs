@@ -472,6 +472,9 @@ impl AppState {
                     des.focus = SearchEdit { previous_idx };
                 }
             }
+            Action::OpenPasswordChangeDialog => {
+                debug!("opening pwd change dialog");
+            }
         }
         Ok(CmdResult::Stay)
     }

@@ -5,24 +5,26 @@ use {
 
 macro_rules! make_actions {
     {
-        $( $variant:ident $label:literal $key:expr, )*
+        $( $variant:ident $label:literal $($key:expr)* , )*
     } => {
         #[derive(Debug, Clone, Copy, PartialEq, Eq)]
         pub enum Action {
             $( $variant, )*
         }
-        //pub static ACTIONS: &[Action] = &[
-        //    $( Action::$variant, )*
-        //];
         impl Action {
             pub fn label(self) -> &'static str {
                 match self {
                     $( Action::$variant => $label, )*
                 }
             }
-            pub fn key(self) -> KeyEvent {
+            pub fn key(self) -> Option<KeyEvent> {
                 match self {
-                    $( Action::$variant => $key, )*
+                    $( Action::$variant => {
+                        $(
+                            return Some($key);
+                        )*
+                        return None;
+                    })*
                 }
             }
             pub fn for_key(mut key: KeyEvent) -> Option<Self> {
@@ -32,9 +34,11 @@ macro_rules! make_actions {
                     key = QUESTION;
                 }
                 $(
-                    if key == $key {
-                        return Some(Action::$variant);
-                    }
+                    $(
+                        if key == $key {
+                            return Some(Action::$variant);
+                        }
+                    )*
                 )*
                 return None;
             }
@@ -63,5 +67,6 @@ make_actions! {
     Search "Search" SLASH,
     OpenAllValues "Open *A*ll Values" CONTROL_A,
     CloseAllValues "Close *A*ll unselected Values" CONTROL_A,
+    OpenPasswordChangeDialog "Change Drawer Password",
 }
 

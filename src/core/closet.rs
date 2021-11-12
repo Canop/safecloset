@@ -111,11 +111,8 @@ impl Closet {
         if password.len() < MIN_PASSWORD_LENGTH {
             return Err(CoreError::PasswordTooShort);
         }
-        // check no existing drawer already has this password
-        for closed_drawer in self.drawers.iter() {
-            if closed_drawer.open(depth, password.to_string(), self).is_ok() {
-                return Err(CoreError::PasswordAlreadyUsed);
-            }
+        if self.is_password_taken(depth, &password) {
+            return Err(CoreError::PasswordAlreadyUsed);
         }
         self.create_drawer_unchecked(depth, password)
     }
@@ -124,7 +121,7 @@ impl Closet {
     ///
     /// Return None when no drawer can be opened with this password.
     pub fn open_drawer(
-        &mut self,
+        &self,
         depth: usize,
         password: &str,
     ) -> Option<OpenDrawer> {
@@ -142,6 +139,14 @@ impl Closet {
             }
         }
         None
+    }
+
+    pub fn is_password_taken(
+        &self,
+        depth: usize,
+        password: &str,
+    ) -> bool {
+        self.open_drawer(depth, password).is_some()
     }
 
     /// Close the passed drawer, put it back among closed ones

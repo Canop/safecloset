@@ -36,4 +36,10 @@ pub enum CoreError {
 
     #[error("Invalid Push Back")]
     InvalidPushBack,
+
+    #[error("Invalid Delete")]
+    InvalidDelete,
+
+    #[error("Operation only permitted at max depth")]
+    OperationOnlyPermittedAtMaxDepth,
 }

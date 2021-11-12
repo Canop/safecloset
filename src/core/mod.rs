@@ -43,7 +43,7 @@ fn test_create_write_read() {
     let temp_dir = tempfile::tempdir().unwrap();
 
     // define a path for our closet
-    let path = temp_dir.path().join("test.safe-closet");
+    let path = temp_dir.path().join("test-create-write-read.safe-closet");
 
     // create a closet on this path
     let mut open_closet = OpenCloset::create(path.to_path_buf()).unwrap();
@@ -73,7 +73,7 @@ fn test_create_write_read() {
     let open_drawer = open_closet.open_drawer(pwd1).unwrap();
     open_drawer.content.entries.push(entry1.clone());
 
-    // saving the closet
+    // save the closet
     open_closet.close_and_save().unwrap();
 
     // reopen the closet
@@ -144,6 +144,78 @@ fn test_create_write_read() {
     );
     let drawer3 = open_closet.open_drawer(pwd3).unwrap();
     assert_eq!(drawer3.content.entries, vec![entry3.clone(), entry3b.clone()]);
+
+    // clean the temporary dir
+    temp_dir.close().unwrap();
+}
+
+/// test changing the password
+#[test]
+fn test_password_change() {
+
+    let pwd1 = "*p*w*d*1";
+    let pwd2 = "PWD2";
+    let pwd3 = "p-w-d-3";
+    let entry1 = Entry::new("some key", "some value");
+    let entry2 = Entry::new("key2", "some value");
+
+    // create a temp directory in which to run our tests
+    let temp_dir = tempfile::tempdir().unwrap();
+
+    // define a path for our closet
+    let path = temp_dir.path().join("test-pwd-change.closet");
+
+    // create a closet on this path
+    let mut open_closet = OpenCloset::create(path.to_path_buf()).unwrap();
+
+    // check that there are already several drawers
+    assert!(open_closet.root_drawers_count() >= 3);
+
+    // create 2 drawers at the same level, with some content
+    let drawer1 = open_closet.create_drawer(pwd1).unwrap();
+    drawer1.content.entries.push(entry1.clone());
+    open_closet.close_deepest_drawer().unwrap();
+    let drawer2 = open_closet.create_drawer(pwd2).unwrap();
+    drawer2.content.entries.push(entry2.clone());
+
+    // save the closet
+    open_closet.close_and_save().unwrap();
+
+    // reopen the closet
+    let mut open_closet = OpenCloset::open(path.to_path_buf()).unwrap();
+
+    // open the first drawer, check our entry is here
+    open_closet.open_drawer(pwd1).unwrap();
+    let mut open_drawer = open_closet.take_deepest_open_drawer().unwrap();
+    assert_eq!(open_drawer.content.entries, vec![entry1.clone()]);
+
+    // check we can't change the password to an already used one
+    assert!(open_closet.change_password(&mut open_drawer, pwd1).is_err());
+
+    // change the password
+    open_closet.change_password(&mut open_drawer, pwd3).unwrap();
+
+    // push back the drawer so that it can be saved
+    open_closet.push_back(open_drawer).unwrap();
+
+    // save the closet
+    open_closet.close_and_save().unwrap();
+
+    // reopen the closet
+    let mut open_closet = OpenCloset::open(path.to_path_buf()).unwrap();
+
+    // check we can't open with the old password
+    assert!(open_closet.open_drawer(pwd1).is_none());
+
+    // open with the new password
+    open_closet.open_drawer(pwd3).unwrap();
+    let drawer1 = open_closet.take_deepest_open_drawer().unwrap();
+
+    // check its content
+    assert_eq!(drawer1.content.entries, vec![entry1.clone()]);
+
+    // save the closet
+    open_closet.close_and_save().unwrap();
 
     // clean the temporary dir
     temp_dir.close().unwrap();

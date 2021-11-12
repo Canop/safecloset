@@ -6,11 +6,13 @@ use {
 };
 
 
-/// only at root
+/// The root closet, when open
 pub struct OpenCloset {
 
+    /// the path in which the closet is persisted
     path: PathBuf,
 
+    /// the deserialized content (nothing uncrypted here)
     root_closet: Closet,
 
     // drawers, indexed by depth
@@ -18,9 +20,7 @@ pub struct OpenCloset {
 
     // the closet was just created because there no preexisting file
     created: bool,
-
 }
-
 
 impl OpenCloset {
 
@@ -111,17 +111,19 @@ impl OpenCloset {
         Ok(self.take_deepest_open_drawer().unwrap()) // SAFETY: we just pushed back, so there's a drawer
     }
 
-    /// return the path to the closet file
+    /// Return the path to the closet file
     pub fn path(&self) -> &Path {
         &self.path
     }
 
+    /// Give the number of open drawers, which is the depth
     pub fn depth(&self) -> usize {
         self.open_drawers.len()
     }
 
-    /// does nothing if (depth, password) don't match
-    /// an existing drawer
+    /// Open the drawer at the given depth, and return true on success
+    ///
+    /// Do nothing if (depth, password) don't match an existing drawer
     fn open_drawer_at_depth(
         &mut self,
         depth: usize,
@@ -145,8 +147,8 @@ impl OpenCloset {
         }
     }
 
-    /// try to open a drawer at any depth (preferably from
-    /// one of the deepest open drawers)
+    /// Try to open a drawer at any depth
+    /// (preferably from one of the deepest open drawers)
     pub fn open_drawer(&mut self, password: &str) -> Option<&mut OpenDrawer> {
         let mut depth = self.open_drawers.len();
         let mut open: bool;
@@ -164,7 +166,7 @@ impl OpenCloset {
         }
     }
 
-    /// try to open a drawer at any depth (preferably from
+    /// Try to open a drawer at any depth (preferably from
     /// one of the deepest open drawers) then take it
     pub fn open_take_drawer(&mut self, password: &str) -> Option<OpenDrawer> {
         if self.open_drawer(password).is_some() {
@@ -174,39 +176,31 @@ impl OpenCloset {
         }
     }
 
-    /// create a drawer at the deepest possible depth
-    /// (to create a less deep drawer, you should close
+    /// Create a drawer at the deepest possible depth
+    /// (to create a less deep drawer, you must close
     /// the deeper one(s) before)
     #[allow(dead_code)]
     pub fn create_drawer<S: Into<String>>(
         &mut self,
         password: S,
     ) -> Result<&mut OpenDrawer, CoreError> {
-        let depth = self.open_drawers.len();
-        let closet = if self.open_drawers.is_empty() {
-            &mut self.root_closet
-        } else {
-            &mut self.open_drawers[depth - 1].content.closet
-        };
-        let open_drawer = closet.create_drawer(depth, password.into())?;
+        let depth = self.depth();
+        let open_drawer = self.deepest_closet()
+            .create_drawer(depth, password.into())?;
         self.open_drawers.push(open_drawer);
         Ok(&mut self.open_drawers[depth])
     }
 
-    /// create a drawer at the deepest possible depth
+    /// Create a drawer at the deepest possible depth
     /// (to create a less deep drawer, you should close
     /// the deeper one(s) before)
     pub fn create_take_drawer<S: Into<String>>(
         &mut self,
         password: S,
     ) -> Result<OpenDrawer, CoreError> {
-        let depth = self.open_drawers.len();
-        let closet = if self.open_drawers.is_empty() {
-            &mut self.root_closet
-        } else {
-            &mut self.open_drawers[depth - 1].content.closet
-        };
-        let open_drawer = closet.create_drawer(depth, password.into())?;
+        let depth = self.depth();
+        let open_drawer = self.deepest_closet()
+            .create_drawer(depth, password.into())?;
         Ok(open_drawer)
     }
 
@@ -241,14 +235,21 @@ impl OpenCloset {
         self.open_drawers.pop()
     }
 
-    pub fn push_back(&mut self, open_drawer: OpenDrawer) -> Result<(), CoreError> {
+    fn deepest_closet(&mut self) -> &mut Closet {
         let depth = self.open_drawers.len();
-        let closet = if self.open_drawers.is_empty() {
+        if self.open_drawers.is_empty() {
             &mut self.root_closet
         } else {
             &mut self.open_drawers[depth - 1].content.closet
-        };
-        if closet.drawers.iter().any(|closed_drawer| closed_drawer.has_same_id(&open_drawer)) {
+        }
+    }
+
+    pub fn push_back(&mut self, open_drawer: OpenDrawer) -> Result<(), CoreError> {
+        let id_checked = self.deepest_closet()
+            .drawers
+            .iter()
+            .any(|closed_drawer| closed_drawer.has_same_id(&open_drawer));
+        if id_checked {
             self.open_drawers.push(open_drawer);
             Ok(())
         } else {
@@ -256,17 +257,42 @@ impl OpenCloset {
         }
     }
 
-    //pub fn push_back_and_close(&mut self, open_drawer: OpenDrawer) -> Result<(), CoreError> {
-    //    let depth = self.open_drawers.len();
-    //    let closet = if self.open_drawers.is_empty() {
-    //        &mut self.root_closet
-    //    } else {
-    //        &mut self.open_drawers[depth - 1].content.closet
-    //    };
-    //    if closet.close_drawer(open_drawer)? {
-    //        Ok(())
-    //    } else {
-    //        Err(CoreError::InvalidPushBack)
-    //    }
-    //}
+    /// Delete a drawer in the in-memory closet.
+    ///
+    /// The operation isn't saved on disk until the closet is saved.
+    pub fn delete_drawer(&mut self, open_drawer: OpenDrawer) -> Result<(), CoreError> {
+        let closet = self.deepest_closet();
+        for (idx, drawer) in closet.drawers.iter().enumerate() {
+            if drawer.has_same_id(&open_drawer) {
+                closet.drawers.remove(idx);
+                return Ok(());
+            }
+        }
+        Err(CoreError::InvalidDelete)
+    }
+
+    /// Give a new password to the drawer.
+    ///
+    /// Mutate the drawer but no real change will be done until the drawer and the closet
+    /// are saved.
+    ///
+    /// Fail with no change if the new password is already taken in the parent closet.
+    pub fn change_password<P: Into<String>>(
+        &mut self,
+        open_drawer: &mut OpenDrawer,
+        new_password: P,
+    ) -> Result<(), CoreError> {
+        let new_password = new_password.into();
+        if open_drawer.depth != self.depth() {
+            return Err(CoreError::OperationOnlyPermittedAtMaxDepth);
+        }
+        if new_password.len() < MIN_PASSWORD_LENGTH {
+            return Err(CoreError::PasswordTooShort);
+        }
+        if self.deepest_closet().is_password_taken(open_drawer.depth, &new_password) {
+            return Err(CoreError::PasswordAlreadyUsed);
+        }
+        open_drawer.password = new_password;
+        Ok(())
+    }
 }
