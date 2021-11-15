@@ -5,7 +5,6 @@ use {
     },
 };
 
-
 /// The root closet, when open
 pub struct OpenCloset {
 
@@ -185,7 +184,7 @@ impl OpenCloset {
         password: S,
     ) -> Result<&mut OpenDrawer, CoreError> {
         let depth = self.depth();
-        let open_drawer = self.deepest_closet()
+        let open_drawer = self.deepest_closet_mut()
             .create_drawer(depth, password.into())?;
         self.open_drawers.push(open_drawer);
         Ok(&mut self.open_drawers[depth])
@@ -199,7 +198,7 @@ impl OpenCloset {
         password: S,
     ) -> Result<OpenDrawer, CoreError> {
         let depth = self.depth();
-        let open_drawer = self.deepest_closet()
+        let open_drawer = self.deepest_closet_mut()
             .create_drawer(depth, password.into())?;
         Ok(open_drawer)
     }
@@ -235,7 +234,16 @@ impl OpenCloset {
         self.open_drawers.pop()
     }
 
-    fn deepest_closet(&mut self) -> &mut Closet {
+    fn deepest_closet(&self) -> &Closet {
+        let depth = self.open_drawers.len();
+        if self.open_drawers.is_empty() {
+            &self.root_closet
+        } else {
+            &self.open_drawers[depth - 1].content.closet
+        }
+    }
+
+    fn deepest_closet_mut(&mut self) -> &mut Closet {
         let depth = self.open_drawers.len();
         if self.open_drawers.is_empty() {
             &mut self.root_closet
@@ -260,8 +268,12 @@ impl OpenCloset {
     /// Delete a drawer in the in-memory closet.
     ///
     /// The operation isn't saved on disk until the closet is saved.
+    ///
+    /// This isn't called yet in the UI because I'm not sure it's useful
+    /// enough to clutter the menu
+    #[allow(dead_code)]
     pub fn delete_drawer(&mut self, open_drawer: OpenDrawer) -> Result<(), CoreError> {
-        let closet = self.deepest_closet();
+        let closet = self.deepest_closet_mut();
         for (idx, drawer) in closet.drawers.iter().enumerate() {
             if drawer.has_same_id(&open_drawer) {
                 closet.drawers.remove(idx);
@@ -278,7 +290,7 @@ impl OpenCloset {
     ///
     /// Fail with no change if the new password is already taken in the parent closet.
     pub fn change_password<P: Into<String>>(
-        &mut self,
+        &self,
         open_drawer: &mut OpenDrawer,
         new_password: P,
     ) -> Result<(), CoreError> {

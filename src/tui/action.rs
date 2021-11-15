@@ -17,6 +17,7 @@ macro_rules! make_actions {
                     $( Action::$variant => $label, )*
                 }
             }
+            #[allow(unreachable_code)]
             pub fn key(self) -> Option<KeyEvent> {
                 match self {
                     $( Action::$variant => {
@@ -52,7 +53,8 @@ make_actions! {
     NewDrawer "*N*ew Drawer" CONTROL_N,
     OpenDrawer "*O*pen Drawer" CONTROL_O,
     SaveDrawer "*S*ave Drawer" CONTROL_S,
-    CloseDrawer "goes to *U*pper drawer or to root" CONTROL_U,
+    CloseDeepDrawer "go to *U*pper drawer" CONTROL_U,
+    CloseShallowDrawer "Close drawer" CONTROL_U,
     Help "Help" QUESTION,
     Quit "*Q*uit" CONTROL_Q,
     MoveLineUp "Move Line Up" CONTROL_UP,
@@ -65,8 +67,8 @@ make_actions! {
     ConfirmEntryRemoval "Confirm Entry Removal" Y,
     RemoveLine "Remove Line" D,
     Search "Search" SLASH,
-    OpenAllValues "Open *A*ll Values" CONTROL_A,
-    CloseAllValues "Close *A*ll unselected Values" CONTROL_A,
+    OpenAllValues "Un*f*old All Values" CONTROL_F,
+    CloseAllValues "*F*old All unselected Values" CONTROL_F,
     OpenPasswordChangeDialog "Change Drawer Password",
 }
 

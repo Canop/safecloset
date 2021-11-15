@@ -1,21 +1,21 @@
 mod action;
 mod app_state;
 mod cmd_result;
-mod content_skin;
+mod skin;
 mod content_view;
+mod dialog;
 mod drawer_state;
 mod drawer_drawing_layout;
 mod drawer_edit_state;
 mod drawer_focus;
 mod global_view;
 mod help_content;
-mod help_state;
+mod help;
 mod keys;
 mod matched_string;
-mod menu_state;
-mod menu_view;
+mod menu;
 mod message;
-mod password_input_state;
+mod password_dialog;
 mod search_state;
 mod scroll;
 mod status_view;
@@ -45,21 +45,21 @@ pub(crate) use {
     action::*,
     app_state::*,
     cmd_result::*,
-    content_skin::*,
+    skin::*,
     content_view::*,
+    dialog::*,
     drawer_state::*,
     drawer_drawing_layout::*,
     drawer_edit_state::*,
     drawer_focus::*,
     global_view::*,
     help_content::*,
-    help_state::*,
+    help::*,
     keys::*,
     matched_string::*,
-    menu_state::*,
-    menu_view::*,
+    menu::*,
     message::*,
-    password_input_state::*,
+    password_dialog::*,
     search_state::*,
     scroll::*,
     status_view::*,

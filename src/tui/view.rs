@@ -1,11 +1,7 @@
 use {
     super::*,
     crate::error::SafeClosetError,
-    crossterm::{
-        cursor,
-        style::{Color, SetBackgroundColor},
-        terminal,
-    },
+    crossterm::cursor,
     termimad::Area,
 };
 
@@ -15,21 +11,19 @@ use {
 /// suitable for this application
 pub trait View: Default {
 
-    fn set_area(&mut self, area: Area);
+    type State;
+
+    /// set the outside area. This view may take it wholly or partially
+    fn set_available_area(&mut self, area: Area);
 
     fn get_area(&self) -> &Area;
-
-    fn width(&self) -> usize {
-        self.get_area().width as usize
-    }
-
-    fn bg(&self) -> Color;
 
     /// Render the view in its area
     fn draw(
         &mut self,
         w: &mut W,
-        state: &mut AppState, // mutable to allow adapt to terminal size changes
+        state: &mut Self::State, // mutable to allow adapt to terminal size changes
+        app_skin: &AppSkin,
     ) -> Result<(), SafeClosetError>;
 
     fn go_to(&self, w: &mut W, x: u16, y: u16) -> Result<(), SafeClosetError> {
@@ -42,20 +36,4 @@ pub trait View: Default {
         Ok(())
     }
 
-    /// Clear the whole area (and everything to the right)
-    fn clear(&self, w: &mut W) -> Result<(), SafeClosetError> {
-        let area = self.get_area();
-        w.queue(SetBackgroundColor(self.bg()))?;
-        for y in area.top..area.top + area.height {
-            self.go_to_line(w, y)?;
-            self.clear_line(w)?;
-        }
-        Ok(())
-    }
-
-    /// Clear from the cursor to end of line, whatever the area
-    fn clear_line(&self, w: &mut W) -> Result<(), SafeClosetError> {
-        w.queue(terminal::Clear(terminal::ClearType::UntilNewLine))?;
-        Ok(())
-    }
 }

@@ -1,12 +1,9 @@
 use {
     super::*,
     crate::error::SafeClosetError,
-    crossterm::{
-        style::{Color, Color::*},
-    },
     termimad::{
         minimad::{Alignment, Composite},
-        ansi, gray, Area, CompoundStyle, MadSkin,
+        Area,
     },
 };
 
@@ -15,29 +12,7 @@ use {
 #[derive(Default)]
 pub struct StatusView {
     area: Area,
-    skin: StatusSkin,
     drawer_display_count: usize,
-}
-
-struct StatusSkin {
-    hint: MadSkin,
-    info: MadSkin,
-    error: MadSkin,
-}
-
-impl Default for StatusSkin {
-    fn default() -> Self {
-        let mut hint = MadSkin::default();
-        hint.paragraph.set_fgbg(AnsiValue(252), AnsiValue(239));
-        hint.italic = CompoundStyle::with_fg(AnsiValue(222));
-        let mut info = MadSkin::default();
-        info.paragraph.set_fg(AnsiValue(252));
-        info.italic = CompoundStyle::with_fg(AnsiValue(222));
-        info.set_bg(ansi(24));
-        let mut error = MadSkin::default();
-        error.paragraph.set_fgbg(AnsiValue(254), AnsiValue(160));
-        Self { hint, info, error }
-    }
 }
 
 impl StatusView {
@@ -84,32 +59,36 @@ impl StatusView {
 }
 
 impl View for StatusView {
-    fn set_area(&mut self, area: Area) {
+    type State = AppState;
+
+    fn set_available_area(&mut self, area: Area) {
         self.area = area;
     }
     fn get_area(&self) -> &Area {
         &self.area
     }
-    fn bg(&self) -> Color {
-        gray(4)
-    }
 
-    fn draw(&mut self, w: &mut W, state: &mut AppState) -> Result<(), SafeClosetError> {
+    fn draw(
+        &mut self,
+        w: &mut W,
+        state: &mut AppState,
+        app_skin: &AppSkin,
+    ) -> Result<(), SafeClosetError> {
         self.go_to_line(w, self.area.top)?;
         let skin;
         let text;
         if state.drawer_state.is_pending_removal() {
             text = "Hit *y* to confirm entry removal or *esc* to cancel it";
-            skin = &self.skin.info;
+            skin = &app_skin.status.info;
         } else if let Some(ref message) = &state.message {
             skin = if message.error {
-                &self.skin.error
+                &app_skin.status.error
             } else {
-                &self.skin.info
+                &app_skin.status.info
             };
             text = &message.text;
         } else {
-            text = if state.help.is_some() {
+            text = if state.dialog.is_help() {
                 "Hit *^q* to quit, *esc* to close the help"
             } else if let DrawerState::DrawerEdit(des) = &state.drawer_state {
                 self.rotate_drawer_hint(des)
@@ -118,13 +97,13 @@ impl View for StatusView {
             } else {
                 "Hit *^q* to quit"
             };
-            skin = &self.skin.hint;
+            skin = &app_skin.status.hint;
         }
         let composite = Composite::from_inline(text);
         skin.write_composite_fill(
             w,
             composite,
-            self.width(),
+            self.get_area().width as usize,
             Alignment::Unspecified,
         )?;
         Ok(())

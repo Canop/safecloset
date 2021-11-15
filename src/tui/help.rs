@@ -1,39 +1,29 @@
 use {
     super::*,
-    crossterm::{
-        event::KeyEvent,
-        style::Color,
-    },
+    crossterm::event::KeyEvent,
     minimad::Text,
     termimad::*,
 };
 
 #[derive(Debug)]
-pub struct HelpState {
-    scroll: usize,
+pub struct Help {
     area: Area,
+    scroll: usize,
     text: Text<'static>,
-    skin: MadSkin,
 }
 
-impl Default for HelpState {
+impl Default for Help {
     fn default() -> Self {
-        let mut skin = MadSkin::default();
-        skin.set_bg(gray(2));
-        skin.set_fg(ansi(230));
-        skin.set_headers_fg(ansi(222));
-        skin.italic = CompoundStyle::with_fg(Color::AnsiValue(222));
         Self {
             scroll: 0,
             area: Area::default(),
             text: help_text(),
-            skin,
         }
     }
 }
 
-impl HelpState {
-    pub fn set_area(&mut self, area: Area) {
+impl Help {
+    pub fn set_available_area(&mut self, area: Area) {
         self.area = area;
     }
     pub fn apply_key_event(
@@ -44,7 +34,7 @@ impl HelpState {
         // scroll position so we create a text view and ask it after the event
         // handling what's the new scroll
         let fmt_text = FmtText::from_text(
-            &self.skin,
+            termimad::get_default_skin(),
             self.text.clone(),
             Some((self.area.width - 1) as usize),
         );
@@ -56,9 +46,10 @@ impl HelpState {
     pub fn draw(
         &mut self,
         w: &mut W,
+        app_skin: &AppSkin,
     ) -> Result<(), SafeClosetError> {
         let fmt_text = FmtText::from_text(
-            &self.skin,
+            &app_skin.help,
             self.text.clone(),
             Some((self.area.width - 1) as usize),
         );

@@ -1,6 +1,5 @@
-
 use {
-    super::*,
+    crate::tui::*,
     crossterm::{
         event::KeyEvent,
     },

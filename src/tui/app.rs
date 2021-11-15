@@ -20,9 +20,10 @@ pub(super) fn run(
     args: &Args,
 ) -> Result<(), SafeClosetError> {
     let mut state = AppState::new(open_closet, args);
+    let skin = AppSkin::default();
     let mut view = GlobalView::default();
-    view.set_area(Area::full_screen());
-    view.draw(w, &mut state)?;
+    view.set_available_area(Area::full_screen());
+    view.draw(w, &mut state, &skin)?;
     let event_source = EventSource::new()?;
     let events = event_source.receiver();
     let (timer, timer_rx) = Timer::new(MAX_INACTIVITY);
@@ -35,7 +36,7 @@ pub(super) fn run(
                 let mut quit = false;
                 match timed_event.event {
                     Event::Resize(width, height) => {
-                        view.set_area(Area::new(0, 0, width, height));
+                        view.set_available_area(Area::new(0, 0, width, height));
                     }
                     Event::Key(key) => {
                         let cmd_result = state.on_key(key)?;
@@ -54,7 +55,7 @@ pub(super) fn run(
                 if quit {
                     break;
                 }
-                view.draw(w, &mut state)?;
+                view.draw(w, &mut state, &skin)?;
             }
 
             // timer (so that safecloset doesn't stay open

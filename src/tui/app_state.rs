@@ -15,13 +15,13 @@ use {
 pub struct AppState {
     pub open_closet: OpenCloset,
     pub drawer_state: DrawerState,
-    // the help state, if help is currently displayed
-    pub help: Option<HelpState>,
-    // the menu, if any
-    pub menu: Option<MenuState>,
+    /// the dialog (help, menu, etc.) displayed over the rest, if any
+    pub dialog: Dialog,
+    /// The message (error or info) displayed in the status bar
     pub message: Option<Message>,
+    /// whether to hide unselected values
     pub hide_values: bool,
-    // number of drawers created during this session
+    /// number of drawers created during this session
     pub created_drawers: usize,
 }
 
@@ -31,14 +31,15 @@ impl AppState {
         let mut state = Self {
             open_closet,
             drawer_state: DrawerState::NoneOpen,
-            help: None,
-            menu: None,
+            dialog: Dialog::None,
             message: None,
             hide_values: args.hide,
             created_drawers: 0,
         };
         if args.open && !state.open_closet.just_created() {
-            state.drawer_state = DrawerState::DrawerOpening(PasswordInputState::new(true));
+            state.dialog = Dialog::Password(
+                PasswordDialog::new(PasswordDialogPurpose::OpenDrawer, true)
+            );
         }
         state
     }
@@ -54,7 +55,6 @@ impl AppState {
         debug!("info: {:?}", &text);
         self.message = Some(Message{ text, error: false });
     }
-
 
     /// If there's an open drawer input (entry name or value), close it, keeping
     /// the input content if required.
@@ -262,11 +262,11 @@ impl AppState {
         if let DrawerState::DrawerEdit(des) = &mut self.drawer_state {
             if let Some(line) = des.focus.line() {
                 des.focus = DrawerFocus::PendingRemoval { line };
-                let mut menu = MenuState::default();
-                menu.actions.push(Action::ConfirmEntryRemoval);
-                menu.actions.push(Action::Back);
-                menu.selection = 1;
-                self.menu = Some(menu);
+                let mut menu = Menu::default();
+                menu.add_item(Action::ConfirmEntryRemoval);
+                menu.add_item(Action::Back);
+                menu.select(1);
+                self.dialog = Dialog::Menu(menu);
             }
         }
     }
@@ -275,8 +275,7 @@ impl AppState {
             if let DrawerFocus::PendingRemoval { line } = &des.focus {
                 let line = *line;
                 des.focus = DrawerFocus::NameSelected { line };
-                self.menu = None;
-                self.help = None;
+                self.dialog = Dialog::None;
             }
         }
     }
@@ -291,46 +290,45 @@ impl AppState {
             Action::Back => {
                 if self.drawer_state.is_pending_removal() {
                     self.cancel_entry_removal();
-                } else if self.menu.is_some() {
-                    self.menu = None;
-                } else if self.help.is_some() {
-                    self.help = None;
-                } else if matches!(self.drawer_state, DrawerCreation(_) | DrawerOpening(_)) {
-                    self.drawer_state = NoneOpen;
+                } else if self.dialog.is_some() {
+                    self.dialog = Dialog::None;
                 } else if self.close_drawer_input(true) {
                     debug!("closing drawer input");
                 } else {
                     debug!("opening menu");
-                    let mut menu = MenuState::default();
-                    self.fill_menu(&mut menu.actions);
-                    self.menu = Some(menu);
+                    let mut menu = Menu::default();
+                    self.fill_menu(&mut menu);
+                    self.dialog = Dialog::Menu(menu);
                 }
             }
             Action::NewDrawer => {
-                self.help = None;
-                self.menu = None;
+                self.dialog = Dialog::None;
                 self.push_back_drawer()?;
-                self.drawer_state = DrawerCreation(PasswordInputState::new(false));
+                self.dialog = Dialog::Password(
+                    PasswordDialog::new(
+                        PasswordDialogPurpose::NewDrawer { depth: self.open_closet.depth() },
+                        false,
+                    )
+                );
             }
             Action::OpenDrawer => {
-                self.help = None;
-                self.menu = None;
+                self.dialog = Dialog::None;
                 self.push_back_drawer()?;
-                self.drawer_state = DrawerOpening(PasswordInputState::new(true));
+                self.dialog = Dialog::Password(
+                    PasswordDialog::new(PasswordDialogPurpose::OpenDrawer, true)
+                );
             }
             Action::SaveDrawer => {
                 if self.drawer_state.is_edit() {
-                    self.help = None;
-                    self.menu = None;
+                    self.dialog = Dialog::None;
                     debug!("user requests save, keep state");
                     self.save(true)?;
                 } else {
                     self.set_error("no open drawer");
                 }
             }
-            Action::CloseDrawer => {
-                self.help = None;
-                self.menu = None;
+            Action::CloseShallowDrawer | Action::CloseDeepDrawer => {
+                self.dialog = Dialog::None;
                 self.save(true)?;
                 self.push_back_drawer()?;
                 let _ = self.open_closet.close_deepest_drawer();
@@ -340,8 +338,7 @@ impl AppState {
                 };
             }
             Action::Help => {
-                self.help = Some(HelpState::default());
-                self.menu = None;
+                self.dialog = Dialog::Help(Help::default());
             }
             Action::Quit => {
                 debug!("user requests quit");
@@ -395,43 +392,37 @@ impl AppState {
             }
             Action::ToggleHiding => {
                 // toggle visibility of password or values
-                self.help = None;
-                self.menu = None;
-                if let DrawerCreation(pis) | DrawerOpening(pis) = &mut self.drawer_state {
-                    pis.input.password_mode ^= true;
+                if let Dialog::Password(password_dialog) = &mut self.dialog {
+                    password_dialog.toggle_hide_chars();
                     return Ok(CmdResult::Stay);
                 }
+                self.dialog = Dialog::None;
                 if let DrawerEdit(des) = &mut self.drawer_state {
                     des.drawer.content.settings.hide_values ^= true;
                     return Ok(CmdResult::Stay);
                 }
             }
             Action::OpenAllValues | Action::CloseAllValues=> {
-                self.help = None;
-                self.menu = None;
+                self.dialog = Dialog::None;
                 if let DrawerEdit(des) = &mut self.drawer_state {
                     des.drawer.content.settings.open_all_values ^= true;
                     return Ok(CmdResult::Stay);
                 }
             }
             Action::Copy => {
-                self.help = None;
-                self.menu = None;
+                self.dialog = Dialog::None;
                 self.copy();
             }
             Action::Cut => {
-                self.help = None;
-                self.menu = None;
+                self.dialog = Dialog::None;
                 self.cut();
             }
             Action::Paste => {
-                self.help = None;
-                self.menu = None;
+                self.dialog = Dialog::None;
                 self.paste();
             }
             Action::ConfirmEntryRemoval => {
-                self.help = None;
-                self.menu = None;
+                self.dialog = Dialog::None;
                 info!("user requests entry removal");
                 if let DrawerEdit(des) = &mut self.drawer_state {
                     if let PendingRemoval { line } = &des.focus {
@@ -451,8 +442,7 @@ impl AppState {
             }
             Action::NewEntry => {
                 if let DrawerEdit(des) = &mut self.drawer_state {
-                    self.help = None;
-                    self.menu = None;
+                    self.dialog = Dialog::None;
                     des.search.clear();
                     let idx = des.drawer.content.empty_entry();
                     des.edit_entry_name_by_line(idx, EditionPos::Start);
@@ -474,28 +464,37 @@ impl AppState {
             }
             Action::OpenPasswordChangeDialog => {
                 debug!("opening pwd change dialog");
+                self.dialog = Dialog::Password(PasswordDialog::new(
+                    PasswordDialogPurpose::ChangeDrawerPassword,
+                    false,
+                ));
             }
         }
         Ok(CmdResult::Stay)
     }
 
     /// Add the relevant possible actions to the menu
-    pub fn fill_menu(&self, actions: &mut Vec<Action>) {
-        actions.push(Action::Back);
-        actions.push(Action::NewDrawer);
-        actions.push(Action::OpenDrawer);
+    pub fn fill_menu(&self, menu: &mut Menu) {
+        menu.add_item(Action::Back);
+        menu.add_item(Action::NewDrawer);
+        menu.add_item(Action::OpenDrawer);
         if let DrawerState::DrawerEdit(des) = &self.drawer_state {
-            actions.push(Action::SaveDrawer);
-            actions.push(Action::CloseDrawer);
-            actions.push(Action::ToggleHiding);
-            if des.drawer.content.settings.open_all_values {
-                actions.push(Action::CloseAllValues);
+            menu.add_item(Action::SaveDrawer);
+            if self.open_closet.depth() > 1 {
+                menu.add_item(Action::CloseDeepDrawer);
             } else {
-                actions.push(Action::OpenAllValues);
+                menu.add_item(Action::CloseShallowDrawer);
             }
+            menu.add_item(Action::ToggleHiding);
+            if des.drawer.content.settings.open_all_values {
+                menu.add_item(Action::CloseAllValues);
+            } else {
+                menu.add_item(Action::OpenAllValues);
+            }
+            menu.add_item(Action::OpenPasswordChangeDialog);
         }
-        actions.push(Action::Help);
-        actions.push(Action::Quit);
+        menu.add_item(Action::Help);
+        menu.add_item(Action::Quit);
     }
 
     /// Handle a key event
@@ -521,47 +520,77 @@ impl AppState {
             return self.on_action(action);
         }
 
-        if let Some(menu_state) = self.menu.as_mut() {
-            return menu_state.on_key(key)
-                .map_or(Ok(CmdResult::Stay), |a| self.on_action(a));
-        }
-
-        if let Some(help_state) = &mut self.help {
-            help_state.apply_key_event(key);
-            return Ok(CmdResult::Stay);
+        match &mut self.dialog {
+            Dialog::Menu(menu) => {
+                return menu.state.on_key(key)
+                    .map_or(Ok(CmdResult::Stay), |a| self.on_action(a));
+            }
+            Dialog::Help(help) => {
+                help.apply_key_event(key);
+                return Ok(CmdResult::Stay);
+            }
+            Dialog::Password(password_dialog) => {
+                if password_dialog.apply_key_event(key) {
+                    return Ok(CmdResult::Stay);
+                }
+            }
+            Dialog::None => {}
         }
 
         if key == ENTER {
-            self.close_drawer_input(false); // if there's an entry input
-            if let DrawerCreation(PasswordInputState { input }) = &mut self.drawer_state {
-                let pwd = input.get_content();
-                let open_drawer = time!(self.open_closet.create_take_drawer(&pwd));
-                match open_drawer {
-                    Ok(open_drawer) => {
-                        self.drawer_state = DrawerState::edit(open_drawer);
-                        self.created_drawers += 1;
-                    }
-                    Err(e) => {
-                        self.set_error(e.to_string());
-                    }
-                }
-            } else if let DrawerOpening(PasswordInputState { input }) = &mut self.drawer_state {
-                let pwd = input.get_content();
-                let open_drawer = self.open_closet.open_take_drawer(&pwd);
-                match open_drawer {
-                    Some(mut open_drawer) => {
-                        if self.hide_values {
-                            open_drawer.content.settings.hide_values = true;
+            if let Dialog::Password(password_dialog) = &self.dialog {
+                let password = password_dialog.get_password();
+                match password_dialog.purpose() {
+                    PasswordDialogPurpose::NewDrawer { .. } => {
+                        let open_drawer = time!(self.open_closet.create_take_drawer(&password));
+                        match open_drawer {
+                            Ok(open_drawer) => {
+                                self.drawer_state = DrawerState::edit(open_drawer);
+                                self.created_drawers += 1;
+                                self.dialog = Dialog::None;
+                            }
+                            Err(e) => {
+                                self.set_error(e.to_string());
+                            }
                         }
-                        self.drawer_state = DrawerState::edit(open_drawer);
                     }
-                    None => {
-                        self.set_error("This passphrase opens no drawer");
+                    PasswordDialogPurpose::OpenDrawer => {
+                        let open_drawer = self.open_closet.open_take_drawer(&password);
+                        match open_drawer {
+                            Some(mut open_drawer) => {
+                                if self.hide_values {
+                                    open_drawer.content.settings.hide_values = true;
+                                }
+                                self.drawer_state = DrawerState::edit(open_drawer);
+                                self.dialog = Dialog::None;
+                            }
+                            None => {
+                                self.set_error("This passphrase opens no drawer");
+                            }
+                        }
+                    }
+                    PasswordDialogPurpose::ChangeDrawerPassword => {
+                        if let DrawerEdit(des) = &mut self.drawer_state {
+                            match self.open_closet.change_password(&mut des.drawer, password) {
+                                Ok(()) => {
+                                    self.set_info(
+                                        "Password changed. You should save then quit and try reopen."
+                                    );
+                                    self.dialog = Dialog::None;
+                                }
+                                Err(e) => {
+                                    self.set_error(e.to_string());
+                                }
+                            }
+                        }
                     }
                 }
+            } else {
+                self.close_drawer_input(false); // if there's an entry input
             }
             return Ok(CmdResult::Stay);
         }
+
 
         if key == TAB {
             if let DrawerEdit(des) = &mut self.drawer_state {

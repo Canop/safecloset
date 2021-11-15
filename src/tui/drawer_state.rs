@@ -5,11 +5,12 @@ use {
 };
 
 /// State of the TUI application relative to drawers
+// FIXME just use an option<drawereditstate> dans app_state ?
 #[allow(clippy::large_enum_variant)]
 pub enum DrawerState {
     NoneOpen, // no drawer is open
-    DrawerCreation(PasswordInputState),
-    DrawerOpening(PasswordInputState),
+    // DrawerCreation(PasswordInputState),
+    // DrawerOpening(PasswordInputState),
     DrawerEdit(DrawerEditState),
 }
 
@@ -35,8 +36,6 @@ impl DrawerState {
     }
     pub fn input(&mut self) -> Option<&mut InputField> {
         match self {
-            Self::DrawerCreation(PasswordInputState { input }) => Some(input),
-            Self::DrawerOpening(PasswordInputState { input }) => Some(input),
             Self::DrawerEdit(des) => match &mut des.focus {
                 DrawerFocus::NameEdit { input, .. } => Some(input),
                 DrawerFocus::ValueEdit { input, .. } => Some(input),
@@ -60,8 +59,6 @@ impl DrawerState {
     #[allow(dead_code)]
     pub fn has_input(&self) -> bool {
         match self {
-            Self::DrawerCreation(PasswordInputState { .. }) => true,
-            Self::DrawerOpening(PasswordInputState { .. }) => true,
             Self::DrawerEdit(des) => match &des.focus {
                 DrawerFocus::NameEdit { .. } => true,
                 DrawerFocus::ValueEdit { .. } => true,

@@ -34,8 +34,8 @@ pub struct Styles {
     pub char_match: CompoundStyle,
 }
 
-impl ContentSkin {
-    pub fn new() -> Self {
+impl Default for ContentSkin {
+    fn default() -> Self {
         let bg = gray(2);
         let mut md = MadSkin::default();
         md.set_fg(ansi(230));
@@ -62,6 +62,9 @@ impl ContentSkin {
             faded_styles,
         }
     }
+}
+
+impl ContentSkin {
     /// build an input field with the application's skin
     pub fn make_input() -> InputField {
         let mut input_field = InputField::default();
