@@ -6,7 +6,6 @@ mod content_view;
 mod dialog;
 mod drawer_state;
 mod drawer_drawing_layout;
-mod drawer_edit_state;
 mod drawer_focus;
 mod global_view;
 mod help_content;
@@ -50,7 +49,6 @@ pub(crate) use {
     dialog::*,
     drawer_state::*,
     drawer_drawing_layout::*,
-    drawer_edit_state::*,
     drawer_focus::*,
     global_view::*,
     help_content::*,

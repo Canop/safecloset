@@ -2,7 +2,7 @@
 #[derive(Debug, Clone, Copy)]
 pub enum PasswordDialogPurpose {
     NewDrawer { depth: usize },
-    OpenDrawer,
+    OpenDrawer { depth: usize },
     ChangeDrawerPassword,
 }
 

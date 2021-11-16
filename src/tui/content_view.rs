@@ -57,17 +57,14 @@ impl View for ContentView {
         self.clear(w)?;
         let faded = state.dialog.is_some();
         let skin = &app_skin.content;
-        match &mut state.drawer_state {
-            DrawerState::NoneOpen => {
-                let styles = skin.styles(false, faded);
-                if state.open_closet.just_created() && state.created_drawers == 0 {
-                    styles.md.write_in_area_on(w, MD_NEW_CLOSET, &self.area)?;
-                } else {
-                    styles.md.write_in_area_on(w, MD_NO_DRAWER_OPEN, &self.area)?;
-                }
-            }
-            DrawerState::DrawerEdit(des) => {
-                self.draw_drawer(w, des, faded, skin)?;
+        if let Some(des) = state.drawer_state.as_mut() {
+            self.draw_drawer(w, des, faded, skin)?;
+        } else {
+            let styles = skin.styles(false, faded);
+            if state.open_closet.just_created() && state.created_drawers == 0 {
+                styles.md.write_in_area_on(w, MD_NEW_CLOSET, &self.area)?;
+            } else {
+                styles.md.write_in_area_on(w, MD_NO_DRAWER_OPEN, &self.area)?;
             }
         }
         match &mut state.dialog {
@@ -111,7 +108,7 @@ impl ContentView {
     fn draw_drawer(
         &mut self,
         w: &mut W,
-        des: &mut DrawerEditState,
+        des: &mut DrawerState,
         faded: bool,
         skin: &ContentSkin,
     ) -> Result<(), SafeClosetError> {

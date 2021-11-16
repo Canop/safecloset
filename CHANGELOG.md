@@ -1,3 +1,5 @@
+### next
+- change drawer password - Fix #5
 
 <a name="v0.4.0"></a>
 ### v0.4.0 - 2021-11-11

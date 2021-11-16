@@ -32,7 +32,7 @@ impl View for TitleView {
         let composite = Composite::from_inline(&md);
         self.go_to_line(w, 0)?;
         let width = self.area.width as usize;
-        app_skin.help
+        app_skin.title
             .write_composite_fill(w, composite, width, Alignment::Unspecified)?;
         Ok(())
     }
@@ -40,15 +40,15 @@ impl View for TitleView {
 
 fn state_info(state: &AppState) -> &'static str {
     match &state.drawer_state {
-        DrawerState::NoneOpen => {
+        None => {
             if state.open_closet.just_created() && state.created_drawers == 0 {
                 "new closet"
             } else {
                 "no open drawer"
             }
         }
-        DrawerState::DrawerEdit(des) => {
-            if des.touched() {
+        Some(ds) => {
+            if ds.touched() {
                 "*unsaved changes*"
             } else {
                 ""

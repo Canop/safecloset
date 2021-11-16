@@ -19,22 +19,22 @@ impl StatusView {
 
     /// return a hint for the most normal case: no search, some entries, no
     /// special state
-    fn rotate_drawer_hint(&mut self, des: &DrawerEditState) -> &'static str {
+    fn rotate_drawer_hint(&mut self, ds: &DrawerState) -> &'static str {
         let mut hints: Vec<&'static str> = Vec::new();
-        if des.focus.is_pending_removal() {
+        if ds.focus.is_pending_removal() {
             hints.push("Hit *y* to confirm entry removal (any other key cancels it)");
-        } else if des.focus.is_search() {
+        } else if ds.focus.is_search() {
             hints.push("Hit *esc* to cancel search, *enter* to keep the result");
             hints.push("Hit *esc* to cancel search, arrows to keep the result and move selection");
         } else {
-            if des.search.has_content() {
+            if ds.search.has_content() {
                 hints.push("Hit */* then *esc* to clear the search");
             }
-            if des.touched() {
+            if ds.touched() {
                 hints.push("Hit *^s* to save, *^q* to quit, *esc* for menu");
             }
-            if !des.drawer.content.entries.is_empty() {
-                if matches!(des.focus, DrawerFocus::NameSelected{..}|DrawerFocus::ValueSelected{..}) {
+            if !ds.drawer.content.entries.is_empty() {
+                if matches!(ds.focus, DrawerFocus::NameSelected{..}|DrawerFocus::ValueSelected{..}) {
                     hints.push("Hit *^q* to quit, *i* to edit the selected cell, *?* for help");
                     hints.push("Hit *^q* to quit, *i* to edit the selected cell, *esc* for menu");
                 }
@@ -42,12 +42,12 @@ impl StatusView {
                 hints.push("Hit *^q* to quit, */* to search, *^h* to toggle values visibility");
                 hints.push("Hit *^q* to save, */* to search, arrows to select a cell");
                 hints.push("Hit *^q* to quit, *tab* to edit the next cell");
-                if !des.has_input() {
+                if !ds.has_input() {
                     hints.push("Hit *^s* to save, *^q* to quit, *?* for help");
                     hints.push("Hit *^s* to save, *^q* to quit, *esc* for the menu");
                 }
             }
-            if !des.has_input() {
+            if !ds.has_input() {
                 hints.push("Hit *^q* to quit, *esc* for the menu");
                 hints.push("Hit *^q* to quit, *?* for help");
             }
@@ -77,7 +77,7 @@ impl View for StatusView {
         self.go_to_line(w, self.area.top)?;
         let skin;
         let text;
-        if state.drawer_state.is_pending_removal() {
+        if state.is_pending_removal() {
             text = "Hit *y* to confirm entry removal or *esc* to cancel it";
             skin = &app_skin.status.info;
         } else if let Some(ref message) = &state.message {
@@ -90,12 +90,10 @@ impl View for StatusView {
         } else {
             text = if state.dialog.is_help() {
                 "Hit *^q* to quit, *esc* to close the help"
-            } else if let DrawerState::DrawerEdit(des) = &state.drawer_state {
-                self.rotate_drawer_hint(des)
-            } else if matches!(state.drawer_state, DrawerState::NoneOpen) {
-                "Hit *^q* to quit, *?* for help"
+            } else if let Some(ds) = &state.drawer_state {
+                self.rotate_drawer_hint(ds)
             } else {
-                "Hit *^q* to quit"
+                "Hit *^q* to quit, *?* for help"
             };
             skin = &app_skin.status.hint;
         }

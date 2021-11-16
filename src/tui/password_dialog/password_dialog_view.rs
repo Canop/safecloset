@@ -11,7 +11,8 @@ pub struct PasswordDialogView {
 
 static MD_CREATE_TOP_DRAWER: &str = r#"Type the passphrase for the new top level drawer:"#;
 static MD_CREATE_DEEP_DRAWER: &str = r#"Type the passphrase for this deep drawer (to create a top level drawer, cancel then close the drawer you're in):"#;
-static MD_OPEN_DRAWER: &str = r#"Type the passphrase of the drawer you want to open:"#;
+static MD_OPEN_TOP_DRAWER: &str = r#"Type the passphrase of the shallow drawer you want to open:"#;
+static MD_OPEN_DEEP_DRAWER: &str = r#"Type the passphrase of the deep drawer you want to open:"#;
 static MD_CHANGE_PASSWORD: &str = r#"Type the new passphrase (the previous version will still be available in a '.old' backup file after you save once):"#;
 static MD_HIDDEN_CHARS: &str = r#"Characters are hidden. Type *^h* to toggle visibility."#;
 static MD_VISIBLE_CHARS: &str = r#"Characters are visible. Type *^h* to hide them."#;
@@ -28,7 +29,13 @@ impl PasswordDialogView {
                     MD_CREATE_TOP_DRAWER
                 }
             }
-            PasswordDialogPurpose::OpenDrawer => MD_OPEN_DRAWER,
+            PasswordDialogPurpose::OpenDrawer { depth } => {
+                if depth > 0 {
+                    MD_OPEN_DEEP_DRAWER
+                } else {
+                    MD_OPEN_TOP_DRAWER
+                }
+            }
             PasswordDialogPurpose::ChangeDrawerPassword => MD_CHANGE_PASSWORD,
         }
     }

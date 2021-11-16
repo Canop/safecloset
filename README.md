@@ -57,13 +57,6 @@ A drawer can also contain deeper crypted drawers.
 * SafeCloset doesn't protect you against keyloggers
 * SafeCloset doesn't protect you from somebody watching your screen while a secret value is displayed (but the rest of the drawer can be kept hidden)
 
-
-# TODO
-
-* [ ] Changing password
-* [ ] Moving entries between drawers
-
-
 # Usage
 
 *Those screenshots are small, to fit here, but you may use SafeCloset full screen if you want.*
