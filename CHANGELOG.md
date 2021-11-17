@@ -1,3 +1,7 @@
+<a name="v0.5.1"></a>
+### v0.5.1 - 2021-11-17
+- fix documentation on values folding in help screen
+
 <a name="v0.5.0"></a>
 ### v0.5.0 - 2021-11-17
 - change drawer password - Fix #5
