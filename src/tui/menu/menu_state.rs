@@ -24,7 +24,7 @@ impl MenuState {
         } else if key == ENTER {
             return Some(actions[self.selection]);
         }
-        None
+        Action::for_key(key)
     }
 }
 

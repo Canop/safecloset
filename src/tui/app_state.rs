@@ -202,6 +202,7 @@ impl AppState {
             match terminal_clipboard::get_string() {
                 Ok(mut pasted) if !pasted.is_empty() => {
                     if !self.is_on_entry_value() {
+                        // we keep only the first line
                         pasted.truncate(pasted.lines().next().unwrap().len());
                     }
                     if let Some(input) = self.drawer_input() {
