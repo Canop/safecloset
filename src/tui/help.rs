@@ -29,7 +29,7 @@ impl Help {
     pub fn apply_key_event(
         &mut self,
         key: KeyEvent,
-    ) {
+    ) -> bool {
         // the only events we're interested into are the ones which impact the
         // scroll position so we create a text view and ask it after the event
         // handling what's the new scroll
@@ -40,8 +40,12 @@ impl Help {
         );
         let mut text_view = TextView::from(&self.area, &fmt_text);
         text_view.set_scroll(self.scroll);
-        text_view.apply_key_event(key);
-        self.scroll = text_view.scroll;
+        if text_view.apply_key_event(key) {
+            self.scroll = text_view.scroll;
+            true
+        } else {
+            false
+        }
     }
     pub fn draw(
         &mut self,

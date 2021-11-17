@@ -568,8 +568,9 @@ impl AppState {
                     .map_or(Ok(CmdResult::Stay), |a| self.on_action(a));
             }
             Dialog::Help(help) => {
-                help.apply_key_event(key);
-                return Ok(CmdResult::Stay);
+                if help.apply_key_event(key) {
+                    return Ok(CmdResult::Stay);
+                }
             }
             Dialog::Password(password_dialog) => {
                 if password_dialog.apply_key_event(key) {
