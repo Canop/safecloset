@@ -1,3 +1,6 @@
+### next
+- fix rendering problems on sides on Windows (eg duplicate status line) - Fix #14
+
 <a name="v0.5.1"></a>
 ### v0.5.1 - 2021-11-17
 - fix documentation on values folding in help screen

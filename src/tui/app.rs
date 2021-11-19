@@ -14,6 +14,7 @@ use {
 /// Run the Terminal User Interface until the user decides to quit.
 ///
 /// The terminal must be already in alternate and raw mode
+#[allow(unused_mut)]
 pub(super) fn run(
     w: &mut W,
     open_closet: OpenCloset,
@@ -31,11 +32,17 @@ pub(super) fn run(
         select! {
             // user events
             recv(events) -> timed_event => {
-                // debug!("user event: {:?}", &event);
                 let timed_event = timed_event?;
                 let mut quit = false;
                 match timed_event.event {
-                    Event::Resize(width, height) => {
+                    Event::Resize(mut width, mut height) => {
+                        // I don't know why but Crossterm seems to always report an
+                        // understimated size on Windows
+                        #[cfg(windows)]
+                        {
+                            width += 1;
+                            height += 1;
+                        }
                         view.set_available_area(Area::new(0, 0, width, height));
                     }
                     Event::Key(key) => {
