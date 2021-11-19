@@ -10,7 +10,7 @@
 The best place to chat about safecloset, to talk about features or bugs, is the Miaou chat.
 
 * [Rust & SafeCloset room on Miaou](https://miaou.dystroy.org/3490?rust)
-* [French Programers room on Miaou](https://miaou.dystroy.org/3)
+* [French Programmers room on Miaou](https://miaou.dystroy.org/3)
 
 # Issues
 
@@ -60,3 +60,4 @@ Instances of `DrawerSettings` contain the following fields:
 
 * `hide_values`: a boolean
 * `open_all_values`: a boolean (optional, false if not present)
+
