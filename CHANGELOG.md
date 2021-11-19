@@ -1,4 +1,5 @@
-### next
+<a name="v0.5.2"></a>
+### v0.5.2 - 2021-11-19
 - fix rendering problems on sides on Windows (eg duplicate status line) - Fix #14
 
 <a name="v0.5.1"></a>

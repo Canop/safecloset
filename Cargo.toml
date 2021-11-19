@@ -1,6 +1,6 @@
 [package]
 name = "safecloset"
-version = "0.5.2-dev"
+version = "0.5.2"
 edition = "2021"
 authors = ["dystroy <denys.seguret@gmail.com>"]
 repository = "https://github.com/Canop/safecloset"
