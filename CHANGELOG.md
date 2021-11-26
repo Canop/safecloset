@@ -1,3 +1,6 @@
+### next
+- Fix crash on Windows Terminal on some mouse operations - Fix #17
+
 <a name="v0.5.2"></a>
 ### v0.5.2 - 2021-11-19
 - fix rendering problems on sides on Windows (eg duplicate status line) - Fix #14
