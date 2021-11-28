@@ -1,5 +1,7 @@
 ### next
 - Fix crash on Windows Terminal on some mouse operations - Fix #17
+- better support of wide characters
+- update status when waiting for long tasks
 
 <a name="v0.5.2"></a>
 ### v0.5.2 - 2021-11-19

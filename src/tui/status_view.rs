@@ -77,7 +77,10 @@ impl View for StatusView {
         self.go_to_line(w, self.area.top)?;
         let skin;
         let text;
-        if state.is_pending_removal() {
+        if let Some(task) = state.pending_tasks.get(0) {
+            text = task.label();
+            skin = &app_skin.status.task;
+        } else if state.is_pending_removal() {
             text = "Hit *y* to confirm entry removal or *esc* to cancel it";
             skin = &app_skin.status.info;
         } else if let Some(ref message) = &state.message {

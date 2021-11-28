@@ -24,6 +24,9 @@ pub struct AppState {
     pub hide_values: bool,
     /// number of drawers created during this session
     pub created_drawers: usize,
+    /// tasks in progress or waiting to be launched.
+    /// The current or next one is at index 0
+    pub pending_tasks: Vec<Task>,
 }
 
 impl AppState {
@@ -46,6 +49,7 @@ impl AppState {
             message: None,
             hide_values: args.hide,
             created_drawers: 0,
+            pending_tasks: Vec::new(),
         }
     }
 
@@ -333,6 +337,89 @@ impl AppState {
         }
     }
 
+    pub fn has_pending_task(&self) -> bool {
+        !self.pending_tasks.is_empty()
+    }
+
+    pub fn queue_task(&mut self, task: Task) {
+        self.pending_tasks.push(task);
+    }
+
+    fn shift_pending_task(&mut self) -> Option<Task> {
+        if self.pending_tasks.is_empty() {
+            None
+        } else {
+            Some(self.pending_tasks.remove(0))
+        }
+    }
+
+    /// execute one of the potentially long tasks
+    /// (the status is updated during execution)
+    pub fn run_pending_task(&mut self) -> Result<CmdResult, SafeClosetError> {
+        match self.shift_pending_task() {
+            Some(Task::Save) => {
+                self.save(true)?;
+            }
+            Some(Task::CreateDrawer(password)) => {
+                self.push_back_drawer()?;
+                let open_drawer = time!(self.open_closet.create_take_drawer(&password));
+                match open_drawer {
+                    Ok(open_drawer) => {
+                        self.drawer_state = Some(open_drawer.into());
+                        self.created_drawers += 1;
+                        self.dialog = Dialog::None;
+                    }
+                    Err(e) => {
+                        self.set_error(e.to_string());
+                    }
+                }
+            }
+            Some(Task::OpenDrawer(password)) => {
+                self.push_back_drawer()?;
+                let open_drawer = self.open_closet.open_take_drawer(&password);
+                match open_drawer {
+                    Some(mut open_drawer) => {
+                        if self.hide_values {
+                            open_drawer.content.settings.hide_values = true;
+                        }
+                        self.drawer_state = Some(open_drawer.into());
+                        self.dialog = Dialog::None;
+                    }
+                    None => {
+                        self.drawer_state = self.open_closet.take_deepest_open_drawer()
+                            .map(|open_drawer| open_drawer.into());
+                        self.set_error("This passphrase opens no drawer");
+                    }
+                }
+            }
+            Some(Task::CloseDrawer) => {
+                self.push_back_drawer()?;
+                let _ = self.open_closet.close_deepest_drawer();
+                self.drawer_state = self.open_closet.take_deepest_open_drawer()
+                    .map(|open_drawer| open_drawer.into());
+            }
+            Some(Task::ChangePassword(password)) => {
+                if let Some(ds) = &mut self.drawer_state {
+                    match self.open_closet.change_password(&mut ds.drawer, password) {
+                        Ok(()) => {
+                            self.set_info(
+                                "Password changed. You should save then quit and try reopen."
+                            );
+                            self.dialog = Dialog::None;
+                        }
+                        Err(e) => {
+                            self.set_error(e.to_string());
+                        }
+                    }
+                }
+            }
+            None => {
+                warn!("unexpected lack of task");
+            }
+        }
+        Ok(CmdResult::Stay)
+    }
+
     pub fn on_action(&mut self, action: Action) -> Result<CmdResult, SafeClosetError> {
         use {
             DrawerFocus::*,
@@ -373,18 +460,15 @@ impl AppState {
                 if self.drawer_state.is_some() {
                     self.dialog = Dialog::None;
                     debug!("user requests save, keep state");
-                    self.save(true)?;
+                    self.queue_task(Task::Save);
                 } else {
                     self.set_error("no open drawer");
                 }
             }
             Action::CloseShallowDrawer | Action::CloseDeepDrawer => {
                 self.dialog = Dialog::None;
-                self.save(true)?;
-                self.push_back_drawer()?;
-                let _ = self.open_closet.close_deepest_drawer();
-                self.drawer_state = self.open_closet.take_deepest_open_drawer()
-                    .map(|open_drawer| open_drawer.into());
+                self.queue_task(Task::Save);
+                self.queue_task(Task::CloseDrawer);
             }
             Action::Help => {
                 self.dialog = Dialog::Help(Help::default());
@@ -589,51 +673,13 @@ impl AppState {
                 let password = password_dialog.get_password();
                 match password_dialog.purpose() {
                     PasswordDialogPurpose::NewDrawer { .. } => {
-                        self.push_back_drawer()?;
-                        let open_drawer = time!(self.open_closet.create_take_drawer(&password));
-                        match open_drawer {
-                            Ok(open_drawer) => {
-                                self.drawer_state = Some(open_drawer.into());
-                                self.created_drawers += 1;
-                                self.dialog = Dialog::None;
-                            }
-                            Err(e) => {
-                                self.set_error(e.to_string());
-                            }
-                        }
+                        self.queue_task(Task::CreateDrawer(password));
                     }
                     PasswordDialogPurpose::OpenDrawer { .. } => {
-                        self.push_back_drawer()?;
-                        let open_drawer = self.open_closet.open_take_drawer(&password);
-                        match open_drawer {
-                            Some(mut open_drawer) => {
-                                if self.hide_values {
-                                    open_drawer.content.settings.hide_values = true;
-                                }
-                                self.drawer_state = Some(open_drawer.into());
-                                self.dialog = Dialog::None;
-                            }
-                            None => {
-                                self.drawer_state = self.open_closet.take_deepest_open_drawer()
-                                    .map(|open_drawer| open_drawer.into());
-                                self.set_error("This passphrase opens no drawer");
-                            }
-                        }
+                        self.queue_task(Task::OpenDrawer(password));
                     }
                     PasswordDialogPurpose::ChangeDrawerPassword => {
-                        if let Some(ds) = &mut self.drawer_state {
-                            match self.open_closet.change_password(&mut ds.drawer, password) {
-                                Ok(()) => {
-                                    self.set_info(
-                                        "Password changed. You should save then quit and try reopen."
-                                    );
-                                    self.dialog = Dialog::None;
-                                }
-                                Err(e) => {
-                                    self.set_error(e.to_string());
-                                }
-                            }
-                        }
+                        self.queue_task(Task::ChangePassword(password));
                     }
                 }
             } else {
@@ -641,7 +687,6 @@ impl AppState {
             }
             return Ok(CmdResult::Stay);
         }
-
 
         if key == TAB {
             if let Some(ds) = &mut self.drawer_state {

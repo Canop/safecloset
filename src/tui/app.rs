@@ -63,6 +63,17 @@ pub(super) fn run(
                     break;
                 }
                 view.draw(w, &mut state, &skin)?;
+                while state.has_pending_task() {
+                    let cmd_result = state.run_pending_task()?;
+                    if cmd_result.quit() {
+                        debug!("quit on end of pending task");
+                        quit = true;
+                    }
+                    view.draw(w, &mut state, &skin)?;
+                }
+                if quit {
+                    break;
+                }
             }
 
             // timer (so that safecloset doesn't stay open

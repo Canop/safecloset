@@ -1,7 +1,7 @@
 mod action;
+mod app;
 mod app_state;
 mod cmd_result;
-mod skin;
 mod content_view;
 mod dialog;
 mod drawer_state;
@@ -17,9 +17,10 @@ mod message;
 mod password_dialog;
 mod search_state;
 mod scroll;
+mod skin;
 mod status_view;
+mod task;
 mod title_view;
-mod app;
 mod view;
 
 use {
@@ -44,7 +45,6 @@ pub(crate) use {
     action::*,
     app_state::*,
     cmd_result::*,
-    skin::*,
     content_view::*,
     dialog::*,
     drawer_state::*,
@@ -60,7 +60,9 @@ pub(crate) use {
     password_dialog::*,
     search_state::*,
     scroll::*,
+    skin::*,
     status_view::*,
+    task::*,
     title_view::*,
     view::*,
 };
