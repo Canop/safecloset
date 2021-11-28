@@ -6,7 +6,7 @@ static MD: &str = r#"
 
 # SafeCloset ${version}
 
-SafeCloset is written by Denys Séguret. Source code and documentation can be found on *https://github.com/Canop/safecloset*
+SafeCloset is written by Denys Séguret. Source code and documentation can be found on *https://dystroy.org/safecloset/*
 
 SafeCloset stores secrets in drawers. A drawer may be either top-level, or hidden in another drawer. Each drawer is protected by a passphrase.
 

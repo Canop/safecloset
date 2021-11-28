@@ -250,8 +250,6 @@ impl AppState {
         double_click: bool,
     )-> Result<(), SafeClosetError> {
 
-        // TODO handle click in search input location
-
         if let Some(input) = self.drawer_input() {
             if input.apply_mouse_event(mouse_event, double_click) {
                 return Ok(());

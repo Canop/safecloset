@@ -5,7 +5,7 @@ use {
 
 #[derive(Debug, FromArgs)]
 /// SafeCloset keeps your secrets -
-/// Source at https://github.com/Canop/safecloset
+/// Documentation and source code at https://dystroy.org/safecloset
 pub struct Args {
     /// print the version
     #[argh(switch, short = 'v')]
