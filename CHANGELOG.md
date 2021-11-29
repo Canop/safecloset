@@ -1,3 +1,6 @@
+### next
+- support for more mouse interactions
+
 <a name="v0.5.3"></a>
 ### v0.5.3 - 2021-11-28
 - Fix crash on Windows Terminal on some mouse operations - Fix #17

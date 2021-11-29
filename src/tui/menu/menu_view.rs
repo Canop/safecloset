@@ -34,10 +34,11 @@ impl View for MenuView {
         app_skin: &AppSkin,
     ) -> Result<(), SafeClosetError> {
         debug_assert!(self.area.width > 3);
+        state.clear_item_areas();
         let skin = &app_skin.dialog;
         let border_colors = skin.md.table.compound_style.clone();
         let area = &self.area;
-        let h = (area.height - 2).min(state.actions.len() as u16); // internal height
+        let h = (area.height - 2).min(state.items.len() as u16); // internal height
         let mut rect = Rect::new(area.clone(), border_colors);
         rect.set_border_style(BORDER_STYLE_BLAND);
         rect.area.height = h + 1;
@@ -45,23 +46,24 @@ impl View for MenuView {
         let key_width = 3;
         let label_width = area.width as usize - key_width - 2;
         let mut y = area.top;
-        let mut actions = state.actions.iter().skip(state.scroll);
+        let mut items = state.items.iter_mut().skip(state.scroll);
         for i in 0..h {
             y += 1;
-            if let Some(action) = actions.next() {
+            if let Some(item) = items.next() {
+                let item_area = Area::new(area.left + 1, y, area.width - 2, 1);
                 let skin = if state.selection == i as usize + state.scroll {
                     &skin.sel_md
                 } else {
                     &skin.md
                 };
-                self.go_to(w, area.left+1, y)?;
+                self.go_to(w, item_area.left, y)?;
                 skin.write_composite_fill(
                     w,
-                    Composite::from_inline(action.label()),
+                    Composite::from_inline(item.action.label()),
                     label_width,
                     Alignment::Left,
                 )?;
-                let key_desc = action.key()
+                let key_desc = item.action.key()
                     .map_or("".to_string(), |key| key_event_desc(key));
                 skin.write_composite_fill(
                     w,
@@ -69,6 +71,7 @@ impl View for MenuView {
                     key_width,
                     Alignment::Right,
                 )?;
+                item.area = Some(item_area);
             } else {
                 break;
             }

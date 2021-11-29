@@ -21,9 +21,6 @@ impl Menu {
         self.view.set_available_area(area);
     }
     pub fn add_item(&mut self, action: Action) {
-        self.state.actions.push(action);
-    }
-    pub fn select(&mut self, selection: usize) {
-        self.state.selection = selection;
+        self.state.add_item(action);
     }
 }

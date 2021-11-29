@@ -250,6 +250,26 @@ impl AppState {
         double_click: bool,
     )-> Result<(), SafeClosetError> {
 
+        match &mut self.dialog {
+            Dialog::Menu(menu) => {
+                if let Some(action) = menu.state.on_mouse_event(mouse_event, double_click) {
+                    self.on_action(action);
+                }
+                return Ok(());
+            }
+            Dialog::Help(help) => {
+                // if help.apply_key_event(key) {
+                //     return Ok(CmdResult::Stay);
+                // }
+            }
+            Dialog::Password(password_dialog) => {
+                // if password_dialog.apply_key_event(key) {
+                //     return Ok(CmdResult::Stay);
+                // }
+            }
+            Dialog::None => {}
+        }
+
         if let Some(input) = self.drawer_input() {
             if input.apply_mouse_event(mouse_event, double_click) {
                 return Ok(());
@@ -320,7 +340,7 @@ impl AppState {
                 let mut menu = Menu::default();
                 menu.add_item(Action::ConfirmEntryRemoval);
                 menu.add_item(Action::Back);
-                menu.select(1);
+                menu.state.select(1);
                 self.dialog = Dialog::Menu(menu);
             }
         }
