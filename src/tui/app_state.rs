@@ -189,7 +189,7 @@ impl AppState {
                     self.set_info("string copied to the clipboard, be cautious");
                 }
             } else {
-                self.set_error("you can only copy from an edited input");
+                self.set_error("you can't copy from here");
             }
         }
     }
@@ -262,9 +262,8 @@ impl AppState {
                 return Ok(());
             }
             Dialog::Password(password_dialog) => {
-                // if password_dialog.apply_key_event(key) {
-                //     return Ok(CmdResult::Stay);
-                // }
+                password_dialog.on_mouse_event(mouse_event, double_click);
+                return Ok(());
             }
             Dialog::None => {}
         }

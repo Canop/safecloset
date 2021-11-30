@@ -1,7 +1,7 @@
 use {
     super::*,
     crate::tui::ContentSkin,
-    crossterm::event::KeyEvent,
+    crossterm::event::{KeyEvent, MouseEvent},
     termimad::*,
 };
 
@@ -24,6 +24,14 @@ impl PasswordDialogState {
     }
     pub fn apply_key_event(&mut self, key: KeyEvent) -> bool {
         self.password.apply_key_event(key)
+    }
+    /// handle a mouse event
+    pub fn on_mouse_event(
+        &mut self,
+        mouse_event: MouseEvent,
+        double_click: bool,
+    ) {
+        self.password.apply_mouse_event(mouse_event, double_click);
     }
 }
 

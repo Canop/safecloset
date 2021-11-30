@@ -10,7 +10,7 @@ pub use {
 
 use {
     super::*,
-    crossterm::event::KeyEvent,
+    crossterm::event::{KeyEvent, MouseEvent},
 };
 
 pub struct PasswordDialog {
@@ -38,6 +38,9 @@ impl PasswordDialog {
     }
     pub fn apply_key_event(&mut self, key: KeyEvent) -> bool {
         self.state.apply_key_event(key)
+    }
+    pub fn on_mouse_event(&mut self, mouse_event: MouseEvent, double_click: bool) {
+        self.state.on_mouse_event(mouse_event, double_click);
     }
     pub fn draw(
         &mut self,
