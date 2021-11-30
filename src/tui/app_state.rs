@@ -285,24 +285,27 @@ impl AppState {
             match kind {
                 MouseEventKind::Up(MouseButton::Left) => {
                     if modifiers == KeyModifiers::NONE {
-                        if let Some(clicked_line) = ds.clicked_line(row as usize) {
-                            use DrawerFocus::*;
-                            // if we're here we know the clicked input isn't focused
-                            let in_name = ds.layout().is_in_name_column(column);
-                            if in_name {
+                        // The case of an input being focused is handled before
+                        // so we know it's not the case
+                        match ds.clicked(column, row as usize) {
+                            Clicked::Search => {
+                                self.on_action(Action::Search)?;
+                            }
+                            Clicked::Name(clicked_line) => {
                                 if ds.focus.is_name_selected(clicked_line) {
                                     ds.edit_entry_name_by_line(clicked_line, EditionPos::Start);
                                 } else {
-                                    ds.focus = NameSelected { line: clicked_line };
+                                    ds.focus = DrawerFocus::NameSelected { line: clicked_line };
                                 }
-                            } else {
+                            }
+                            Clicked::Value(clicked_line) => {
                                 if ds.focus.is_value_selected(clicked_line) {
                                     ds.edit_entry_value_by_line(clicked_line, EditionPos::Start);
                                 } else {
-                                    ds.focus = ValueSelected { line: clicked_line };
+                                    ds.focus = DrawerFocus::ValueSelected { line: clicked_line };
                                 }
-
                             }
+                            Clicked::Nothing => {}
                         }
                     }
                 }

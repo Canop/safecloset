@@ -21,6 +21,14 @@ pub struct DrawerState {
 }
 
 #[derive(Debug, Clone, Copy)]
+pub enum Clicked {
+    Nothing,
+    Name(usize),
+    Value(usize),
+    Search,
+}
+
+#[derive(Debug, Clone, Copy)]
 pub enum EditionPos {
     Start,
     End,
@@ -195,19 +203,31 @@ impl DrawerState {
         self.search.update(&self.drawer)
     }
 
-    pub fn clicked_line(&self, y: usize) -> Option<usize> {
-        let heights = self.layout.value_heights_by_line
-            .iter()
-            .enumerate()
-            .skip(self.scroll);
+    /// Tell what part of the drawer screen has been clicked
+    pub fn clicked(&self, x: u16, y: usize) -> Clicked {
+        let in_name_col = self.layout.is_in_name_column(x);
         let mut sum_heights = self.layout.lines_area.top as usize;
-        for (line, height) in heights {
-            sum_heights += height;
-            if sum_heights > y {
-                return Some(line);
+        if y < sum_heights {
+            if in_name_col && y > 1 {
+                return Clicked::Search;
+            }
+        } else {
+            let heights = self.layout.value_heights_by_line
+                .iter()
+                .enumerate()
+                .skip(self.scroll);
+            for (line, height) in heights {
+                sum_heights += height;
+                if sum_heights > y {
+                    if in_name_col {
+                        return Clicked::Name(line);
+                    } else {
+                        return Clicked::Value(line);
+                    }
+                }
             }
         }
-        None
+        Clicked::Nothing
     }
 
     pub fn scrollbar(&self) -> Option<(u16, u16)> {
