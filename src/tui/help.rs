@@ -1,6 +1,6 @@
 use {
     super::*,
-    crossterm::event::KeyEvent,
+    crossterm::event::{KeyEvent, MouseEvent, MouseEventKind},
     minimad::Text,
     termimad::*,
 };
@@ -47,6 +47,22 @@ impl Help {
             false
         }
     }
+    /// handle a mouse event
+    pub fn on_mouse_event(
+        &mut self,
+        mouse_event: MouseEvent,
+        _double_click: bool,
+    ) {
+        match mouse_event.kind {
+            MouseEventKind::ScrollUp if self.scroll > 0 => {
+                self.scroll -= 1;
+            }
+            MouseEventKind::ScrollDown => {
+                self.scroll += 1; // if it overflows, it will be fixed on draw
+            }
+            _ => {}
+        }
+    }
     pub fn draw(
         &mut self,
         w: &mut W,
@@ -60,6 +76,7 @@ impl Help {
         let mut text_view = TextView::from(&self.area, &fmt_text);
         text_view.set_scroll(self.scroll);
         text_view.write_on(w)?;
+        self.scroll = text_view.scroll;
         Ok(())
     }
 }

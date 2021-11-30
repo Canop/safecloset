@@ -253,14 +253,13 @@ impl AppState {
         match &mut self.dialog {
             Dialog::Menu(menu) => {
                 if let Some(action) = menu.state.on_mouse_event(mouse_event, double_click) {
-                    self.on_action(action);
+                    self.on_action(action)?;
                 }
                 return Ok(());
             }
             Dialog::Help(help) => {
-                // if help.apply_key_event(key) {
-                //     return Ok(CmdResult::Stay);
-                // }
+                help.on_mouse_event(mouse_event, double_click);
+                return Ok(());
             }
             Dialog::Password(password_dialog) => {
                 // if password_dialog.apply_key_event(key) {

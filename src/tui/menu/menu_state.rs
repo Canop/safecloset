@@ -59,7 +59,7 @@ impl MenuState {
         &mut self,
         mouse_event: MouseEvent,
         double_click: bool,
-    )-> Option<Action> {
+    ) -> Option<Action> {
         let is_click = matches!(
             mouse_event.kind,
             MouseEventKind::Down(MouseButton::Left) | MouseEventKind::Up(MouseButton::Left),
