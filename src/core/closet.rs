@@ -13,11 +13,24 @@ use {
 #[derive(Serialize, Deserialize)]
 pub struct Closet {
 
+    /// Clear comments, which can be read with a standard binary/hex editor
+    #[serde(default = "default_clear_comments")]
+    pub comments: String,
+
     /// The salt used to generate the cipher keys from the passwords
     pub salt: String,
 
     /// The crypted drawers
     pub drawers: Vec<ClosedDrawer>,
+}
+
+/// Return the default comments which are written in the clear
+/// part of the file. The rationale for writing the name of the
+/// soft is that you may forget it and need to find the software
+/// to open your closet file, while attackers are the ones who
+/// may the most easily guess it.
+fn default_clear_comments() -> String {
+    "Closet file written with SafeCloset - https://dystroy.org/safecloset ".to_string()
 }
 
 /// compute the number of decoy drawers we must create for
@@ -38,9 +51,10 @@ fn random_decoy_drawers_count(depth: usize) -> usize {
 impl Closet {
 
     pub fn new(depth: usize) -> Result<Self, CoreError> {
+        let comments = default_clear_comments();
         let salt = random_password();
         let drawers = Vec::new();
-        let mut closet = Self { salt, drawers };
+        let mut closet = Self { comments, salt, drawers };
         // creating decoy drawers
         for _ in 0..random_decoy_drawers_count(depth) {
             closet.create_drawer_unchecked(depth, random_password())?;

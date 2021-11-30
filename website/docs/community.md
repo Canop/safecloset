@@ -29,6 +29,7 @@ The storage format is described to ensure it's possible to replace SafeCloset wi
 
 The closet file is a [MessagePack](https://msgpack.org/index.html) encoded structure `Closet` with the following fields:
 
+* `comments`: a string
 * `salt`: a string
 * `drawers`: an array of `ClosedDrawer`
 
