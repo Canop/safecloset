@@ -29,6 +29,16 @@ impl DrawerFocus {
             Self::PendingRemoval { line } => Some(*line),
         }
     }
+    /// Return the mutable selection, when it's mutable
+    /// (ie not for the edit as the input fields would
+    /// hold data unrelated to the selection)
+    pub fn selection_mut(&mut self) -> Option<&mut usize> {
+        match self {
+            Self::NameSelected { line } => Some(line),
+            Self::ValueSelected { line } => Some(line),
+            _ => None,
+        }
+    }
     pub fn is_search(&self) -> bool {
         matches!(self, DrawerFocus::SearchEdit { .. })
     }

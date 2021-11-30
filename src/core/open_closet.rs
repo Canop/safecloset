@@ -101,6 +101,7 @@ impl OpenCloset {
     /// Save all the open drawers, then the closet in its file,
     /// then reopen the drawer which was the deepest one before
     /// saving.
+    #[must_use]
     pub fn push_back_save_retake(
         &mut self,
         open_drawer: OpenDrawer,
@@ -167,6 +168,7 @@ impl OpenCloset {
 
     /// Try to open a drawer at any depth (preferably from
     /// one of the deepest open drawers) then take it
+    #[must_use]
     pub fn open_take_drawer(&mut self, password: &str) -> Option<OpenDrawer> {
         if self.open_drawer(password).is_some() {
             self.take_deepest_open_drawer()
@@ -230,6 +232,7 @@ impl OpenCloset {
 
     /// take a drawer to modify it owned. Won't be saved if you
     /// don't push it back
+    #[must_use]
     pub fn take_deepest_open_drawer(&mut self) -> Option<OpenDrawer> {
         self.open_drawers.pop()
     }

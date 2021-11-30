@@ -308,10 +308,10 @@ impl AppState {
                     }
                 }
                 MouseEventKind::ScrollUp => {
-                    ds.move_line(Direction::Up);
+                    ds.apply_scroll_command(ScrollCommand::Lines(-1));
                 }
                 MouseEventKind::ScrollDown => {
-                    ds.move_line(Direction::Down);
+                    ds.apply_scroll_command(ScrollCommand::Lines(1));
                 }
                 _ => {}
             }

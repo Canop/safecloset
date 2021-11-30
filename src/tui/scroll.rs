@@ -2,7 +2,6 @@
 pub enum ScrollCommand {
     Top,
     Bottom,
-    #[allow(dead_code)]
     Lines(i32),
     Pages(i32),
 }

@@ -349,6 +349,74 @@ impl DrawerState {
             _ => true,
         }
     }
+    pub fn apply_scroll_command(&mut self, scroll_command: ScrollCommand) {
+        let page_height = self.page_height();
+        let initial_scroll = self.scroll;
+        self.scroll = scroll_command.apply(
+            self.scroll,
+            self.layout.content_height,
+            page_height,
+        );
+        // if fix_scroll reverts to the previous position, it's because doing
+        // differently would hide the selection. In this case, and when the
+        // selection can be moved, we move it (and the fix_scroll happening
+        // at the start of the drawing will make it visible).
+        self.fix_scroll();
+        if self.scroll == initial_scroll {
+            let count = self.listed_entries_count();
+            let last_visible_line = self.last_visible_line();
+            if let Some(selection) = self.focus.selection_mut() {
+                match scroll_command {
+                    ScrollCommand::Top => {
+                        *selection = 0;
+                    }
+                    ScrollCommand::Bottom => {
+                        // safety: lines_count > 0 or we would not have any selection
+                        *selection = count - 1;
+                    }
+                    ScrollCommand::Lines(i) if i < 0 => {
+                        if *selection > 0 {
+                            *selection -= 1;
+                        }
+                    }
+                    ScrollCommand::Lines(i) if i > 0 => {
+                        if *selection + 1 < count {
+                            *selection += 1;
+                        }
+                    }
+                    ScrollCommand::Pages(-1) => {
+                        *selection = initial_scroll;
+                    }
+                    ScrollCommand::Pages(1) => {
+                        // safety: there's a last visible line or there would be not selection
+                        *selection = last_visible_line.unwrap();
+                    }
+                    _ => {
+                        warn!("unacounted scroll command: {:?}", scroll_command);
+                    }
+                }
+            }
+        }
+    }
+    pub fn last_visible_line(&self) -> Option<usize> {
+        let page_height = self.page_height();
+        let heights = self.layout.value_heights_by_line.iter()
+            .enumerate()
+            .skip(self.scroll);
+        let mut sum_heights = 0;
+        for (line, height) in heights {
+            sum_heights += height;
+            if sum_heights > page_height {
+                return Some(line);
+            }
+        }
+        let count = self.listed_entries_count();
+        if count > 0 {
+            Some(count - 1)
+        } else {
+            None
+        }
+    }
     /// Ensure the scroll is consistent with the size of content
     /// and terminal height, and that the selection is visible, if any.
     ///
@@ -428,13 +496,6 @@ impl DrawerState {
         } else {
             false
         }
-    }
-    pub fn apply_scroll_command(&mut self, scroll_command: ScrollCommand) {
-        self.scroll = scroll_command.apply(
-            self.scroll,
-            self.listed_entries_count(),
-            self.page_height(),
-        );
     }
     pub fn close_input(&mut self, discard: bool) -> bool {
         if let DrawerFocus::NameEdit { line, input } = &self.focus {
