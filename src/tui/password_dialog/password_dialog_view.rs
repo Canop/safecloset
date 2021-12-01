@@ -17,7 +17,10 @@ static MD_CHANGE_PASSWORD: &str = r#"Type the new passphrase (the previous versi
 static MD_HIDDEN_CHARS: &str = r#"Characters are hidden. Type *^h* to toggle visibility."#;
 static MD_VISIBLE_CHARS: &str = r#"Characters are visible. Type *^h* to hide them."#;
 
-const INTERNAL_HEIGHT: u16 = 7;
+const INTERNAL_HEIGHT: u16 =
+    3    // intro: 3
+    + 2  // pwd: 2
+    + 3; // char hiding text: 3
 
 impl PasswordDialogView {
     fn introduction_text(state: &PasswordDialogState) -> &'static str {
@@ -56,10 +59,6 @@ impl View for PasswordDialogView {
             area.height = h;
         }
         self.area = area;
-    }
-
-    fn get_area(&self) -> &Area {
-        &self.area
     }
 
     /// Render the view in its area

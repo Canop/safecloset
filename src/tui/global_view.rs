@@ -22,9 +22,6 @@ impl View for GlobalView {
         self.content.set_available_area(Area::new(0, 1, self.area.width, self.area.height - 2));
         self.status.set_available_area(Area::new(0, self.area.height - 1, self.area.width, 1));
     }
-    fn get_area(&self) -> &Area {
-        &self.area
-    }
     fn draw(
         &mut self,
         w: &mut W,

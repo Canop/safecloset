@@ -64,9 +64,6 @@ impl View for StatusView {
     fn set_available_area(&mut self, area: Area) {
         self.area = area;
     }
-    fn get_area(&self) -> &Area {
-        &self.area
-    }
 
     fn draw(
         &mut self,
@@ -74,7 +71,7 @@ impl View for StatusView {
         state: &mut AppState,
         app_skin: &AppSkin,
     ) -> Result<(), SafeClosetError> {
-        self.go_to_line(w, self.area.top)?;
+        self.go_to(w, self.area.left, self.area.top)?;
         let skin;
         let text;
         if let Some(task) = state.pending_tasks.get(0) {
@@ -104,7 +101,7 @@ impl View for StatusView {
         skin.write_composite_fill(
             w,
             composite,
-            self.get_area().width as usize,
+            self.area.width as usize,
             Alignment::Unspecified,
         )?;
         Ok(())

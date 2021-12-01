@@ -44,10 +44,6 @@ impl View for ContentView {
     fn set_available_area(&mut self, area: Area) {
         self.area = area;
     }
-    fn get_area(&self) -> &Area {
-        &self.area
-    }
-
     fn draw(
         &mut self,
         w: &mut W,
@@ -90,12 +86,16 @@ impl ContentView {
     fn bg(&self) -> Color {
         gray(2)
     }
+    fn get_area(&self) -> &Area {
+        &self.area
+    }
     /// Clear the whole area (and everything to the right)
     fn clear(&self, w: &mut W) -> Result<(), SafeClosetError> {
         let area = self.get_area();
         w.queue(SetBackgroundColor(self.bg()))?;
+        let x = area.left;
         for y in area.top..area.top + area.height {
-            self.go_to_line(w, y)?;
+            self.go_to(w, x, y)?;
             self.clear_line(w)?;
         }
         Ok(())
@@ -117,12 +117,13 @@ impl ContentView {
                 .md.write_in_area_on(w, MD_EMPTY_DRAWER, &self.area)?;
             return Ok(());
         }
-        if self.area.height < 5 || self.area.width < 20 {
+        if self.area.height < 7 || self.area.width < 20 {
             warn!("Terminal too small to render drawer content");
             skin.styles(false, faded)
-                .md.write_in_area_on(w, "*too small*", &self.area)?;
+                .md.write_in_area_on(w, "*terminal too small*", &self.area)?;
             return Ok(());
         }
+        let x = self.area.left;
         // entries area
         des.update_drawing_layout(&self.area);
         let layout = des.layout();
@@ -133,7 +134,7 @@ impl ContentView {
         let tbl_style = skin.tbl_style(false, faded);
         let txt_style = skin.txt_style(false, faded);
         // -- header
-        self.go_to_line(w, 1)?;
+        self.go_to(w, x, 1)?;
         tbl_style.queue_str(w, &"─".repeat(name_width + 1))?;
         tbl_style.queue_str(w, "┬")?;
         let value_header_width = if scrollbar.is_some() {
@@ -142,7 +143,7 @@ impl ContentView {
             value_width
         };
         tbl_style.queue_str(w, &"─".repeat(value_header_width))?;
-        self.go_to_line(w, 2)?;
+        self.go_to(w, x, 2)?;
         if des.focus.is_search() {
             txt_style.queue_str(w, "/")?;
             des.search.input.change_area(1, 2, layout.name_width);
@@ -172,7 +173,7 @@ impl ContentView {
             value_width,
             Alignment::Center,
         )?;
-        self.go_to_line(w, 3)?;
+        self.go_to(w, x, 3)?;
         tbl_style.queue_str(w, &"─".repeat(name_width + 1))?;
         tbl_style.queue_str(w, "┼")?;
         tbl_style.queue_str(w, &"─".repeat(value_width + 1))?;
@@ -184,7 +185,7 @@ impl ContentView {
         let area = &layout.lines_area;
         let unsel_styles = skin.styles(false, faded);
         for y in area.top..=area.bottom() {
-            self.go_to_line(w, y)?;
+            self.go_to(w, x, y)?;
             if empty_lines > 0 {
                 SPACE_FILLING.queue_styled(w, tbl_style, name_width + 1)?;
                 tbl_style.queue_str(w, "│")?;

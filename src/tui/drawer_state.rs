@@ -152,7 +152,7 @@ impl DrawerState {
         &mut self,
         content_area: &Area,
     ) {
-        debug_assert!(content_area.height > 3);
+        debug_assert!(content_area.height > 4);
         self.layout.lines_area.left = 0;
         self.layout.lines_area.top = content_area.top + 3;
         let page_height = content_area.height - 3;
@@ -165,13 +165,18 @@ impl DrawerState {
         let lines_count = self.listed_entries_count();
         self.layout.content_height = 0;
         self.layout.value_heights_by_line.clear();
+        let max_value_height = if page_height > 7 {
+            page_height as usize - 5
+        } else {
+            page_height as usize - 2
+        };
         for l in 0..lines_count {
             let idx = self.listed_entry_idx(l).unwrap(); // SAFETY: we iter among valid lines
             let height = match &self.focus {
                 DrawerFocus::ValueEdit { input, line } if l == *line => {
                     // this line's value is edited, its height is given by the
                     // number of lines computed by the input
-                    input.content().line_count().min(page_height as usize - 5)
+                    input.content().line_count().min(max_value_height)
                 }
                 _ => {
                     let open = open_all_values || self.focus.is_value_selected(l);
@@ -183,7 +188,7 @@ impl DrawerState {
                             &self.drawer.content.entries[idx].value,
                             Some(value_width),
                         );
-                        text.lines.len().max(1).min(page_height as usize - 5)
+                        text.lines.len().min(max_value_height).max(1)
                     } else {
                         // this line's value is neither open nor selected, we display
                         // just the first line of the value (or a line of squares if

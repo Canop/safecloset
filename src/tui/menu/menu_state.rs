@@ -30,6 +30,17 @@ impl MenuState {
     pub fn select(&mut self, selection: usize) {
         self.selection = selection.min(self.items.len());
     }
+    pub(crate) fn fix_scroll(&mut self, page_height: usize) {
+        let len = self.items.len();
+        let sel = self.selection;
+        if len <= page_height || sel < 3 ||  sel <= page_height / 2 {
+            self.scroll = 0;
+        } else if sel + 3 >= len {
+            self.scroll = len - page_height;
+        } else {
+            self.scroll = (sel - 2).min(len - page_height);
+        }
+    }
     /// Handle a key event (not triggering the actions on their keys, only apply
     /// the menu mechanics)
     pub fn on_key(&mut self, key: KeyEvent) -> Option<Action> {
