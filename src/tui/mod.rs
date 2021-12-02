@@ -2,6 +2,7 @@ mod action;
 mod app;
 mod app_state;
 mod cmd_result;
+mod comments_editor;
 mod content_view;
 mod dialog;
 mod drawer_state;
@@ -45,6 +46,7 @@ pub(crate) use {
     action::*,
     app_state::*,
     cmd_result::*,
+    comments_editor::*,
     content_view::*,
     dialog::*,
     drawer_state::*,

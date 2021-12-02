@@ -34,6 +34,10 @@ impl OpenCloset {
         }
     }
 
+    pub fn root_closet(&mut self) -> &mut Closet {
+        &mut self.root_closet
+    }
+
     pub fn just_created(&self) -> bool {
         self.created
     }

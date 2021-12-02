@@ -1,5 +1,7 @@
 ### next
 - support for more mouse interactions
+- clear comments at start of closet file (example purpose is holding the name of the soft to find it if you have as bad a memory as me)
+- closet comments editor
 
 <a name="v0.5.3"></a>
 ### v0.5.3 - 2021-11-28

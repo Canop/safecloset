@@ -30,7 +30,7 @@ pub struct Closet {
 /// to open your closet file, while attackers are the ones who
 /// may the most easily guess it.
 fn default_clear_comments() -> String {
-    "Closet file written with SafeCloset - https://dystroy.org/safecloset ".to_string()
+    "Closet file written with SafeCloset\nhttps://dystroy.org/safecloset".to_string()
 }
 
 /// compute the number of decoy drawers we must create for

@@ -6,6 +6,7 @@ pub enum Dialog {
     Menu(Menu),
     Help(Help),
     Password(PasswordDialog),
+    CommentsEditor(CommentsEditor),
 }
 
 impl Dialog {

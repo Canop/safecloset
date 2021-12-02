@@ -76,6 +76,10 @@ impl View for ContentView {
                 password_dialog.view.set_available_area(self.area.clone());
                 password_dialog.draw(w, app_skin)?;
             }
+            Dialog::CommentsEditor(comments_editor) => {
+                comments_editor.view.set_available_area(self.area.clone());
+                comments_editor.draw(w, app_skin)?;
+            }
             Dialog::None => {}
         }
         Ok(())

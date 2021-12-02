@@ -138,6 +138,9 @@ impl AppState {
                 time!(self.open_closet.push_back(ds.drawer)?);
                 time!(self.open_closet.close_and_save())?;
             }
+        } else {
+            // saving only the closet
+            time!(self.open_closet.close_and_save())?;
         }
         Ok(())
     }
@@ -263,6 +266,10 @@ impl AppState {
             }
             Dialog::Password(password_dialog) => {
                 password_dialog.on_mouse_event(mouse_event, double_click);
+                return Ok(());
+            }
+            Dialog::CommentsEditor(comments_editor) => {
+                comments_editor.on_mouse_event(mouse_event, double_click);
                 return Ok(());
             }
             Dialog::None => {}
@@ -475,6 +482,11 @@ impl AppState {
                     )
                 );
             }
+            Action::EditClosetComments => {
+                self.dialog = Dialog::CommentsEditor(
+                    CommentsEditor::new(&self.open_closet.root_closet().comments)
+                );
+            }
             Action::SaveDrawer => {
                 if self.drawer_state.is_some() {
                     self.dialog = Dialog::None;
@@ -644,6 +656,8 @@ impl AppState {
                 menu.add_item(Action::OpenAllValues);
             }
             menu.add_item(Action::OpenPasswordChangeDialog);
+        } else {
+            menu.add_item(Action::EditClosetComments);
         }
         menu.add_item(Action::Help);
         menu.add_item(Action::Quit);
@@ -680,6 +694,11 @@ impl AppState {
                     return Ok(CmdResult::Stay);
                 }
             }
+            Dialog::CommentsEditor(comments_editor) => {
+                if comments_editor.apply_key_event(key) {
+                    return Ok(CmdResult::Stay);
+                }
+            }
             Dialog::None => {}
         }
 
@@ -688,21 +707,31 @@ impl AppState {
         }
 
         if key == ENTER {
-            if let Dialog::Password(password_dialog) = &self.dialog {
-                let password = password_dialog.get_password();
-                match password_dialog.purpose() {
-                    PasswordDialogPurpose::NewDrawer { .. } => {
-                        self.queue_task(Task::CreateDrawer(password));
-                    }
-                    PasswordDialogPurpose::OpenDrawer { .. } => {
-                        self.queue_task(Task::OpenDrawer(password));
-                    }
-                    PasswordDialogPurpose::ChangeDrawerPassword => {
-                        self.queue_task(Task::ChangePassword(password));
+            match &mut self.dialog {
+                Dialog::Password(password_dialog) => {
+                    let password = password_dialog.get_password();
+                    match password_dialog.purpose() {
+                        PasswordDialogPurpose::NewDrawer { .. } => {
+                            self.queue_task(Task::CreateDrawer(password));
+                        }
+                        PasswordDialogPurpose::OpenDrawer { .. } => {
+                            self.queue_task(Task::OpenDrawer(password));
+                        }
+                        PasswordDialogPurpose::ChangeDrawerPassword => {
+                            self.queue_task(Task::ChangePassword(password));
+                        }
                     }
                 }
-            } else {
-                self.close_drawer_input(false); // if there's an entry input
+                Dialog::Help(_) => {}
+                Dialog::Menu(_) => {} // managed in the menu
+                Dialog::CommentsEditor(ce) => {
+                    self.open_closet.root_closet().comments = ce.get_comments();
+                    self.dialog = Dialog::None;
+                    self.queue_task(Task::Save);
+                }
+                Dialog::None => {
+                    self.close_drawer_input(false); // if there's an entry input
+                }
             }
             return Ok(CmdResult::Stay);
         }
