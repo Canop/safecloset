@@ -55,7 +55,7 @@ make_actions! {
     CloseShallowDrawer "Close drawer" CONTROL_U,
     ConfirmEntryRemoval "Confirm Entry Removal" Y,
     Copy "*C*opy" CONTROL_C,
-    Cut "*Cut" CONTROL_X,
+    Cut "*C*ut" CONTROL_X,
     EditClosetComments "Edit Closet Comments",
     Help "Help" QUESTION,
     MoveLineDown "Move Line Down" CONTROL_DOWN,
@@ -70,6 +70,6 @@ make_actions! {
     RemoveLine "Remove Line" D,
     SaveDrawer "*S*ave Drawer" CONTROL_S,
     Search "Search" SLASH,
-    ToggleHiding "Toggle *H*idding" CONTROL_H, // hiding either pwd chars or unselected values
+    ToggleHiding "Toggle *H*iding" CONTROL_H, // hiding either pwd chars or unselected values
 }
 
