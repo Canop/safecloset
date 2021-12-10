@@ -71,12 +71,23 @@ pub(crate) use {
 
 pub const MAX_INACTIVITY: Duration = Duration::from_secs(60);
 
+pub trait ScreenWriter {
+    fn go_to(&mut self, x: u16, y: u16) -> Result<(), SafeClosetError>;
+}
+
 /// the type used by all TUI writing functions
 pub type W = std::io::BufWriter<std::io::Stdout>;
 
 /// return the writer used by the application
 fn writer() -> W {
     std::io::BufWriter::new(std::io::stdout())
+}
+
+impl ScreenWriter for W {
+    fn go_to(&mut self, x: u16, y: u16) -> Result<(), SafeClosetError> {
+        self.queue(cursor::MoveTo(x, y))?;
+        Ok(())
+    }
 }
 
 pub fn run(

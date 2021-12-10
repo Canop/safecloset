@@ -59,7 +59,7 @@ impl View for MenuView {
                 } else {
                     &skin.md
                 };
-                self.go_to(w, item_area.left, y)?;
+                w.go_to(item_area.left, y)?;
                 skin.write_composite_fill(
                     w,
                     Composite::from_inline(item.action.label()),
@@ -79,7 +79,7 @@ impl View for MenuView {
                 break;
             }
             if let Some((stop, sbottom)) = scrollbar {
-                self.go_to(w, area.right() - 2, y)?;
+                w.go_to(area.right() - 2, y)?;
                 if stop <= y && y <= sbottom {
                     skin.md.scrollbar.thumb.queue(w)?;
                 } else {

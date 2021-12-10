@@ -99,7 +99,7 @@ impl ContentView {
         w.queue(SetBackgroundColor(self.bg()))?;
         let x = area.left;
         for y in area.top..area.top + area.height {
-            self.go_to(w, x, y)?;
+            w.go_to(x, y)?;
             self.clear_line(w)?;
         }
         Ok(())
@@ -138,7 +138,7 @@ impl ContentView {
         let tbl_style = skin.tbl_style(false, faded);
         let txt_style = skin.txt_style(false, faded);
         // -- header
-        self.go_to(w, x, 1)?;
+        w.go_to(x, 1)?;
         tbl_style.queue_str(w, &"─".repeat(name_width + 1))?;
         tbl_style.queue_str(w, "┬")?;
         let value_header_width = if scrollbar.is_some() {
@@ -147,7 +147,7 @@ impl ContentView {
             value_width
         };
         tbl_style.queue_str(w, &"─".repeat(value_header_width))?;
-        self.go_to(w, x, 2)?;
+        w.go_to(x, 2)?;
         if des.focus.is_search() {
             txt_style.queue_str(w, "/")?;
             des.search.input.change_area(1, 2, layout.name_width);
@@ -177,7 +177,7 @@ impl ContentView {
             value_width,
             Alignment::Center,
         )?;
-        self.go_to(w, x, 3)?;
+        w.go_to(x, 3)?;
         tbl_style.queue_str(w, &"─".repeat(name_width + 1))?;
         tbl_style.queue_str(w, "┼")?;
         tbl_style.queue_str(w, &"─".repeat(value_width + 1))?;
@@ -189,7 +189,7 @@ impl ContentView {
         let area = &layout.lines_area;
         let unsel_styles = skin.styles(false, faded);
         for y in area.top..=area.bottom() {
-            self.go_to(w, x, y)?;
+            w.go_to(x, y)?;
             if empty_lines > 0 {
                 SPACE_FILLING.queue_styled(w, tbl_style, name_width + 1)?;
                 tbl_style.queue_str(w, "│")?;
@@ -277,7 +277,7 @@ impl ContentView {
             }
             // - scrollbar
             if let Some((stop, sbottom)) = scrollbar {
-                self.go_to(w, area.width, y)?;
+                w.go_to(area.width, y)?;
                 if stop <= y && y <= sbottom {
                     global_scrollbar_style.thumb.queue(w)?;
                 } else {

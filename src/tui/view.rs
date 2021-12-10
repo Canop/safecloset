@@ -1,7 +1,6 @@
 use {
     super::*,
     crate::error::SafeClosetError,
-    crossterm::cursor,
     termimad::Area,
 };
 
@@ -24,9 +23,5 @@ pub trait View: Default {
         app_skin: &AppSkin,
     ) -> Result<(), SafeClosetError>;
 
-    fn go_to(&self, w: &mut W, x: u16, y: u16) -> Result<(), SafeClosetError> {
-        w.queue(cursor::MoveTo(x, y))?;
-        Ok(())
-    }
-
 }
+

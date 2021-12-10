@@ -71,7 +71,7 @@ impl View for StatusView {
         state: &mut AppState,
         app_skin: &AppSkin,
     ) -> Result<(), SafeClosetError> {
-        self.go_to(w, self.area.left, self.area.top)?;
+        w.go_to(self.area.left, self.area.top)?;
         let skin;
         let text;
         if let Some(task) = state.pending_tasks.get(0) {

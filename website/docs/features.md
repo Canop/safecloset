@@ -15,7 +15,7 @@
 * You can compile SafeCloset yourself. Its code is small and auditable
 * The code is 100% in Rust. I wouldn't trust anything else today for such a program
 * The format of the closet file is described so that another application could be written to decode your closet files in the future (assuming you have the password)
-* SafeCloset can't be queryied by other applications, like browsers. This is a feature.
+* SafeCloset can't be queried by other applications, like browsers. This is a feature.
 * You may have all your secrets in one file wich is easy to keep with you and to backup
 * No company can die and lose your secrets: you keep everything, with as many copies as necessary, where you want
 * No company can be forced to add some secret stealing code: SafeCloset is small, open-source and repleacable

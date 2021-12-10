@@ -97,9 +97,6 @@ impl Closet {
     /// add it to the closed drawers of the closet.
     ///
     /// This is fast but dangerous, and should not be used on user action.
-    ///
-    /// TODO add it automatically or not ? Maybe only if saved
-    ///     mais alors il faut revérifier password collision
     fn create_drawer_unchecked(
         &mut self,
         depth: usize,
@@ -206,7 +203,6 @@ impl Closet {
     }
 
     pub fn cipher(&self, password: &str) -> Result<Aes256GcmSiv, CoreError> {
-        // TODO does this config totally determine and freeze the version ?
         let config = argon2::Config {
             hash_length: 32,
             ..Default::default()

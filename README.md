@@ -44,7 +44,7 @@ A drawer can also contain deeper crypted drawers.
 * You can compile SafeCloset yourself. Its code is small and auditable
 * The code is 100% in Rust. I wouldn't trust anything else today for such a program
 * The format of the closet file is described so that another application could be written to decode your closet files in the future (assuming you have the password)
-* SafeCloset can't be queryied by other applications, like browsers. This is a feature.
+* SafeCloset can't be queried by other applications, like browsers. This is a feature.
 * You may have all your secrets in one file easy to keep with you and backup
 * No company can die and lose your secrets: you keep everything, with as many copies as necessary, where you want
 * No company can be forced to add some secret stealing code: SafeCloset is small, open-source and repleacable
@@ -143,8 +143,11 @@ On opening, just type the password of the drawer you want to open (all will be t
 
 # Storage format
 
+The storage format is described to ensure it's possible to replace SafeCloset with another software if needed.
+
 The closet file is a [MessagePack](https://msgpack.org/index.html) encoded structure `Closet` with the following fields:
 
+* `comments`: a string
 * `salt`: a string
 * `drawers`: an array of `ClosedDrawer`
 
@@ -172,6 +175,7 @@ Instances of `Entry` contain the following fields:
 * `name`: a string
 * `value`: a string
 
-Instances of `DrawerSettings` contain for now just one optional field:
+Instances of `DrawerSettings` contain the following fields:
 
 * `hide_values`: a boolean
+* `open_all_values`: a boolean (optional, false if not present)

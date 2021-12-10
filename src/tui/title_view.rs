@@ -27,7 +27,7 @@ impl View for TitleView {
         let path = state.open_closet.path().to_string_lossy();
         let md = format!(" **SafeCloset** ` ` {} ` ` {} ", &path, state_info(state));
         let composite = Composite::from_inline(&md);
-        self.go_to(w, self.area.left, self.area.top)?;
+        w.go_to(self.area.left, self.area.top)?;
         let width = self.area.width as usize;
         app_skin.title
             .write_composite_fill(w, composite, width, Alignment::Unspecified)?;
