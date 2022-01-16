@@ -105,7 +105,6 @@ impl OpenCloset {
     /// Save all the open drawers, then the closet in its file,
     /// then reopen the drawer which was the deepest one before
     /// saving.
-    #[must_use]
     pub fn push_back_save_retake(
         &mut self,
         open_drawer: OpenDrawer,

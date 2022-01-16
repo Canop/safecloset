@@ -1,3 +1,6 @@
+### next
+- more relevant contextual hints - Fix #20
+
 <a name="v0.6.0"></a>
 ### v0.6.0 - 2021-12-03
 - support for more mouse interactions

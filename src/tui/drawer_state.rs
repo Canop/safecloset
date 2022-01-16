@@ -564,7 +564,7 @@ impl DrawerState {
             }
             self.search.update(&self.drawer);
             self.focus = self.best_search_line()
-                .or(previous_idx.and_then(|idx| self.entry_line(idx)))
+                .or_else(|| previous_idx.and_then(|idx| self.entry_line(idx)))
                 .map_or(
                     DrawerFocus::NoneSelected,
                     |line| DrawerFocus::NameSelected { line },
@@ -582,14 +582,6 @@ impl DrawerState {
             self.search.result.as_ref().and_then(|r| r.best_line)
         } else {
             None
-        }
-    }
-    pub fn has_input(&self) -> bool {
-        match &self.focus {
-            DrawerFocus::NameEdit { .. } => true,
-            DrawerFocus::ValueEdit { .. } => true,
-            DrawerFocus::SearchEdit { .. } => true,
-            _ => false,
         }
     }
 }

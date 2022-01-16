@@ -91,10 +91,10 @@ pub fn key_event_desc(key: KeyEvent) -> String {
             s.push(c.to_ascii_lowercase());
         }
         F(u) => {
-            s.push_str(&format!("F{}", u));
+            s.push_str(&format!("F{u}"));
         }
         _ => {
-            s.push_str(&format!("{:?}", key.code)); // FIXME check
+            s.push_str(&format!("{:?}", key.code));
         }
     }
     s

@@ -67,7 +67,7 @@ impl View for MenuView {
                     Alignment::Left,
                 )?;
                 let key_desc = item.action.key()
-                    .map_or("".to_string(), |key| key_event_desc(key));
+                    .map_or("".to_string(), key_event_desc);
                 skin.write_composite_fill(
                     w,
                     mad_inline!("*$0", &key_desc),

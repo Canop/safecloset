@@ -78,13 +78,13 @@ impl<'a, 'w> MatchedString<'a> {
         } else if let Some(w) = self.display_width {
             match self.align {
                 Alignment::Center => {
-                    cw.queue_str(self.base_style, &format!("{:^w$}", self.string, w = w))?;
+                    cw.queue_str(self.base_style, &format!("{:^w$}", self.string))?;
                 }
                 Alignment::Right => {
-                    cw.queue_str(self.base_style, &format!("{:>w$}", self.string, w = w))?;
+                    cw.queue_str(self.base_style, &format!("{:>w$}", self.string))?;
                 }
                 _ => {
-                    cw.queue_str(self.base_style, &format!("{:<w$}", self.string, w = w))?;
+                    cw.queue_str(self.base_style, &format!("{:<w$}", self.string))?;
                 }
             }
         } else {

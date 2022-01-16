@@ -42,9 +42,6 @@ impl DrawerFocus {
     pub fn is_search(&self) -> bool {
         matches!(self, DrawerFocus::SearchEdit { .. })
     }
-    pub fn is_pending_removal(&self) -> bool {
-        matches!(self, DrawerFocus::PendingRemoval { .. })
-    }
     pub fn is_name_selected(&self, entry_line: usize) -> bool {
         match self {
             Self::NameSelected { line } => *line == entry_line,
