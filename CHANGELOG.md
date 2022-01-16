@@ -1,4 +1,5 @@
-### next
+<a name="v0.6.1"></a>
+### v0.6.1 - 2022-01-16
 - more relevant contextual hints - Fix #20
 
 <a name="v0.6.0"></a>
