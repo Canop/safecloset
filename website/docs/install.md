@@ -31,6 +31,13 @@ Once it's installed, use cargo to install safecloset:
 
 *(if you encountered a problem and solved it, please tell me so that we can help other users)*
 
+## Compilation failed
+
+Most often, this is due to a not up to date compiler.
+
+You should update your Rust installation.
+This is usually done with `rustup update`.
+
 ## Copy-Paste problem on Windows
 
 * If you are using `cmd.exe` or the native PowerShell command line, remember to use <kbd>ctrl+v</kbd>. Don't use the shortcut <kbd>alt+space e p</kbd> or the system menu (`Edit -> Paste`) from the window's top-left icon.
