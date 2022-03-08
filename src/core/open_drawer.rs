@@ -1,6 +1,6 @@
 use {
     super::*,
-    aes_gcm_siv::{aead::Aead},
+    aes_gcm_siv::aead::Aead,
 };
 
 /// An open uncrypted drawer, with its content and the pass

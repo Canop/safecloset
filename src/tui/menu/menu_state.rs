@@ -1,8 +1,7 @@
 use {
     crate::tui::*,
-    crossterm::{
-        event::{KeyEvent, MouseButton, MouseEvent, MouseEventKind},
-    },
+    crokey::key,
+    crossterm::event::{KeyEvent, MouseButton, MouseEvent, MouseEventKind},
     termimad::Area,
 };
 
@@ -45,11 +44,11 @@ impl MenuState {
     /// the menu mechanics)
     pub fn on_key(&mut self, key: KeyEvent) -> Option<Action> {
         let items = &self.items;
-        if key == DOWN {
+        if key == key!(down) {
             self.selection = (self.selection + 1) % items.len();
-        } else if key == UP {
+        } else if key == key!(up) {
             self.selection = (self.selection + items.len() - 1) % items.len();
-        } else if key == ENTER {
+        } else if key == key!(enter) {
             return Some(items[self.selection].action);
         }
         Action::for_key(key)

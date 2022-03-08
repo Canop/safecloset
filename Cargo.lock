@@ -206,6 +206,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "crokey"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f94310fa1d34215f7e32ff139d3b0aad23893dcc19c3ef6d10a6040f249bedea"
+dependencies = [
+ "crokey-proc_macros",
+ "crossterm",
+]
+
+[[package]]
+name = "crokey-proc_macros"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "114107f9f3b3c9e66b137534a38434480b07c78de912f94e56567ffe3fd97778"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "crossbeam"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -650,14 +671,16 @@ dependencies = [
 
 [[package]]
 name = "safecloset"
-version = "0.6.1"
+version = "0.6.2-dev"
 dependencies = [
  "aes-gcm-siv",
  "argh",
  "cli-log",
+ "crokey",
  "crossbeam",
  "crossterm",
  "log",
+ "once_cell",
  "rand",
  "rmp-serde",
  "rust-argon2",
@@ -780,9 +803,9 @@ dependencies = [
 
 [[package]]
 name = "termimad"
-version = "0.19.3"
+version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "80eede1afff45a78b38b298e3b315a4e69261ee68162bf79699061ef89f410fb"
+checksum = "06968d34307feb19a7ab8e5678d5b318c9021c16b0a913d76dbdef943391cf0b"
 dependencies = [
  "coolor",
  "crossbeam",

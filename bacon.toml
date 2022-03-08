@@ -27,6 +27,7 @@ command = [
 	"-A", "clippy::match_like_matches_macro",
 	"-A", "clippy::collapsible_if",
 	"-A", "clippy::collapsible_else_if",
+	"-A", "clippy::module_inception",
 ]
 need_stdout = false
 

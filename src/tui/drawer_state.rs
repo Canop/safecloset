@@ -5,6 +5,7 @@ use {
         error::SafeClosetError,
         search::*,
     },
+    crokey::key,
     termimad::{Area, InputField, FmtText},
 };
 
@@ -511,8 +512,8 @@ impl DrawerState {
     pub fn edit_entry_value_by_line(&mut self, line: usize, pos: EditionPos) -> bool {
         if let Some(idx) = self.listed_entry_idx(line) {
             let mut input = ContentSkin::make_input();
-            input.new_line_on(ALT_ENTER);
-            input.new_line_on(CONTROL_ENTER);
+            input.new_line_on(key!(alt-enter));
+            input.new_line_on(key!(ctrl-enter));
             input.set_str(&self.drawer.content.entries[idx].value);
             pos.apply_to_input(&mut input);
             self.focus = DrawerFocus::ValueEdit { line, input };

@@ -5,6 +5,7 @@ use {
         core::*,
         error::SafeClosetError,
     },
+    crokey::*,
     crossterm::event::{
         KeyEvent, KeyModifiers,
         MouseButton, MouseEvent, MouseEventKind,
@@ -706,7 +707,7 @@ impl AppState {
             return self.on_action(action);
         }
 
-        if key == ENTER {
+        if key == key!(enter) {
             match &mut self.dialog {
                 Dialog::Password(password_dialog) => {
                     let password = password_dialog.get_password();
@@ -736,7 +737,7 @@ impl AppState {
             return Ok(CmdResult::Stay);
         }
 
-        if key == TAB {
+        if key == key!(tab) {
             if let Some(ds) = &mut self.drawer_state {
                 if matches!(ds.focus, NoneSelected) {
                     // we remove any search
@@ -782,25 +783,25 @@ impl AppState {
         }
 
         if let Some(ds) = &mut self.drawer_state {
-            if key == HOME {
+            if key == key!(home) {
                 ds.apply_scroll_command(ScrollCommand::Top);
                 return Ok(CmdResult::Stay);
             }
-            if key == END {
+            if key == key!(end) {
                 ds.apply_scroll_command(ScrollCommand::Bottom);
                 return Ok(CmdResult::Stay);
             }
-            if key == PAGE_UP {
+            if key == key!(pageup) {
                 ds.apply_scroll_command(ScrollCommand::Pages(-1));
                 return Ok(CmdResult::Stay);
             }
-            if key == PAGE_DOWN {
+            if key == key!(pagedown) {
                 ds.apply_scroll_command(ScrollCommand::Pages(1));
                 return Ok(CmdResult::Stay);
             }
         }
 
-        if key == INSERT || as_letter(key) == Some('i') {
+        if key == key!(insert) || as_letter(key) == Some('i') {
             if let Some(ds) = &mut self.drawer_state {
                 if let NameSelected { line } = &ds.focus {
                     let line = *line;
@@ -829,7 +830,7 @@ impl AppState {
         }
 
         if let Some(ds) = &mut self.drawer_state {
-            if key == RIGHT {
+            if key == key!(right) {
                 match &ds.focus {
                     SearchEdit { previous_idx } => {
                         let previous_line = previous_idx
@@ -855,7 +856,7 @@ impl AppState {
                 }
                 return Ok(CmdResult::Stay);
             }
-            if key == LEFT {
+            if key == key!(left) {
                 match &ds.focus {
                     NameSelected { .. } => {
                         let previous_idx = ds.focus.line()
@@ -873,11 +874,11 @@ impl AppState {
                 }
                 return Ok(CmdResult::Stay);
             }
-            if key == UP {
+            if key == key!(up) {
                 ds.move_line(Direction::Up);
                 return Ok(CmdResult::Stay);
             }
-            if key == DOWN {
+            if key == key!(down) {
                 ds.move_line(Direction::Down);
                 return Ok(CmdResult::Stay);
             }

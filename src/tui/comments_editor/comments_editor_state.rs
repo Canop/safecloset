@@ -1,6 +1,6 @@
 use {
-    super::*,
     crate::tui::ContentSkin,
+    crokey::key,
     crossterm::event::{KeyEvent, MouseEvent},
     termimad::*,
 };
@@ -14,8 +14,8 @@ impl CommentsEditorState {
         content: &str,
     ) -> Self {
         let mut comments = ContentSkin::make_input();
-        comments.new_line_on(ALT_ENTER);
-        comments.new_line_on(CONTROL_ENTER);
+        comments.new_line_on(key!(alt-enter));
+        comments.new_line_on(key!(ctrl-enter));
         comments.set_str(content);
         Self { comments }
     }
