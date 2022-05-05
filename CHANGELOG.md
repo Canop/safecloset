@@ -1,3 +1,7 @@
+<a name="v0.6.2"></a>
+### v0.6.2 - 2022-05-05
+- update termimad to solve a potential crash
+
 <a name="v0.6.1"></a>
 ### v0.6.1 - 2022-01-16
 - more relevant contextual hints - Fix #20

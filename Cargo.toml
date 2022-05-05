@@ -1,6 +1,6 @@
 [package]
 name = "safecloset"
-version = "0.6.2-dev"
+version = "0.6.2"
 edition = "2021"
 authors = ["dystroy <denys.seguret@gmail.com>"]
 repository = "https://github.com/Canop/safecloset"
@@ -9,7 +9,7 @@ keywords = ["secret", "tui", "cryptography", "password"]
 license = "AGPL-3.0"
 categories = ["command-line-interface", "cryptography"]
 readme = "README.md"
-rust-version = "1.58"
+rust-version = "1.59"
 
 [features]
 default = ["clipboard"]
@@ -29,7 +29,7 @@ rmp-serde = "=0.15.5"
 rust-argon2 = "=0.8.3"
 secular = { version = "1.0.1", features = ["normalization"] }
 serde = { version = "=1.0.128", features = ["derive"] }
-termimad = "=0.20.0"
+termimad = "=0.20.1"
 terminal-clipboard = { version = "=0.3.1", optional = true }
 thiserror = "=1.0.26"
 unicode-width = "=0.1.8"
@@ -39,9 +39,10 @@ tempfile = "=3.2.0"
 
 [profile.release]
 lto = true
+strip = true
 
 [patch.crates-io]
 # crokey = { path = "../crokey" }
-# coolor = { path = "../coolor" }
+#coolor = { path = "../coolor" }
 # termimad = { path = "../termimad" }
 # terminal-clipboard = { path = "../terminal-clipboard" }
