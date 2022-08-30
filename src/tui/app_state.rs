@@ -737,7 +737,7 @@ impl AppState {
             return Ok(CmdResult::Stay);
         }
 
-        if key == key!(tab) {
+        if key == key!(tab) && self.dialog.is_none() {
             if let Some(ds) = &mut self.drawer_state {
                 if matches!(ds.focus, NoneSelected) {
                     // we remove any search

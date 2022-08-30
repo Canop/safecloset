@@ -66,7 +66,7 @@ If the value is multiline, you may have to select it to read it entirely:
 - hit <kbd>enter</kbd> to freeze the search
 - navigate with the arrow keys to the desired value, it automatically opens
 
-You don't have to bother closing SafeCloset as it will automatically close after 60 seconds.
+You don't have to bother closing SafeCloset as it will automatically close after 120 seconds.
 
 ## Create an entry
 

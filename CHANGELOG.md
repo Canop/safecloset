@@ -1,3 +1,8 @@
+<a name="v0.6.3"></a>
+### v0.6.3 - 2022-08-30
+- increase delay before auto closing to 120 seconds
+- fix tab key active behind open menu - Fix #21
+
 <a name="v0.6.2"></a>
 ### v0.6.2 - 2022-05-05
 - update termimad to solve a potential crash
