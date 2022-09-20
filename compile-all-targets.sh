@@ -30,12 +30,12 @@ cross build --target x86_64-pc-windows-gnu --release --features clipboard
 mkdir build/x86_64-pc-windows-gnu
 cp target/x86_64-pc-windows-gnu/release/safecloset.exe build/x86_64-pc-windows-gnu/
 
-# build the Raspberry version
-# use cargo cross
-echo -e "${H2}Compiling the Raspberry version${EH}"
-cross build --target armv7-unknown-linux-gnueabihf --release --no-default-features
-mkdir build/armv7-unknown-linux-gnueabihf
-cp target/armv7-unknown-linux-gnueabihf/release/safecloset build/armv7-unknown-linux-gnueabihf/
+# # build the Raspberry version
+# # use cargo cross
+# echo -e "${H2}Compiling the Raspberry version${EH}"
+# cross build --target armv7-unknown-linux-gnueabihf --release --no-default-features
+# mkdir build/armv7-unknown-linux-gnueabihf
+# cp target/armv7-unknown-linux-gnueabihf/release/safecloset build/armv7-unknown-linux-gnueabihf/
 
 # build the Android version
 # use cargo cross

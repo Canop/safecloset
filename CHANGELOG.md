@@ -2,6 +2,7 @@
 ### v0.6.4 - 2022-09-20
 - fix backslash character ('\') not rendered in values - Fix #22
 - colorize bold so that it's visible in terminal not rendering bold as bold
+- I don't provide the Raspberry precompiled version anymore due to a difficulty with cargo cross
 
 <a name="v0.6.3"></a>
 ### v0.6.3 - 2022-08-30
