@@ -1,6 +1,7 @@
 use {
-    crossterm::{
+    crokey::crossterm::{
         style::{
+            Attribute,
             Color,
             Color::*,
         },
@@ -39,6 +40,11 @@ impl Default for ContentSkin {
         let bg = gray(2);
         let mut md = MadSkin::default();
         md.set_fg(ansi(230));
+        md.bold = CompoundStyle::new(
+            Some(AnsiValue(222)),
+            None,
+            Attribute::Bold.into(),
+        );
         md.italic = CompoundStyle::with_fg(AnsiValue(222));
         md.set_bg(bg);
         let char_match_fg = AnsiValue(41);

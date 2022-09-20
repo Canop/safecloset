@@ -1,7 +1,7 @@
 use {
     super::*,
     crate::error::SafeClosetError,
-    crossterm::{
+    crokey::crossterm::{
         style::{Color, SetBackgroundColor},
         terminal,
     },

@@ -1,7 +1,7 @@
 use {
     super::*,
     crate::tui::ContentSkin,
-    crossterm::event::{KeyEvent, MouseEvent},
+    crokey::crossterm::event::{KeyEvent, MouseEvent},
     termimad::*,
 };
 

@@ -30,7 +30,7 @@ use {
         core::OpenCloset,
         error::SafeClosetError,
     },
-    crossterm::{
+    crokey::crossterm::{
         cursor,
         event::{DisableMouseCapture, EnableMouseCapture},
         terminal::{EnterAlternateScreen, LeaveAlternateScreen},

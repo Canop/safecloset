@@ -1,3 +1,8 @@
+<a name="v0.6.4"></a>
+### v0.6.4 - 2022-09-20
+- fix backslash character ('\') not rendered in values - Fix #22
+- colorize bold so that it's visible in terminal not rendering bold as bold
+
 <a name="v0.6.3"></a>
 ### v0.6.3 - 2022-08-30
 - increase delay before auto closing to 120 seconds

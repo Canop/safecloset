@@ -1,6 +1,6 @@
 use {
     super::*,
-    crossterm::{
+    crokey::crossterm::{
         style::{Color, Color::*},
     },
     termimad::*,

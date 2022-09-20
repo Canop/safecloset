@@ -6,7 +6,7 @@ use {
         error::SafeClosetError,
         timer::Timer,
     },
-    crossterm::event::Event,
+    crokey::crossterm::event::Event,
     crossbeam::select,
     termimad::{Area, EventSource},
 };

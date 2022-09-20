@@ -1,5 +1,5 @@
 use {
-    crossterm::{
+    crokey::crossterm::{
         style::Color::*,
     },
     termimad::{

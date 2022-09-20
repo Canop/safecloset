@@ -10,7 +10,7 @@ SafeCloset is written by Denys Séguret. Source code and documentation can be fo
 
 SafeCloset stores secrets in drawers. A drawer may be either top-level, or hidden in another drawer. Each drawer is protected by a passphrase.
 
-SafeCloset leaves after 60 seconds of inactivity.
+SafeCloset leaves after 120 seconds of inactivity.
 
 ## Keyboard actions
 

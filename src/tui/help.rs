@@ -1,6 +1,6 @@
 use {
     super::*,
-    crossterm::event::{KeyEvent, MouseEvent, MouseEventKind},
+    crokey::crossterm::event::{KeyEvent, MouseEvent, MouseEventKind},
     minimad::Text,
     termimad::*,
 };

@@ -1,7 +1,7 @@
 use {
     crate::tui::*,
     crokey::key,
-    crossterm::event::{KeyEvent, MouseButton, MouseEvent, MouseEventKind},
+    crokey::crossterm::event::{KeyEvent, MouseButton, MouseEvent, MouseEventKind},
     termimad::Area,
 };
 

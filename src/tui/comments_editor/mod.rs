@@ -8,7 +8,7 @@ pub use {
 
 use {
     super::*,
-    crossterm::event::{KeyEvent, MouseEvent},
+    crokey::crossterm::event::{KeyEvent, MouseEvent},
 };
 
 pub struct CommentsEditor {
