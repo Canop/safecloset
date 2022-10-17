@@ -24,6 +24,8 @@ The *^* symbol in SafeCloset means that the *control* key must be pressed.
 | *^u* | Goes up, closing the current drawer (you're back in the upper level one if you close a deep drawer)
 | *^s* | Save the current drawer and all upper drawers
 | *^q* | Quit without saving (with no confirmation)
+| *n* | Create a new entry, at the end of the list
+| *N* | Create a new entry immediately after the selected one
 | *^h* | Toggle hiding either password chars or unselected values
 | *^f* | Toggle folding all values
 | */* | Start searching the current drawer (do *Enter* or use the down or up arrow key to freeze it)

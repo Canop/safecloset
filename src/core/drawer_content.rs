@@ -57,6 +57,30 @@ impl DrawerContent {
         self.entries.len() - 1
     }
 
+    /// Insert a new entry at the given index or before and
+    /// return the index of the new entry
+    #[allow(dead_code)]
+    pub fn insert_before(&mut self, idx: usize) -> usize {
+        let idx = if self.entries.is_empty() {
+            0
+        } else {
+            idx.min(self.entries.len() - 1)
+        };
+        self.entries.insert(idx, Entry::default());
+        idx
+    }
+
+    /// Insert a new entry after the new entry if possible.
+    ///
+    /// Return the index of the new entry.
+    pub fn insert_after(&mut self, idx: Option<usize>) -> usize {
+        let idx = match (idx, self.entries.is_empty()) {
+            (Some(idx), false) => (idx+1).min(self.entries.len()),
+            _ => 0,
+        };
+        self.entries.insert(idx, Entry::default());
+        idx
+    }
 
     /// Shuffle the drawers (thus ensuring the last created one
     /// isn't at the end), add some random bytes which makes the

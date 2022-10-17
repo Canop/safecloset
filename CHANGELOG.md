@@ -1,3 +1,6 @@
+### next
+- shift-n key combination for adding an entry immediately after the selected one
+
 <a name="v0.6.4"></a>
 ### v0.6.4 - 2022-09-20
 - fix backslash character ('\') not rendered in values - Fix #22

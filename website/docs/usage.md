@@ -19,6 +19,9 @@ Key | Action
 <kbd>tab</kbd> | Create a new entry or edit the value if you're already editing an entry's name
 arrow keys | Move selection, selecting either an entry name or a value (or move the cursor when in an input field)
 <kbd>i</kbd> or <kbd>insert</kbd> | Start editing the selected name or value
+<kbd>a</kbd> | Start editing the selected name or value, cursor at the end
+<kbd>n</kbd> | Add a new entry at the end
+<kbd>N</kbd> | Add a new entry immediately after the selected one
 <kbd>d</kbd> | Remove the selected entry (with confirmation)
 <kbd>Enter</kbd> | Validate the current edition
 <kbd>alt</kbd><kbd>Enter</kbd> or <kbd>ctrl</kbd><kbd>Enter</kbd>| New line in the currently edited value

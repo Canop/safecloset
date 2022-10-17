@@ -62,6 +62,7 @@ make_actions! {
     MoveLineUp "Move Line Up" key!(ctrl-up),
     NewDrawer "*N*ew Drawer" key!(ctrl-N),
     NewEntry "New Entry" key!(n),
+    NewEntryAfterCurrent "New Entry After Current" key!(shift-n),
     OpenAllValues "Un*f*old All Values" key!(ctrl-F),
     OpenDrawer "*O*pen Drawer" key!(ctrl-O),
     OpenPasswordChangeDialog "Change Drawer Password",

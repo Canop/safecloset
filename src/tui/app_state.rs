@@ -613,6 +613,17 @@ impl AppState {
                     ds.edit_entry_name_by_line(idx, EditionPos::Start);
                 }
             }
+            Action::NewEntryAfterCurrent => {
+                if let Some(ds) = &mut self.drawer_state {
+                    self.dialog = Dialog::None;
+                    ds.search.clear();
+                    let idx = ds.focus
+                        .line()
+                        .and_then(|line| ds.listed_entry_idx(line));
+                    let idx = ds.drawer.content.insert_after(idx);
+                    ds.edit_entry_name_by_line(idx, EditionPos::Start);
+                }
+            }
             Action::RemoveLine => {
                 self.propose_entry_removal();
             }
