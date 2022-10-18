@@ -1,4 +1,5 @@
-### next
+<a name="v0.7.0"></a>
+### v0.7.0 - 2022-10-18
 - shift-n key combination for adding an entry immediately after the selected one
 
 <a name="v0.6.4"></a>
