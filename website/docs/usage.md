@@ -107,6 +107,8 @@ To create a deep drawer, from the initial screen you get at closet creation or o
 
 If you're a secret agent expecting to be tortured any day, you may be bothered by the fact an attacker having all the versions of the closet file can determine how many shallow drawers you're really editing.
 
+The solution is to use a deep driver.
+
 A deep drawer is hidden inside another drawer, and it's not possible to know whether you edited a parent or a deeper drawer.
 
 The downside of deep drawers is that you need to open the parent before you open the deeper drawer, which means typing two (or more) passphrases.
