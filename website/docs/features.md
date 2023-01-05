@@ -19,7 +19,7 @@
 * You may have all your secrets in one file wich is easy to keep with you and to backup
 * No company can die and lose your secrets: you keep everything, with as many copies as necessary, where you want
 * No company can be forced to add some secret stealing code: SafeCloset is small, open-source and repleacable
-* Cross-platform because you don't know where you'll have to use your closet
+* Cross-platform because you don't know where you'll have to use your closet, and you don't know what OS you'll use 20 years from now
 * "I'm being watched" mode in which unselected values are hidden. This mode is kept per drawer, always activated when you launch SafeCloset with the `--hide` option, and toggled with <kbd>ctrl</kbd><kbd>h</kbd>
 
 

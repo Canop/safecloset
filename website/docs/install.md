@@ -8,7 +8,7 @@ You'll need to have the [Rust development environment](https://www.rustup.rs) in
 Fetch the [Canop/safecloset](https://github.com/Canop/safecloset) repository, move to the safecloset directory, then run
 
 ```bash
-cargo install --path .
+cargo install --locked --path .
 ```
 
 # From precompiled binaries
@@ -25,11 +25,16 @@ You'll need to have the [Rust development environment](https://www.rustup.rs) in
 
 Once it's installed, use cargo to install safecloset:
 
-    cargo install safecloset
+    cargo install --locked safecloset
 
 # FAQ
 
 *(if you encountered a problem and solved it, please tell me so that we can help other users)*
+
+## Why `--locked`
+
+This forces the dependencies to be in the same version than when I released.
+This protects against some possible attacks on the dependency chain.
 
 ## Compilation failed
 
