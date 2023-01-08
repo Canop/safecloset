@@ -4,8 +4,8 @@
 :root {
 	--accent: #ffd787;
 	--dark-accent: #566859;
-	--bg: #f3f9d5;
-	--sidenav-bg: #566859;
+	--bg: #fff;
+	--sidenav-bg: #383c39;
 	--top-nav-bg: var(--sidenav-bg);
 	--sidenav-fg: #fff;
 	--link-fg: #555c53;
@@ -21,6 +21,24 @@ body {
 	font-size: 15px;
 	background-color: var(--bg);
 	color: #333;
+}
+body {
+	background-image:
+		linear-gradient(to right, rgba(255,255,255,0.4) 0%, rgba(255,255,255,1) 20%, rgba(255,255,255,1) 75%, rgba(255,255,255,0.4) 100%),
+		url("../img/lyon.jpg");
+	background-position: center;
+	background-size: cover;
+    background-attachment: fixed;
+}
+@media (max-width: 800px) {
+	body {
+		background-image:
+			linear-gradient(to right, rgba(255,255,255,0.8) 0%, rgba(255,255,255,1) 10%, rgba(255,255,255,1) 90%, rgba(255,255,255,0.8) 100%),
+			url("../img/lyon.jpg");
+        background-position: center;
+        background-size: cover;
+        background-attachment: fixed;
+	}
 }
 
 p.logo {
