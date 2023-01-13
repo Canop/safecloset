@@ -56,7 +56,7 @@ impl View for MenuView {
             y += 1;
             if let Some(item) = items.next() {
                 let item_area = Area::new(area.left + 1, y, area.width - 2, 1);
-                let skin = if state.selection == i as usize + state.scroll {
+                let skin = if state.selection == i + state.scroll {
                     &skin.sel_md
                 } else {
                     &skin.md

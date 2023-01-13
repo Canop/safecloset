@@ -255,7 +255,7 @@ impl ContentView {
                     };
                     if hidden {
                         skin.txt_style(false, true)
-                            .queue_str(w, &"▦".repeat(value_width as usize))?;
+                            .queue_str(w, &"▦".repeat(value_width))?;
                     } else if open {
                         let styles = skin.styles(selected, faded);
                         let text = styles.md.area_text(&entry.value, &value_area);

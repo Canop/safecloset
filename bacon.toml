@@ -28,6 +28,8 @@ command = [
 	"-A", "clippy::collapsible_if",
 	"-A", "clippy::collapsible_else_if",
 	"-A", "clippy::module_inception",
+	"-A", "clippy::bool_to_int_with_if",
+	"-A", "clippy::manual_clamp",
 ]
 need_stdout = false
 
