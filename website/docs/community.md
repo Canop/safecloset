@@ -41,7 +41,7 @@ An instance of `ClosedDrawer` is a structure with the following fields:
 * `nonce`: a byte array
 * `content`: a byte array
 
-The `content` is the AES-GCM-SIV encryption of the serializied drawer with the included `nonce`.
+The `content` is the AES-GCM-SIV encryption of the serialized drawer with the included `nonce`.
 The key used for this encryption is a 256 bits Argon2 hash of the password with the closet's salt.
 
 The serialized drawer is a MessagePack encoded structure with the following fields:
