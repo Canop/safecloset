@@ -347,8 +347,8 @@ impl AppState {
             if let Some(line) = ds.focus.line() {
                 ds.focus = DrawerFocus::PendingRemoval { line };
                 let mut menu = ActionMenu::new();
-                menu.add_item(Action::ConfirmEntryRemoval);
-                menu.add_item(Action::Back);
+                menu.add_action(Action::ConfirmEntryRemoval);
+                menu.add_action(Action::Back);
                 menu.state.select(1);
                 self.dialog = Dialog::Menu(menu);
             }
@@ -651,28 +651,28 @@ impl AppState {
 
     /// Add the relevant possible actions to the menu
     pub fn fill_menu(&self, menu: &mut ActionMenu) {
-        menu.add_item(Action::Back);
-        menu.add_item(Action::NewDrawer);
-        menu.add_item(Action::OpenDrawer);
+        menu.add_action(Action::Back);
+        menu.add_action(Action::NewDrawer);
+        menu.add_action(Action::OpenDrawer);
         if let Some(ds) = &self.drawer_state {
-            menu.add_item(Action::SaveDrawer);
+            menu.add_action(Action::SaveDrawer);
             if self.depth() > 1 {
-                menu.add_item(Action::CloseDeepDrawer);
+                menu.add_action(Action::CloseDeepDrawer);
             } else {
-                menu.add_item(Action::CloseShallowDrawer);
+                menu.add_action(Action::CloseShallowDrawer);
             }
-            menu.add_item(Action::ToggleHiding);
+            menu.add_action(Action::ToggleHiding);
             if ds.drawer.content.settings.open_all_values {
-                menu.add_item(Action::CloseAllValues);
+                menu.add_action(Action::CloseAllValues);
             } else {
-                menu.add_item(Action::OpenAllValues);
+                menu.add_action(Action::OpenAllValues);
             }
-            menu.add_item(Action::OpenPasswordChangeDialog);
+            menu.add_action(Action::OpenPasswordChangeDialog);
         } else {
-            menu.add_item(Action::EditClosetComments);
+            menu.add_action(Action::EditClosetComments);
         }
-        menu.add_item(Action::Help);
-        menu.add_item(Action::Quit);
+        menu.add_action(Action::Help);
+        menu.add_action(Action::Quit);
     }
 
     /// Handle a key event

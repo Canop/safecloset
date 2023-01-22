@@ -24,7 +24,7 @@ impl<I> Default for MenuView<I> {
     }
 }
 
-impl<I> View for MenuView<I> {
+impl<I: ToString + Copy> View for MenuView<I> {
     type State = MenuState<I>;
 
     fn set_available_area(&mut self, available_area: Area) {
@@ -74,11 +74,11 @@ impl<I> View for MenuView<I> {
                 w.go_to(item_area.left, y)?;
                 skin.write_composite_fill(
                     w,
-                    Composite::from_inline(item.action.label()),
+                    Composite::from_inline(&item.action.to_string()),
                     label_width,
                     Alignment::Left,
                 )?;
-                let key_desc = item.action.key()
+                let key_desc = item.key
                     .map_or("".to_string(), |key| KEY_FORMAT.to_string(key));
                 skin.write_composite_fill(
                     w,

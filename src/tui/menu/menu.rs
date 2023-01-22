@@ -1,19 +1,15 @@
 use {
     crate::tui::*,
+    crokey::crossterm::event::KeyEvent,
     termimad::Area,
 };
-
-
 
 pub struct Menu<I> {
     pub state: MenuState<I>,
     view: MenuView<I>,
 }
 
-pub type ActionMenu = Menu<Action>;
-
-
-impl<I: ToString> Menu<I> {
+impl<I: ToString + Copy> Menu<I> {
     pub fn new() -> Self {
         Self {
             state: Default::default(),
@@ -30,7 +26,7 @@ impl<I: ToString> Menu<I> {
     pub fn set_available_area(&mut self, area: Area) {
         self.view.set_available_area(area);
     }
-    pub fn add_item(&mut self, action: I) {
-        self.state.add_item(action);
+    pub fn add_item(&mut self, action: I, key: Option<KeyEvent>) {
+        self.state.add_item(action, key);
     }
 }

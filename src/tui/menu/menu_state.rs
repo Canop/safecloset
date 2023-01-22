@@ -1,5 +1,4 @@
 use {
-    crate::tui::*,
     crokey::key,
     crokey::crossterm::event::{KeyEvent, MouseButton, MouseEvent, MouseEventKind},
     termimad::Area,
@@ -8,6 +7,7 @@ use {
 pub struct MenuItem<I> {
     pub action: I,
     pub area: Option<Area>,
+    pub key: Option<KeyEvent>,
 }
 
 pub struct MenuState<I> {
@@ -26,13 +26,13 @@ impl<I> Default for MenuState<I> {
     }
 }
 
-impl<I: ToString> MenuState<I> {
-    //pub fn add_item(&mut self, action: Action) {
-    //    self.items.push(MenuItem { action, area: None });
-    //}
-    pub fn add_item(&mut self, action: I) {
-        self.items.push(MenuItem { action, area: None });
+impl<I: ToString + Copy> MenuState<I> {
+    pub fn add_item(&mut self, action: I, key: Option<KeyEvent>) {
+        self.items.push(MenuItem { action, area: None, key });
     }
+    //pub fn items(&self) -> impl Iterator<Item=&I> {
+    //    self.items.iter().map(|i| &i.action)
+    //}
     pub fn clear_item_areas(&mut self) {
         for item in self.items.iter_mut() {
             item.area = None;
@@ -63,7 +63,12 @@ impl<I: ToString> MenuState<I> {
         } else if key == key!(enter) {
             return Some(items[self.selection].action);
         }
-        Action::for_key(key)
+        for item in &self.items {
+            if item.key == Some(key) {
+                return Some(item.action);
+            }
+        }
+        None
     }
     pub fn item_idx_at(&self, x: u16, y: u16) -> Option<usize> {
         for (idx, item) in self.items.iter().enumerate() {
@@ -81,7 +86,7 @@ impl<I: ToString> MenuState<I> {
         &mut self,
         mouse_event: MouseEvent,
         double_click: bool,
-    ) -> Option<Action> {
+    ) -> Option<I> {
         let is_click = matches!(
             mouse_event.kind,
             MouseEventKind::Down(MouseButton::Left) | MouseEventKind::Up(MouseButton::Left),
