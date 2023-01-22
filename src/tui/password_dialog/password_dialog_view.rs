@@ -44,9 +44,7 @@ impl PasswordDialogView {
     }
 }
 
-impl View for PasswordDialogView {
-
-    type State = PasswordDialogState;
+impl View<PasswordDialogState> for PasswordDialogView {
 
     fn set_available_area(&mut self, mut area: Area) {
         if area.width > 60 && area.height > 8 {
@@ -65,7 +63,7 @@ impl View for PasswordDialogView {
     fn draw(
         &mut self,
         w: &mut W,
-        state: &mut Self::State, // mutable to allow adapt to terminal size changes
+        state: &mut PasswordDialogState, // mutable to allow adapt to terminal size changes
         skin: &AppSkin,
     ) -> Result<(), SafeClosetError> {
 

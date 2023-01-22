@@ -76,8 +76,7 @@ impl StatusView {
     }
 }
 
-impl View for StatusView {
-    type State = AppState;
+impl View<AppState> for StatusView {
 
     fn set_available_area(&mut self, area: Area) {
         self.area = area;

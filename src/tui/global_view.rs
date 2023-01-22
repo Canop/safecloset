@@ -13,8 +13,7 @@ pub struct GlobalView {
     status: StatusView,
 }
 
-impl View for GlobalView {
-    type State = AppState;
+impl View<AppState> for GlobalView {
 
     fn set_available_area(&mut self, area: Area) {
         self.area = area;

@@ -15,9 +15,7 @@ static MD_AFTER: &str = r#"Hit *^enter* or *alt-enter* to add a line, and *enter
 impl CommentsEditorView {
 }
 
-impl View for CommentsEditorView {
-
-    type State = CommentsEditorState;
+impl View<CommentsEditorState> for CommentsEditorView {
 
     fn set_available_area(&mut self, mut area: Area) {
         if area.width > 60 && area.height > 11 {
@@ -33,7 +31,7 @@ impl View for CommentsEditorView {
     fn draw(
         &mut self,
         w: &mut W,
-        state: &mut Self::State, // mutable to allow adapt to terminal size changes
+        state: &mut CommentsEditorState, // mutable to allow adapt to terminal size changes
         skin: &AppSkin,
     ) -> Result<(), SafeClosetError> {
 

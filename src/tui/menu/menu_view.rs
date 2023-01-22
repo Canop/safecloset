@@ -2,7 +2,6 @@ use {
     crate::{
         tui::*,
     },
-    std::marker::PhantomData,
     termimad::{
         *,
         minimad::*,
@@ -10,22 +9,12 @@ use {
 };
 
 /// The drawer of the menu
-pub struct MenuView<I> {
+#[derive(Default)]
+pub struct MenuView {
     available_area: Area,
-    phantom: PhantomData<I>,
 }
 
-impl<I> Default for MenuView<I> {
-    fn default() -> Self {
-        Self {
-            available_area: Default::default(),
-            phantom: Default::default(),
-        }
-    }
-}
-
-impl<I: ToString + Copy> View for MenuView<I> {
-    type State = MenuState<I>;
+impl<I: ToString + Copy> View<MenuState<I>> for MenuView {
 
     fn set_available_area(&mut self, available_area: Area) {
         if available_area != self.available_area {
@@ -37,7 +26,7 @@ impl<I: ToString + Copy> View for MenuView<I> {
     fn draw(
         &mut self,
         w: &mut W,
-        state: &mut Self::State,
+        state: &mut MenuState<I>,
         app_skin: &AppSkin,
     ) -> Result<(), SafeClosetError> {
         state.clear_item_areas();
@@ -103,7 +92,7 @@ impl<I: ToString + Copy> View for MenuView<I> {
     }
 }
 
-impl<I> MenuView<I> {
+impl MenuView {
     fn compute_area(&self, items_count: usize) -> Area {
         let screen = &self.available_area;
         let ideal_height = items_count as u16 + 2; // margin of 1

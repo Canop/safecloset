@@ -37,9 +37,7 @@ This drawer is still empty.
 Hit the *n* key to create a new entry.
 "#;
 
-impl View for ContentView {
-
-    type State = AppState;
+impl View<AppState> for ContentView {
 
     fn set_available_area(&mut self, area: Area) {
         self.area = area;
