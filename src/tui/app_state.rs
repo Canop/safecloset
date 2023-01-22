@@ -346,7 +346,7 @@ impl AppState {
         if let Some(ds) = &mut self.drawer_state {
             if let Some(line) = ds.focus.line() {
                 ds.focus = DrawerFocus::PendingRemoval { line };
-                let mut menu = Menu::default();
+                let mut menu = ActionMenu::new();
                 menu.add_item(Action::ConfirmEntryRemoval);
                 menu.add_item(Action::Back);
                 menu.state.select(1);
@@ -462,7 +462,7 @@ impl AppState {
                     debug!("closing drawer input");
                 } else {
                     debug!("opening menu");
-                    let mut menu = Menu::default();
+                    let mut menu = ActionMenu::new();
                     self.fill_menu(&mut menu);
                     self.dialog = Dialog::Menu(menu);
                 }
@@ -650,7 +650,7 @@ impl AppState {
     }
 
     /// Add the relevant possible actions to the menu
-    pub fn fill_menu(&self, menu: &mut Menu) {
+    pub fn fill_menu(&self, menu: &mut ActionMenu) {
         menu.add_item(Action::Back);
         menu.add_item(Action::NewDrawer);
         menu.add_item(Action::OpenDrawer);

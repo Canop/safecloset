@@ -5,20 +5,32 @@ use {
     termimad::Area,
 };
 
-pub struct MenuItem {
-    pub action: Action,
+pub struct MenuItem<I> {
+    pub action: I,
     pub area: Option<Area>,
 }
 
-#[derive(Default)]
-pub struct MenuState {
-    pub items: Vec<MenuItem>,
+pub struct MenuState<I> {
+    pub items: Vec<MenuItem<I>>,
     pub selection: usize,
     pub scroll: usize,
 }
 
-impl MenuState {
-    pub fn add_item(&mut self, action: Action) {
+impl<I> Default for MenuState<I> {
+    fn default() -> Self {
+        Self {
+            items: Vec::new(),
+            selection: 0,
+            scroll: 0,
+        }
+    }
+}
+
+impl<I: ToString> MenuState<I> {
+    //pub fn add_item(&mut self, action: Action) {
+    //    self.items.push(MenuItem { action, area: None });
+    //}
+    pub fn add_item(&mut self, action: I) {
         self.items.push(MenuItem { action, area: None });
     }
     pub fn clear_item_areas(&mut self) {
@@ -42,7 +54,7 @@ impl MenuState {
     }
     /// Handle a key event (not triggering the actions on their keys, only apply
     /// the menu mechanics)
-    pub fn on_key(&mut self, key: KeyEvent) -> Option<Action> {
+    pub fn on_key(&mut self, key: KeyEvent) -> Option<I> {
         let items = &self.items;
         if key == key!(down) {
             self.selection = (self.selection + 1) % items.len();

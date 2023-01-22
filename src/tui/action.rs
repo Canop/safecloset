@@ -1,6 +1,7 @@
 use {
     crokey::*,
     crossterm::event::KeyEvent,
+    std::fmt,
 };
 
 macro_rules! make_actions {
@@ -42,6 +43,11 @@ macro_rules! make_actions {
                     )*
                 )*
                 return None;
+            }
+        }
+        impl fmt::Display for Action {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                write!(f, "{}", self.label())
             }
         }
     }

@@ -3,7 +3,7 @@ use super::*;
 /// the dialog that may be displayed over the drawer
 pub enum Dialog {
     None,
-    Menu(Menu),
+    Menu(ActionMenu),
     Help(Help),
     Password(PasswordDialog),
     CommentsEditor(CommentsEditor),

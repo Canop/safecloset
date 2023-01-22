@@ -3,13 +3,23 @@ use {
     termimad::Area,
 };
 
-#[derive(Default)]
-pub struct Menu {
-    pub state: MenuState,
-    view: MenuView,
+
+
+pub struct Menu<I> {
+    pub state: MenuState<I>,
+    view: MenuView<I>,
 }
 
-impl Menu {
+pub type ActionMenu = Menu<Action>;
+
+
+impl<I: ToString> Menu<I> {
+    pub fn new() -> Self {
+        Self {
+            state: Default::default(),
+            view: Default::default(),
+        }
+    }
     pub fn draw(
         &mut self,
         w: &mut W,
@@ -20,7 +30,7 @@ impl Menu {
     pub fn set_available_area(&mut self, area: Area) {
         self.view.set_available_area(area);
     }
-    pub fn add_item(&mut self, action: Action) {
+    pub fn add_item(&mut self, action: I) {
         self.state.add_item(action);
     }
 }
