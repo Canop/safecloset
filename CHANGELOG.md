@@ -1,5 +1,5 @@
 <a name="v1.0.0"></a>
-### v1.0.0 - 2024-01-13
+### v1.0.0 - 2023-01-13
 There's no reason to wait more for a 1.0.0: SafeCloset is stable and complete.
 
 <a name="v0.7.0"></a>
