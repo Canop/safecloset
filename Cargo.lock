@@ -121,6 +121,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "char_reader"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "37a59b22dec21ca7d6c173bd543eeab4cd2f36cf21f039a4134905034c87ed3a"
+
+[[package]]
 name = "chrono"
 version = "0.4.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -631,6 +637,7 @@ version = "1.0.0"
 dependencies = [
  "aes-gcm-siv",
  "argh",
+ "char_reader",
  "cli-log",
  "crokey",
  "crossbeam",

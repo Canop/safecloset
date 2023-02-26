@@ -26,7 +26,10 @@ impl ImportView {
             Step::TypeDrawerPassword { dialog, .. } => {
                 dialog.view.set_available_area(self.available_area.clone());
             }
-            Step::ConfirmImport { menu, .. } => {
+            Step::ConfirmImportCsv { menu, .. } => {
+                menu.set_available_area(self.available_area.clone());
+            }
+            Step::ConfirmImportDrawer { menu, .. } => {
                 menu.set_available_area(self.available_area.clone());
             }
             Step::InformEnd(menu) => {
@@ -64,7 +67,10 @@ impl View<ImportState> for ImportView {
             Step::TypeDrawerPassword { dialog, .. } => {
                 dialog.draw(w, skin)?;
             }
-            Step::ConfirmImport { menu, .. } => {
+            Step::ConfirmImportCsv { menu, .. } => {
+                menu.draw(w, skin)?;
+            }
+            Step::ConfirmImportDrawer { menu, .. } => {
                 menu.draw(w, skin)?;
             }
             Step::InformEnd(menu) => {

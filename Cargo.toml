@@ -18,6 +18,7 @@ clipboard = ["terminal-clipboard"]
 [dependencies]
 aes-gcm-siv = "=0.10.3"
 argh = "=0.1.6"
+char_reader = "=0.1.1"
 cli-log = "=2.0.0"
 crokey = "0.4.3"
 crossbeam = "=0.8.1"

@@ -2,6 +2,7 @@ use {
     super::*,
     crate::{
         core::*,
+        csv::Csv,
         import::ImportSet,
         tui::menu::*,
     },
@@ -12,7 +13,10 @@ use {
         },
         key,
     },
-    std::path::PathBuf,
+    std::path::{
+        Path,
+        PathBuf,
+    },
 };
 
 pub enum Step {
@@ -22,9 +26,13 @@ pub enum Step {
         open_closet: OpenCloset,
         dialog: PasswordDialog,
     },
-    ConfirmImport {
+    ConfirmImportCsv {
+        menu: Menu<ConfirmCsv>,
+        import_set: ImportSet,
+    },
+    ConfirmImportDrawer {
         open_closet: OpenCloset,
-        menu: Menu<ConfirmOrGoDeeper>,
+        menu: Menu<ConfirmDrawer>,
         import_set: ImportSet,
     },
     InformEnd(InformMenu),
@@ -95,8 +103,8 @@ impl ImportState {
             }
             OriginKind::OtherFile => {
                 let file_selector = FileSelector::new(
-                    "Enter the path of the file to import from.".to_string(),
-                    FileType::Closet,
+                    "Enter the path of the closet or CSV file to import from.".to_string(),
+                    FileType::File,
                 );
                 self.message = Some(file_selector.get_message());
                 self.step = Step::FileSelector(file_selector);
@@ -107,13 +115,38 @@ impl ImportState {
         &mut self,
         path: PathBuf,
     ) {
-        match OpenCloset::open(path) {
-            Ok(open_closet) => {
-                self.ask_password(open_closet);
+        if is_csv(&path) {
+            let entries = Csv::from_path(&path, ',').and_then(|csv| csv.into_entries());
+            match entries {
+                Ok(src) => {
+                    if src.is_empty() {
+                        self.end("Nothing found in this CSV file. The file must be comma separated and have at least 2 columns.");
+                        return;
+                    }
+                    let import_set = ImportSet::new(src, &self.dst_drawer_state.drawer);
+                    if import_set.is_empty() {
+                        self.end("There's nothing new in this CSV file");
+                        return;
+                    }
+                    let mut menu = Menu::new();
+                    menu.set_intro(import_set.confirm_string());
+                    menu.add_item(ConfirmCsv::Confirm, None);
+                    menu.add_item(ConfirmCsv::Cancel, None);
+                    self.step = Step::ConfirmImportCsv { menu, import_set };
+                }
+                Err(e) => {
+                    self.end(format!("Error while trying to read CSV file: {e}"));
+                }
             }
-            Err(e) => {
-                warn!("error opening file: {e}");
-                self.end("An error prevented reopening the file");
+        } else {
+            match OpenCloset::open(path) {
+                Ok(open_closet) => {
+                    self.ask_password(open_closet);
+                }
+                Err(e) => {
+                    warn!("error opening file: {e}");
+                    self.end("An error prevented reopening the file");
+                }
             }
         }
     }
@@ -151,11 +184,11 @@ impl ImportState {
                 );
             } else {
                 menu.set_intro(import_set.confirm_string());
-                menu.add_item(ConfirmOrGoDeeper::Confirm, None);
+                menu.add_item(ConfirmDrawer::Confirm, None);
             }
-            menu.add_item(ConfirmOrGoDeeper::GoDeeper, None);
-            menu.add_item(ConfirmOrGoDeeper::Cancel, None);
-            self.step = Step::ConfirmImport {
+            menu.add_item(ConfirmDrawer::GoDeeper, None);
+            menu.add_item(ConfirmDrawer::Cancel, None);
+            self.step = Step::ConfirmImportDrawer {
                 open_closet,
                 menu,
                 import_set,
@@ -232,20 +265,16 @@ impl ImportState {
                 }
                 b
             }
-            Step::ConfirmImport {
+            Step::ConfirmImportCsv {
                 mut menu,
-                open_closet,
                 import_set,
             } => match menu.state.on_key(key) {
                 Some(res) => {
                     match res {
-                        ConfirmOrGoDeeper::Confirm => {
+                        ConfirmCsv::Confirm => {
                             self.execute_import(import_set);
                         }
-                        ConfirmOrGoDeeper::GoDeeper => {
-                            self.ask_password(open_closet);
-                        }
-                        ConfirmOrGoDeeper::Cancel => {
+                        ConfirmCsv::Cancel => {
                             info!("import canceled");
                             self.finish();
                         }
@@ -253,7 +282,32 @@ impl ImportState {
                     true
                 }
                 None => {
-                    self.step = Step::ConfirmImport {
+                    self.step = Step::ConfirmImportCsv { menu, import_set };
+                    false
+                }
+            },
+            Step::ConfirmImportDrawer {
+                mut menu,
+                open_closet,
+                import_set,
+            } => match menu.state.on_key(key) {
+                Some(res) => {
+                    match res {
+                        ConfirmDrawer::Confirm => {
+                            self.execute_import(import_set);
+                        }
+                        ConfirmDrawer::GoDeeper => {
+                            self.ask_password(open_closet);
+                        }
+                        ConfirmDrawer::Cancel => {
+                            info!("import canceled");
+                            self.finish();
+                        }
+                    }
+                    true
+                }
+                None => {
+                    self.step = Step::ConfirmImportDrawer {
                         menu,
                         open_closet,
                         import_set,
@@ -301,25 +355,42 @@ impl ImportState {
                     open_closet,
                 };
             }
-            Step::ConfirmImport {
+            Step::ConfirmImportCsv {
                 mut menu,
-                open_closet,
                 import_set,
             } => match menu.state.on_mouse_event(mouse_event, double_click) {
                 Some(res) => match res {
-                    ConfirmOrGoDeeper::Confirm => {
+                    ConfirmCsv::Confirm => {
                         self.execute_import(import_set);
                     }
-                    ConfirmOrGoDeeper::GoDeeper => {
-                        self.ask_password(open_closet);
-                    }
-                    ConfirmOrGoDeeper::Cancel => {
+                    ConfirmCsv::Cancel => {
                         info!("import canceled");
                         self.finish();
                     }
                 },
                 None => {
-                    self.step = Step::ConfirmImport {
+                    self.step = Step::ConfirmImportCsv { menu, import_set };
+                }
+            },
+            Step::ConfirmImportDrawer {
+                mut menu,
+                open_closet,
+                import_set,
+            } => match menu.state.on_mouse_event(mouse_event, double_click) {
+                Some(res) => match res {
+                    ConfirmDrawer::Confirm => {
+                        self.execute_import(import_set);
+                    }
+                    ConfirmDrawer::GoDeeper => {
+                        self.ask_password(open_closet);
+                    }
+                    ConfirmDrawer::Cancel => {
+                        info!("import canceled");
+                        self.finish();
+                    }
+                },
+                None => {
+                    self.step = Step::ConfirmImportDrawer {
                         menu,
                         open_closet,
                         import_set,
@@ -341,6 +412,11 @@ impl ImportState {
         }
     }
     pub fn status(&self) -> &'static str {
-        self.message.unwrap_or("Import wizard - WIP")
+        self.message.unwrap_or("Import wizard")
     }
+}
+
+pub fn is_csv(path: &Path) -> bool {
+    path.extension()
+        .map_or(false, |ext| ext == "csv" || ext == "CSV")
 }

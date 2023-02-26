@@ -8,7 +8,7 @@ pub struct FileCheck {
 
 #[derive(Debug, Clone, Copy)]
 pub enum FileType {
-    Closet,
+    File,
 }
 
 impl FileCheck {
@@ -29,7 +29,7 @@ impl FileType {
             return FileCheck::new(false, "Type the path to the file to open");
         }
         if !path.exists() || !path.is_file() {
-            return FileCheck::new(false, "Type the path of a closet file");
+            return FileCheck::new(false, "Type the path of a file");
         }
         // we don't check the extension because people can name files how they want
         FileCheck::new(true, "Type *enter* to select this file")

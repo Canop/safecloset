@@ -18,12 +18,29 @@ impl fmt::Display for OriginKind {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum ConfirmOrGoDeeper {
+pub enum ConfirmCsv {
+    Confirm,
+    Cancel,
+}
+impl fmt::Display for ConfirmCsv {
+    fn fmt(
+        &self,
+        f: &mut fmt::Formatter<'_>,
+    ) -> fmt::Result {
+        match self {
+            Self::Confirm => write!(f, "Import these entries"),
+            Self::Cancel => write!(f, "Cancel"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum ConfirmDrawer {
     Confirm,
     GoDeeper,
     Cancel,
 }
-impl fmt::Display for ConfirmOrGoDeeper {
+impl fmt::Display for ConfirmDrawer {
     fn fmt(
         &self,
         f: &mut fmt::Formatter<'_>,

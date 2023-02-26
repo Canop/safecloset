@@ -1,4 +1,4 @@
-pub use crate::core::*;
+use crate::core::*;
 
 /// The subset of the drawer with the things to import
 #[derive(Debug, Default)]
@@ -10,7 +10,7 @@ pub struct ImportSet {
 impl ImportSet {
     pub fn confirm_string(&self) -> String {
         format!(
-            "The source drawer contains {} new keys and {} new values.",
+            "The source contains {} new keys and {} new values.",
             self.new_keys.len(),
             self.different_values.len(),
         )
