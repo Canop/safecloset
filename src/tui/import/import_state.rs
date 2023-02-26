@@ -141,23 +141,24 @@ impl ImportState {
         let password = dialog.get_password();
         if let Some(src_drawer) = open_closet.open_take_drawer(&password) {
             let import_set = ImportSet::new(src_drawer, &self.dst_drawer_state.drawer);
+            let mut menu = Menu::new();
             if import_set.is_empty() {
-                self.end(
+                menu.set_intro(
                     "The selected drawer contains nothing which isn't already\
-                    in the destination drawer.",
+                    in the destination drawer."
+                        .to_string(),
                 );
             } else {
-                let mut menu = Menu::new();
                 menu.set_intro(import_set.confirm_string());
                 menu.add_item(ConfirmOrGoDeeper::Confirm, None);
-                menu.add_item(ConfirmOrGoDeeper::GoDeeper, None);
-                menu.add_item(ConfirmOrGoDeeper::Cancel, None);
-                self.step = Step::ConfirmImport {
-                    open_closet,
-                    menu,
-                    import_set,
-                };
             }
+            menu.add_item(ConfirmOrGoDeeper::GoDeeper, None);
+            menu.add_item(ConfirmOrGoDeeper::Cancel, None);
+            self.step = Step::ConfirmImport {
+                open_closet,
+                menu,
+                import_set,
+            };
         } else {
             info!("wrong pass");
             self.message = Some("Wrong passphrase");
