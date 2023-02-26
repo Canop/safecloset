@@ -1,13 +1,13 @@
 use {
     super::*,
-    std::{
-        path::{Path, PathBuf},
+    std::path::{
+        Path,
+        PathBuf,
     },
 };
 
 /// The root closet, when open
 pub struct OpenCloset {
-
     /// the path in which the closet is persisted
     path: PathBuf,
 
@@ -22,7 +22,6 @@ pub struct OpenCloset {
 }
 
 impl OpenCloset {
-
     /// Either create a new closet, or open an existing one, depending
     /// on whether the file exists
     pub fn open_or_create<P: Into<PathBuf>>(path: P) -> Result<Self, CoreError> {
@@ -96,7 +95,9 @@ impl OpenCloset {
         // now we reopen
         while let Some(password) = passwords.pop() {
             if !self.open_drawer_at_depth(self.depth(), &password) {
-                return Err(CoreError::InternalError("drawer can't be reopened".to_string()));
+                return Err(CoreError::InternalError(
+                    "drawer can't be reopened".to_string(),
+                ));
             }
         }
         Ok(self.open_drawers.last_mut())
@@ -152,7 +153,10 @@ impl OpenCloset {
 
     /// Try to open a drawer at any depth
     /// (preferably from one of the deepest open drawers)
-    pub fn open_drawer(&mut self, password: &str) -> Option<&mut OpenDrawer> {
+    pub fn open_drawer(
+        &mut self,
+        password: &str,
+    ) -> Option<&mut OpenDrawer> {
         let mut depth = self.open_drawers.len();
         let mut open: bool;
         loop {
@@ -172,7 +176,10 @@ impl OpenCloset {
     /// Try to open a drawer at any depth (preferably from
     /// one of the deepest open drawers) then take it
     #[must_use]
-    pub fn open_take_drawer(&mut self, password: &str) -> Option<OpenDrawer> {
+    pub fn open_take_drawer(
+        &mut self,
+        password: &str,
+    ) -> Option<OpenDrawer> {
         if self.open_drawer(password).is_some() {
             self.take_deepest_open_drawer()
         } else {
@@ -189,7 +196,8 @@ impl OpenCloset {
         password: S,
     ) -> Result<&mut OpenDrawer, CoreError> {
         let depth = self.depth();
-        let open_drawer = self.deepest_closet_mut()
+        let open_drawer = self
+            .deepest_closet_mut()
             .create_drawer(depth, password.into())?;
         self.open_drawers.push(open_drawer);
         Ok(&mut self.open_drawers[depth])
@@ -203,7 +211,8 @@ impl OpenCloset {
         password: S,
     ) -> Result<OpenDrawer, CoreError> {
         let depth = self.depth();
-        let open_drawer = self.deepest_closet_mut()
+        let open_drawer = self
+            .deepest_closet_mut()
             .create_drawer(depth, password.into())?;
         Ok(open_drawer)
     }
@@ -222,9 +231,7 @@ impl OpenCloset {
                 closet.close_drawer(open_drawer)?;
                 Ok(password)
             }
-            None => {
-                Err(CoreError::NoOpenDrawer)
-            }
+            None => Err(CoreError::NoOpenDrawer),
         }
     }
 
@@ -258,8 +265,12 @@ impl OpenCloset {
         }
     }
 
-    pub fn push_back(&mut self, open_drawer: OpenDrawer) -> Result<(), CoreError> {
-        let id_checked = self.deepest_closet()
+    pub fn push_back(
+        &mut self,
+        open_drawer: OpenDrawer,
+    ) -> Result<(), CoreError> {
+        let id_checked = self
+            .deepest_closet()
             .drawers
             .iter()
             .any(|closed_drawer| closed_drawer.has_same_id(&open_drawer));
@@ -278,7 +289,10 @@ impl OpenCloset {
     /// This isn't called yet in the UI because I'm not sure it's useful
     /// enough to clutter the menu
     #[allow(dead_code)]
-    pub fn delete_drawer(&mut self, open_drawer: OpenDrawer) -> Result<(), CoreError> {
+    pub fn delete_drawer(
+        &mut self,
+        open_drawer: OpenDrawer,
+    ) -> Result<(), CoreError> {
         let closet = self.deepest_closet_mut();
         for (idx, drawer) in closet.drawers.iter().enumerate() {
             if drawer.has_same_id(&open_drawer) {
@@ -307,7 +321,10 @@ impl OpenCloset {
         if new_password.len() < MIN_PASSWORD_LENGTH {
             return Err(CoreError::PasswordTooShort);
         }
-        if self.deepest_closet().is_password_taken(open_drawer.depth, &new_password) {
+        if self
+            .deepest_closet()
+            .is_password_taken(open_drawer.depth, &new_password)
+        {
             return Err(CoreError::PasswordAlreadyUsed);
         }
         open_drawer.password = new_password;

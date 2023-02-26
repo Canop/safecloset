@@ -13,7 +13,11 @@ pub enum Direction {
 }
 
 impl ScrollCommand {
-    fn to_lines(self, content_height: usize, page_height: usize) -> i32 {
+    fn to_lines(
+        self,
+        content_height: usize,
+        page_height: usize,
+    ) -> i32 {
         match self {
             Self::Top => -(content_height as i32),
             Self::Bottom => content_height as i32,
@@ -22,7 +26,12 @@ impl ScrollCommand {
         }
     }
     /// compute the new scroll value
-    pub fn apply(self, scroll: usize, content_height: usize, page_height: usize) -> usize {
+    pub fn apply(
+        self,
+        scroll: usize,
+        content_height: usize,
+        page_height: usize,
+    ) -> usize {
         if content_height > page_height {
             (scroll as i32 + self.to_lines(content_height, page_height))
                 .min((content_height - page_height - 1) as i32)
@@ -32,4 +41,3 @@ impl ScrollCommand {
         }
     }
 }
-

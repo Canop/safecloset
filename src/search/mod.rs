@@ -1,4 +1,3 @@
-
 mod fuzzy_pattern;
 mod name_match;
 mod pos;
@@ -8,4 +7,3 @@ pub use {
     name_match::NameMatch,
     pos::*,
 };
-

@@ -1,7 +1,10 @@
 use {
     crate::tui::ContentSkin,
+    crokey::crossterm::event::{
+        KeyEvent,
+        MouseEvent,
+    },
     crokey::key,
-    crokey::crossterm::event::{KeyEvent, MouseEvent},
     termimad::*,
 };
 
@@ -10,16 +13,17 @@ pub struct CommentsEditorState {
 }
 
 impl CommentsEditorState {
-    pub fn new(
-        content: &str,
-    ) -> Self {
+    pub fn new(content: &str) -> Self {
         let mut comments = ContentSkin::make_input();
-        comments.new_line_on(key!(alt-enter));
-        comments.new_line_on(key!(ctrl-enter));
+        comments.new_line_on(key!(alt - enter));
+        comments.new_line_on(key!(ctrl - enter));
         comments.set_str(content);
         Self { comments }
     }
-    pub fn apply_key_event(&mut self, key: KeyEvent) -> bool {
+    pub fn apply_key_event(
+        &mut self,
+        key: KeyEvent,
+    ) -> bool {
         self.comments.apply_key_event(key)
     }
     /// handle a mouse event
@@ -31,4 +35,3 @@ impl CommentsEditorState {
         self.comments.apply_mouse_event(mouse_event, double_click);
     }
 }
-

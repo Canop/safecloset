@@ -2,7 +2,10 @@ use {
     super::*,
     crate::error::SafeClosetError,
     termimad::{
-        minimad::{Alignment, Composite},
+        minimad::{
+            Alignment,
+            Composite,
+        },
         Area,
     },
 };
@@ -16,9 +19,11 @@ pub struct StatusView {
 }
 
 impl StatusView {
-
     /// return a hint for when a drawer is displayed
-    fn rotate_drawer_hint(&mut self, ds: &DrawerState) -> &'static str {
+    fn rotate_drawer_hint(
+        &mut self,
+        ds: &DrawerState,
+    ) -> &'static str {
         use DrawerFocus::*;
         let mut hints: Vec<&'static str> = Vec::new();
         match &ds.focus {
@@ -40,7 +45,8 @@ impl StatusView {
                 }
                 hints.push("Hit *^q* to quit, *i* to edit the selected cell, *?* for help");
                 hints.push("Hit *^q* to quit, *i* to edit the selected cell, *esc* for menu");
-                hints.push("Hit *^q* to quit, *i* or *a* to edit the selected cell, *esc* for menu");
+                hints
+                    .push("Hit *^q* to quit, *i* or *a* to edit the selected cell, *esc* for menu");
                 hints.push("Hit *^q* to quit, */* to search, *n* to create a new entry");
                 hints.push("Hit *^q* to quit, */* to search, *^h* to toggle values visibility");
                 hints.push("Hit *^q* to save, */* to search, arrows to select a cell");
@@ -52,7 +58,9 @@ impl StatusView {
                     hints.push("Hit *esc* to cancel search, or a few chars to filter entries");
                 } else if ds.search.has_content() {
                     hints.push("Hit *esc* to cancel search, *enter* to keep the result");
-                    hints.push("Hit *esc* to cancel search, arrows to keep the result and move selection");
+                    hints.push(
+                        "Hit *esc* to cancel search, arrows to keep the result and move selection",
+                    );
                 } else {
                     hints.push("Hit *esc* to cancel search");
                 }
@@ -70,15 +78,17 @@ impl StatusView {
         } else {
             hints.push("Hit *^q* to quit, *esc* for menu");
         }
-        let idx = (self.drawer_display_count / 3 ) % hints.len();
+        let idx = (self.drawer_display_count / 3) % hints.len();
         self.drawer_display_count += 1;
         hints[idx]
     }
 }
 
 impl View<AppState> for StatusView {
-
-    fn set_available_area(&mut self, area: Area) {
+    fn set_available_area(
+        &mut self,
+        area: Area,
+    ) {
         self.area = area;
     }
 
@@ -113,15 +123,12 @@ impl View<AppState> for StatusView {
                 Dialog::Menu(_) => {
                     "Hit arrows to select an item, *enter* to validate, *esc* to close"
                 }
-                Dialog::Help(_) => {
-                    "Hit *^q* to quit, *esc* to close the help"
-                }
-                Dialog::Password(_) => {
-                    "Hit *esc* to cancel, *enter* to validate, *^q* to quit"
-                }
+                Dialog::Help(_) => "Hit *^q* to quit, *esc* to close the help",
+                Dialog::Password(_) => "Hit *esc* to cancel, *enter* to validate, *^q* to quit",
                 Dialog::CommentsEditor(_) => {
                     "Hit *esc* to cancel, *enter* to validate, *^q* to quit"
                 }
+                Dialog::Import(import) => import.status(),
             };
             skin = &app_skin.status.hint;
         }

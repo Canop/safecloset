@@ -7,8 +7,11 @@ use {
     },
     crokey::*,
     crossterm::event::{
-        KeyEvent, KeyModifiers,
-        MouseButton, MouseEvent, MouseEventKind,
+        KeyEvent,
+        KeyModifiers,
+        MouseButton,
+        MouseEvent,
+        MouseEventKind,
     },
     termimad::InputField,
 };
@@ -31,15 +34,17 @@ pub struct AppState {
 }
 
 impl AppState {
-
-    pub fn new(open_closet: OpenCloset, args: &Args) -> Self {
+    pub fn new(
+        open_closet: OpenCloset,
+        args: &Args,
+    ) -> Self {
         let dialog = if args.open && !open_closet.just_created() {
-            Dialog::Password(
-                PasswordDialog::new(
-                    PasswordDialogPurpose::OpenDrawer { depth: open_closet.depth() },
-                    true,
-                )
-            )
+            Dialog::Password(PasswordDialog::new(
+                PasswordDialogPurpose::OpenDrawer {
+                    depth: open_closet.depth(),
+                },
+                true,
+            ))
         } else {
             Dialog::None
         };
@@ -55,27 +60,35 @@ impl AppState {
     }
 
     pub fn depth(&self) -> usize {
-        self.open_closet.depth()
-            + if self.drawer_state.is_some() { 1 } else { 0 }
+        self.open_closet.depth() + if self.drawer_state.is_some() { 1 } else { 0 }
     }
 
-    fn set_error<S: Into<String>>(&mut self, error: S) {
+    fn set_error<S: Into<String>>(
+        &mut self,
+        error: S,
+    ) {
         let text = error.into();
         warn!("error: {:?}", &text);
-        self.message = Some(Message{ text, error: true });
+        self.message = Some(Message { text, error: true });
     }
     #[allow(dead_code)]
-    fn set_info<S: Into<String>>(&mut self, info: S) {
+    fn set_info<S: Into<String>>(
+        &mut self,
+        info: S,
+    ) {
         let text = info.into();
         debug!("info: {:?}", &text);
-        self.message = Some(Message{ text, error: false });
+        self.message = Some(Message { text, error: false });
     }
 
     /// If there's an open drawer input (entry name or value), close it, keeping
     /// the input content if required.
     ///
     /// Return true if there was such input
-    fn close_drawer_input(&mut self, discard: bool) -> bool {
+    fn close_drawer_input(
+        &mut self,
+        discard: bool,
+    ) -> bool {
         if let Some(ds) = &mut self.drawer_state {
             ds.close_input(discard)
         } else {
@@ -85,13 +98,11 @@ impl AppState {
     fn drawer_input(&mut self) -> Option<&mut InputField> {
         self.drawer_state
             .as_mut()
-            .and_then(|ds| {
-                match &mut ds.focus {
-                    DrawerFocus::NameEdit { input, .. } => Some(input),
-                    DrawerFocus::ValueEdit { input, .. } => Some(input),
-                    DrawerFocus::SearchEdit { .. } => Some(&mut ds.search.input),
-                    _ => None,
-                }
+            .and_then(|ds| match &mut ds.focus {
+                DrawerFocus::NameEdit { input, .. } => Some(input),
+                DrawerFocus::ValueEdit { input, .. } => Some(input),
+                DrawerFocus::SearchEdit { .. } => Some(&mut ds.search.input),
+                _ => None,
             })
     }
 
@@ -121,19 +132,23 @@ impl AppState {
     pub fn is_pending_removal(&self) -> bool {
         matches!(
             self.drawer_state,
-            Some(DrawerState { focus: DrawerFocus::PendingRemoval{..}, .. }),
+            Some(DrawerState {
+                focus: DrawerFocus::PendingRemoval { .. },
+                ..
+            }),
         )
     }
 
     /// Save the content of the edited cell if any, then save the whole closet
-    fn save(&mut self, reopen_if_open: bool) -> Result<(), SafeClosetError> {
+    fn save(
+        &mut self,
+        reopen_if_open: bool,
+    ) -> Result<(), SafeClosetError> {
         time!(self.close_drawer_input(false));
         let drawer_state = std::mem::take(&mut self.drawer_state);
         if let Some(mut ds) = drawer_state {
             if reopen_if_open {
-                self.drawer_state = Some(
-                    time!(ds.save_and_reopen(&mut self.open_closet)?)
-                );
+                self.drawer_state = Some(time!(ds.save_and_reopen(&mut self.open_closet)?));
             } else {
                 ds.drawer.content.remove_empty_entries();
                 time!(self.open_closet.push_back(ds.drawer)?);
@@ -252,8 +267,7 @@ impl AppState {
         &mut self,
         mouse_event: MouseEvent,
         double_click: bool,
-    )-> Result<(), SafeClosetError> {
-
+    ) -> Result<(), SafeClosetError> {
         match &mut self.dialog {
             Dialog::Menu(menu) => {
                 if let Some(action) = menu.state.on_mouse_event(mouse_event, double_click) {
@@ -273,6 +287,12 @@ impl AppState {
                 comments_editor.on_mouse_event(mouse_event, double_click);
                 return Ok(());
             }
+            Dialog::Import(import) => {
+                import.on_mouse_event(mouse_event, double_click);
+                if import.is_finished() {
+                    self.dialog = Dialog::None;
+                }
+            }
             Dialog::None => {}
         }
 
@@ -287,7 +307,8 @@ impl AppState {
         if let Some(ds) = &mut self.drawer_state {
             let MouseEvent {
                 kind,
-                row, column,
+                row,
+                column,
                 modifiers,
             } = mouse_event;
             match kind {
@@ -368,7 +389,10 @@ impl AppState {
         !self.pending_tasks.is_empty()
     }
 
-    pub fn queue_task(&mut self, task: Task) {
+    pub fn queue_task(
+        &mut self,
+        task: Task,
+    ) {
         self.pending_tasks.push(task);
     }
 
@@ -413,7 +437,9 @@ impl AppState {
                         self.dialog = Dialog::None;
                     }
                     None => {
-                        self.drawer_state = self.open_closet.take_deepest_open_drawer()
+                        self.drawer_state = self
+                            .open_closet
+                            .take_deepest_open_drawer()
                             .map(|open_drawer| open_drawer.into());
                         self.set_error("This passphrase opens no drawer");
                     }
@@ -422,7 +448,9 @@ impl AppState {
             Some(Task::CloseDrawer) => {
                 self.push_back_drawer()?;
                 let _ = self.open_closet.close_deepest_drawer();
-                self.drawer_state = self.open_closet.take_deepest_open_drawer()
+                self.drawer_state = self
+                    .open_closet
+                    .take_deepest_open_drawer()
                     .map(|open_drawer| open_drawer.into());
             }
             Some(Task::ChangePassword(password)) => {
@@ -430,7 +458,7 @@ impl AppState {
                     match self.open_closet.change_password(&mut ds.drawer, password) {
                         Ok(()) => {
                             self.set_info(
-                                "Password changed. You should save then quit and try reopen."
+                                "Password changed. You should save then quit and try reopen.",
                             );
                             self.dialog = Dialog::None;
                         }
@@ -447,10 +475,11 @@ impl AppState {
         Ok(CmdResult::Stay)
     }
 
-    pub fn on_action(&mut self, action: Action) -> Result<CmdResult, SafeClosetError> {
-        use {
-            DrawerFocus::*,
-        };
+    pub fn on_action(
+        &mut self,
+        action: Action,
+    ) -> Result<CmdResult, SafeClosetError> {
+        use DrawerFocus::*;
         debug!("executing action {:?}", action);
         match action {
             Action::Back => {
@@ -468,25 +497,32 @@ impl AppState {
                 }
             }
             Action::NewDrawer => {
-                self.dialog = Dialog::Password(
-                    PasswordDialog::new(
-                        PasswordDialogPurpose::NewDrawer { depth: self.depth() },
-                        false,
-                    )
-                );
+                self.dialog = Dialog::Password(PasswordDialog::new(
+                    PasswordDialogPurpose::NewDrawer {
+                        depth: self.depth(),
+                    },
+                    false,
+                ));
             }
             Action::OpenDrawer => {
-                self.dialog = Dialog::Password(
-                    PasswordDialog::new(
-                        PasswordDialogPurpose::OpenDrawer { depth: self.depth() },
-                        true,
-                    )
-                );
+                self.dialog = Dialog::Password(PasswordDialog::new(
+                    PasswordDialogPurpose::OpenDrawer {
+                        depth: self.depth(),
+                    },
+                    true,
+                ));
+            }
+            Action::Import => {
+                if let Some(ds) = self.drawer_state.take() {
+                    self.dialog = Dialog::Import(Import::new(self.open_closet.path().into(), ds));
+                } else {
+                    warn!("What ? How was this option chosen ?");
+                }
             }
             Action::EditClosetComments => {
-                self.dialog = Dialog::CommentsEditor(
-                    CommentsEditor::new(&self.open_closet.root_closet().comments)
-                );
+                self.dialog = Dialog::CommentsEditor(CommentsEditor::new(
+                    &self.open_closet.root_closet().comments,
+                ));
             }
             Action::SaveDrawer => {
                 if self.drawer_state.is_some() {
@@ -524,7 +560,7 @@ impl AppState {
                             entries.swap(*line, new_line);
                             ds.focus = ValueSelected { line: new_line };
                         }
-                        ValueEdit { input, .. }  => {
+                        ValueEdit { input, .. } => {
                             input.move_current_line_up();
                         }
                         _ => {}
@@ -547,7 +583,7 @@ impl AppState {
                             entries.swap(*line, new_line);
                             ds.focus = ValueSelected { line: new_line };
                         }
-                        ValueEdit { input, .. }  => {
+                        ValueEdit { input, .. } => {
                             input.move_current_line_down();
                         }
                         _ => {}
@@ -561,13 +597,17 @@ impl AppState {
                     password_dialog.toggle_hide_chars();
                     return Ok(CmdResult::Stay);
                 }
+                if let Dialog::Import(import) = &mut self.dialog {
+                    import.toggle_hide_chars();
+                    return Ok(CmdResult::Stay);
+                }
                 self.dialog = Dialog::None;
                 if let Some(ds) = &mut self.drawer_state {
                     ds.drawer.content.settings.hide_values ^= true;
                     return Ok(CmdResult::Stay);
                 }
             }
-            Action::OpenAllValues | Action::CloseAllValues=> {
+            Action::OpenAllValues | Action::CloseAllValues => {
                 self.dialog = Dialog::None;
                 if let Some(ds) = &mut self.drawer_state {
                     ds.drawer.content.settings.open_all_values ^= true;
@@ -617,9 +657,7 @@ impl AppState {
                 if let Some(ds) = &mut self.drawer_state {
                     self.dialog = Dialog::None;
                     ds.search.clear();
-                    let idx = ds.focus
-                        .line()
-                        .and_then(|line| ds.listed_entry_idx(line));
+                    let idx = ds.focus.line().and_then(|line| ds.listed_entry_idx(line));
                     let idx = ds.drawer.content.insert_after(idx);
                     ds.edit_entry_name_by_line(idx, EditionPos::Start);
                 }
@@ -632,9 +670,7 @@ impl AppState {
                     if let Some(line) = ds.focus.line() {
                         ds.search.set_best_line(line);
                     }
-                    let previous_idx = ds.focus
-                        .line()
-                        .and_then(|line| ds.listed_entry_idx(line));
+                    let previous_idx = ds.focus.line().and_then(|line| ds.listed_entry_idx(line));
                     ds.focus = SearchEdit { previous_idx };
                 }
             }
@@ -650,7 +686,10 @@ impl AppState {
     }
 
     /// Add the relevant possible actions to the menu
-    pub fn fill_menu(&self, menu: &mut ActionMenu) {
+    pub fn fill_menu(
+        &self,
+        menu: &mut ActionMenu,
+    ) {
         menu.add_action(Action::Back);
         menu.add_action(Action::NewDrawer);
         menu.add_action(Action::OpenDrawer);
@@ -668,6 +707,7 @@ impl AppState {
                 menu.add_action(Action::OpenAllValues);
             }
             menu.add_action(Action::OpenPasswordChangeDialog);
+            menu.add_action(Action::Import);
         } else {
             menu.add_action(Action::EditClosetComments);
         }
@@ -676,7 +716,10 @@ impl AppState {
     }
 
     /// Handle a key event
-    pub fn on_key(&mut self, key: KeyEvent) -> Result<CmdResult, SafeClosetError> {
+    pub fn on_key(
+        &mut self,
+        key: KeyEvent,
+    ) -> Result<CmdResult, SafeClosetError> {
         use DrawerFocus::*;
         self.message = None;
 
@@ -693,7 +736,9 @@ impl AppState {
 
         match &mut self.dialog {
             Dialog::Menu(menu) => {
-                return menu.state.on_key(key)
+                return menu
+                    .state
+                    .on_key(key)
                     .map_or(Ok(CmdResult::Stay), |a| self.on_action(a));
             }
             Dialog::Help(help) => {
@@ -708,6 +753,18 @@ impl AppState {
             }
             Dialog::CommentsEditor(comments_editor) => {
                 if comments_editor.apply_key_event(key) {
+                    return Ok(CmdResult::Stay);
+                }
+            }
+            Dialog::Import(import) => {
+                if import.on_key(key) {
+                    if import.is_finished() {
+                        let mut temp = Dialog::None;
+                        std::mem::swap(&mut temp, &mut self.dialog);
+                        if let Dialog::Import(import) = temp {
+                            self.drawer_state = Some(import.take_back_drawer());
+                        }
+                    }
                     return Ok(CmdResult::Stay);
                 }
             }
@@ -744,6 +801,7 @@ impl AppState {
                 Dialog::None => {
                     self.close_drawer_input(false); // if there's an entry input
                 }
+                Dialog::Import(_) => {} // managed in the dialog
             }
             return Ok(CmdResult::Stay);
         }
@@ -782,10 +840,7 @@ impl AppState {
                             );
                         }
                     } else {
-                        ds.edit_entry_name_by_line(
-                            line + 1,
-                            EditionPos::Start,
-                        );
+                        ds.edit_entry_name_by_line(line + 1, EditionPos::Start);
                     }
                 }
                 ds.update_search();
@@ -844,8 +899,7 @@ impl AppState {
             if key == key!(right) {
                 match &ds.focus {
                     SearchEdit { previous_idx } => {
-                        let previous_line = previous_idx
-                            .and_then(|idx| ds.entry_line(idx));
+                        let previous_line = previous_idx.and_then(|idx| ds.entry_line(idx));
                         // we're here because apply_event on the input returned false,
                         // which means the right arrow key was ignored because it was
                         // at the end of the input. We'll assume the user wants to
@@ -870,8 +924,8 @@ impl AppState {
             if key == key!(left) {
                 match &ds.focus {
                     NameSelected { .. } => {
-                        let previous_idx = ds.focus.line()
-                            .and_then(|line| ds.listed_entry_idx(line));
+                        let previous_idx =
+                            ds.focus.line().and_then(|line| ds.listed_entry_idx(line));
                         ds.focus = SearchEdit { previous_idx };
                     }
                     ValueSelected { line } => {

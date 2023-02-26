@@ -5,19 +5,21 @@ mod cmd_result;
 mod comments_editor;
 mod content_view;
 mod dialog;
-mod drawer_state;
 mod drawer_drawing_layout;
 mod drawer_focus;
+mod drawer_state;
+mod file_selector;
 mod global_view;
-mod help_content;
 mod help;
+mod help_content;
+mod import;
 mod keys;
 mod matched_string;
 mod menu;
 mod message;
 mod password_dialog;
-mod search_state;
 mod scroll;
+mod search_state;
 mod skin;
 mod status_view;
 mod task;
@@ -32,8 +34,14 @@ use {
     },
     crokey::crossterm::{
         cursor,
-        event::{DisableMouseCapture, EnableMouseCapture},
-        terminal::{EnterAlternateScreen, LeaveAlternateScreen},
+        event::{
+            DisableMouseCapture,
+            EnableMouseCapture,
+        },
+        terminal::{
+            EnterAlternateScreen,
+            LeaveAlternateScreen,
+        },
         QueueableCommand,
     },
     std::{
@@ -49,19 +57,21 @@ pub(crate) use {
     comments_editor::*,
     content_view::*,
     dialog::*,
-    drawer_state::*,
     drawer_drawing_layout::*,
     drawer_focus::*,
+    drawer_state::*,
+    file_selector::*,
     global_view::*,
-    help_content::*,
     help::*,
+    help_content::*,
+    import::*,
     keys::*,
     matched_string::*,
     menu::*,
     message::*,
     password_dialog::*,
-    search_state::*,
     scroll::*,
+    search_state::*,
     skin::*,
     status_view::*,
     task::*,
@@ -72,7 +82,11 @@ pub(crate) use {
 pub const MAX_INACTIVITY: Duration = Duration::from_secs(120);
 
 pub trait ScreenWriter {
-    fn go_to(&mut self, x: u16, y: u16) -> Result<(), SafeClosetError>;
+    fn go_to(
+        &mut self,
+        x: u16,
+        y: u16,
+    ) -> Result<(), SafeClosetError>;
 }
 
 /// the type used by all TUI writing functions
@@ -84,7 +98,11 @@ fn writer() -> W {
 }
 
 impl ScreenWriter for W {
-    fn go_to(&mut self, x: u16, y: u16) -> Result<(), SafeClosetError> {
+    fn go_to(
+        &mut self,
+        x: u16,
+        y: u16,
+    ) -> Result<(), SafeClosetError> {
         self.queue(cursor::MoveTo(x, y))?;
         Ok(())
     }

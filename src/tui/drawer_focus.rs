@@ -1,6 +1,6 @@
 use {
     std::fmt,
-    termimad::{InputField},
+    termimad::InputField,
 };
 
 /// Where the focus of the user/app is in the drawer,
@@ -42,30 +42,45 @@ impl DrawerFocus {
     pub fn is_search(&self) -> bool {
         matches!(self, DrawerFocus::SearchEdit { .. })
     }
-    pub fn is_name_selected(&self, entry_line: usize) -> bool {
+    pub fn is_name_selected(
+        &self,
+        entry_line: usize,
+    ) -> bool {
         match self {
             Self::NameSelected { line } => *line == entry_line,
             _ => false,
         }
     }
-    pub fn is_line_pending_removal(&self, entry_line: usize) -> bool {
+    pub fn is_line_pending_removal(
+        &self,
+        entry_line: usize,
+    ) -> bool {
         match self {
             Self::PendingRemoval { line } => *line == entry_line,
             _ => false,
         }
     }
-    pub fn is_value_selected(&self, entry_line: usize) -> bool {
+    pub fn is_value_selected(
+        &self,
+        entry_line: usize,
+    ) -> bool {
         match self {
             Self::ValueSelected { line } => *line == entry_line,
             _ => false,
         }
     }
     pub fn is_entry_edit(&self) -> bool {
-        matches!(self, DrawerFocus::NameEdit { .. } | DrawerFocus::ValueEdit { .. })
+        matches!(
+            self,
+            DrawerFocus::NameEdit { .. } | DrawerFocus::ValueEdit { .. }
+        )
     }
     /// return the input editing the name of the entry
     /// of given index, if it's currently edited
-    pub fn name_input(&mut self, entry_line: usize) -> Option<&mut InputField> {
+    pub fn name_input(
+        &mut self,
+        entry_line: usize,
+    ) -> Option<&mut InputField> {
         match self {
             Self::NameEdit { line, input } if *line == entry_line => Some(input),
             _ => None,
@@ -73,7 +88,10 @@ impl DrawerFocus {
     }
     /// return the input editing the value of the entry
     /// of given index, if it's currently edited
-    pub fn value_input(&mut self, entry_line: usize) -> Option<&mut InputField> {
+    pub fn value_input(
+        &mut self,
+        entry_line: usize,
+    ) -> Option<&mut InputField> {
         match self {
             Self::ValueEdit { line, input } if *line == entry_line => Some(input),
             _ => None,
@@ -82,30 +100,27 @@ impl DrawerFocus {
 }
 
 impl fmt::Debug for DrawerFocus {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(
+        &self,
+        f: &mut fmt::Formatter<'_>,
+    ) -> fmt::Result {
         match self {
-            Self::NoneSelected => {
-                f.debug_struct("NoneSelected").finish()
-            }
+            Self::NoneSelected => f.debug_struct("NoneSelected").finish(),
             Self::NameSelected { line } => {
-		f.debug_struct("NameSelected").field("line", line).finish()
+                f.debug_struct("NameSelected").field("line", line).finish()
             }
             Self::ValueSelected { line } => {
-		f.debug_struct("ValueSelected").field("line", line).finish()
+                f.debug_struct("ValueSelected").field("line", line).finish()
             }
-            Self::NameEdit { line, .. } => {
-		f.debug_struct("NameEdit").field("line", line).finish()
-            }
+            Self::NameEdit { line, .. } => f.debug_struct("NameEdit").field("line", line).finish(),
             Self::ValueEdit { line, .. } => {
-		f.debug_struct("ValueEdit").field("line", line).finish()
+                f.debug_struct("ValueEdit").field("line", line).finish()
             }
-            Self::SearchEdit { .. } => {
-		f.debug_struct("SearchEdit").finish()
-            }
-            Self::PendingRemoval { line } => {
-		f.debug_struct("PendingRemoval").field("line", line).finish()
-            }
+            Self::SearchEdit { .. } => f.debug_struct("SearchEdit").finish(),
+            Self::PendingRemoval { line } => f
+                .debug_struct("PendingRemoval")
+                .field("line", line)
+                .finish(),
         }
     }
 }
-

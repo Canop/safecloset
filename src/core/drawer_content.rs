@@ -1,12 +1,14 @@
 use {
     super::*,
-    serde::{Deserialize, Serialize},
+    serde::{
+        Deserialize,
+        Serialize,
+    },
 };
 
 /// What's inside a drawer
 #[derive(Serialize, Deserialize)]
 pub struct DrawerContent {
-
     pub id: DrawerId,
 
     /// the entries of this depth
@@ -29,7 +31,6 @@ impl Identified for DrawerContent {
 }
 
 impl DrawerContent {
-
     pub fn new(depth: usize) -> Result<Self, CoreError> {
         let id = DrawerId::new();
         let entries = Vec::new();
@@ -60,7 +61,10 @@ impl DrawerContent {
     /// Insert a new entry at the given index or before and
     /// return the index of the new entry
     #[allow(dead_code)]
-    pub fn insert_before(&mut self, idx: usize) -> usize {
+    pub fn insert_before(
+        &mut self,
+        idx: usize,
+    ) -> usize {
         let idx = if self.entries.is_empty() {
             0
         } else {
@@ -73,9 +77,12 @@ impl DrawerContent {
     /// Insert a new entry after the new entry if possible.
     ///
     /// Return the index of the new entry.
-    pub fn insert_after(&mut self, idx: Option<usize>) -> usize {
+    pub fn insert_after(
+        &mut self,
+        idx: Option<usize>,
+    ) -> usize {
         let idx = match (idx, self.entries.is_empty()) {
-            (Some(idx), false) => (idx+1).min(self.entries.len()),
+            (Some(idx), false) => (idx + 1).min(self.entries.len()),
             _ => 0,
         };
         self.entries.insert(idx, Entry::default());
@@ -95,4 +102,3 @@ impl DrawerContent {
         self.entries.retain(|e| !e.is_empty());
     }
 }
-

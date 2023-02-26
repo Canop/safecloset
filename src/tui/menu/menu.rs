@@ -9,7 +9,7 @@ pub struct Menu<I> {
     view: MenuView,
 }
 
-impl<I: ToString + Copy> Menu<I> {
+impl<I: ToString + Clone> Menu<I> {
     pub fn new() -> Self {
         Self {
             state: Default::default(),
@@ -23,11 +23,23 @@ impl<I: ToString + Copy> Menu<I> {
     ) -> Result<(), SafeClosetError> {
         self.view.draw(w, &mut self.state, app_skin)
     }
-    pub fn set_available_area(&mut self, area: Area) {
+    pub fn set_available_area(
+        &mut self,
+        area: Area,
+    ) {
         <MenuView as View<MenuState<I>>>::set_available_area(&mut self.view, area);
-        //self.view.set_available_area(area);
     }
-    pub fn add_item(&mut self, action: I, key: Option<KeyEvent>) {
+    pub fn set_intro<S: Into<String>>(
+        &mut self,
+        intro: S,
+    ) {
+        self.state.set_intro(intro);
+    }
+    pub fn add_item(
+        &mut self,
+        action: I,
+        key: Option<KeyEvent>,
+    ) {
         self.state.add_item(action, key);
     }
 }

@@ -28,10 +28,10 @@ rmp-serde = "=0.15.5"
 rust-argon2 = "=0.8.3"
 secular = { version = "1.0.1", features = ["normalization"] }
 serde = { version = "1.0.128", features = ["derive"] }
-termimad = "=0.20.3"
+termimad = "=0.21.1"
 terminal-clipboard = { version = "=0.3.1", optional = true }
 thiserror = "=1.0.26"
-unicode-width = "=0.1.8"
+unicode-width = "=0.1.10"
 
 [dev-dependencies]
 tempfile = "=3.2.0"
@@ -42,7 +42,7 @@ strip = true
 
 [patch.crates-io]
 # crokey = { path = "../crokey" }
-#coolor = { path = "../coolor" }
+# coolor = { path = "../coolor" }
 # minimad = { path = "../minimad" }
 # termimad = { path = "../termimad" }
 # terminal-clipboard = { path = "../terminal-clipboard" }

@@ -6,7 +6,11 @@ use {
         search::*,
     },
     crokey::key,
-    termimad::{Area, InputField, FmtText},
+    termimad::{
+        Area,
+        FmtText,
+        InputField,
+    },
 };
 
 /// State of the application when a drawer is open.
@@ -35,7 +39,10 @@ pub enum EditionPos {
     End,
 }
 impl EditionPos {
-    pub fn apply_to_input(self, input: &mut InputField) {
+    pub fn apply_to_input(
+        self,
+        input: &mut InputField,
+    ) {
         match self {
             Self::Start => {
                 input.move_to_start();
@@ -61,8 +68,10 @@ impl From<OpenDrawer> for DrawerState {
 }
 
 impl DrawerState {
-
-    pub fn move_line(&mut self, dir: Direction) {
+    pub fn move_line(
+        &mut self,
+        dir: Direction,
+    ) {
         use DrawerFocus::*;
         match dir {
             Direction::Up => {
@@ -210,7 +219,11 @@ impl DrawerState {
     }
 
     /// Tell what part of the drawer screen has been clicked
-    pub fn clicked(&self, x: u16, y: usize) -> Clicked {
+    pub fn clicked(
+        &self,
+        x: u16,
+        y: usize,
+    ) -> Clicked {
         let in_name_col = self.layout.is_in_name_column(x);
         let mut sum_heights = self.layout.lines_area.top as usize;
         if y < sum_heights {
@@ -218,7 +231,9 @@ impl DrawerState {
                 return Clicked::Search;
             }
         } else {
-            let heights = self.layout.value_heights_by_line
+            let heights = self
+                .layout
+                .value_heights_by_line
                 .iter()
                 .enumerate()
                 .skip(self.scroll);
@@ -258,7 +273,7 @@ impl DrawerState {
         };
         Some((
             self.layout.lines_area.top + hidden_before,
-            self.layout.lines_area.bottom() - hidden_after
+            self.layout.lines_area.bottom() - hidden_after,
         ))
     }
     fn page_height(&self) -> usize {
@@ -272,23 +287,22 @@ impl DrawerState {
     pub fn current_cell(&self) -> Option<&str> {
         use DrawerFocus::*;
         match &self.focus {
-            NameSelected { line } | NameEdit { line, .. } => {
-                self.listed_entry_idx(*line)
-                    .and_then(|idx| self.drawer.content.entries.get(idx))
-                    .map(|entry| entry.name.as_str())
-            }
-            ValueSelected { line } | ValueEdit { line, .. } => {
-                self.listed_entry_idx(*line)
-                    .and_then(|idx| self.drawer.content.entries.get(idx))
-                    .map(|entry| entry.value.as_str())
-            }
-            _ => {
-                None
-            }
+            NameSelected { line } | NameEdit { line, .. } => self
+                .listed_entry_idx(*line)
+                .and_then(|idx| self.drawer.content.entries.get(idx))
+                .map(|entry| entry.name.as_str()),
+            ValueSelected { line } | ValueEdit { line, .. } => self
+                .listed_entry_idx(*line)
+                .and_then(|idx| self.drawer.content.entries.get(idx))
+                .map(|entry| entry.value.as_str()),
+            _ => None,
         }
     }
 
-    pub fn entry_line(&self, idx: usize) -> Option<usize> {
+    pub fn entry_line(
+        &self,
+        idx: usize,
+    ) -> Option<usize> {
         if let Some(search_result) = &self.search.result {
             for (line, matching_entry) in search_result.entries.iter().enumerate() {
                 if matching_entry.idx == idx {
@@ -304,7 +318,10 @@ impl DrawerState {
     /// Give the index of the entry from its line among the listed
     /// entries (either all entries or only the ones matching if there's
     /// a search)
-    pub fn listed_entry_idx(&self, line: usize) -> Option<usize> {
+    pub fn listed_entry_idx(
+        &self,
+        line: usize,
+    ) -> Option<usize> {
         if let Some(search_result) = &self.search.result {
             search_result
                 .entries
@@ -316,7 +333,10 @@ impl DrawerState {
             None
         }
     }
-    pub fn listed_entry(&self, line: usize) -> Option<(usize, Option<NameMatch>)> {
+    pub fn listed_entry(
+        &self,
+        line: usize,
+    ) -> Option<(usize, Option<NameMatch>)> {
         if let Some(search_result) = &self.search.result {
             search_result
                 .entries
@@ -362,12 +382,14 @@ impl DrawerState {
                 // we may have entered an input but done no real change
                 match &self.focus {
                     DrawerFocus::NameEdit { line, input } => {
-                        self.listed_entry_idx(*line)
-                            .map_or(true, |idx| !input.is_content(&self.drawer.content.entries[idx].name))
+                        self.listed_entry_idx(*line).map_or(true, |idx| {
+                            !input.is_content(&self.drawer.content.entries[idx].name)
+                        })
                     }
                     DrawerFocus::ValueEdit { line, input } => {
-                        self.listed_entry_idx(*line)
-                            .map_or(true, |idx| !input.is_content(&self.drawer.content.entries[idx].value))
+                        self.listed_entry_idx(*line).map_or(true, |idx| {
+                            !input.is_content(&self.drawer.content.entries[idx].value)
+                        })
                     }
                     _ => true,
                 }
@@ -375,14 +397,13 @@ impl DrawerState {
             _ => true,
         }
     }
-    pub fn apply_scroll_command(&mut self, scroll_command: ScrollCommand) {
+    pub fn apply_scroll_command(
+        &mut self,
+        scroll_command: ScrollCommand,
+    ) {
         let page_height = self.page_height();
         let initial_scroll = self.scroll;
-        self.scroll = scroll_command.apply(
-            self.scroll,
-            self.layout.content_height,
-            page_height,
-        );
+        self.scroll = scroll_command.apply(self.scroll, self.layout.content_height, page_height);
         // if fix_scroll reverts to the previous position, it's because doing
         // differently would hide the selection. In this case, and when the
         // selection can be moved, we move it (and the fix_scroll happening
@@ -426,7 +447,10 @@ impl DrawerState {
     }
     pub fn last_visible_line(&self) -> Option<usize> {
         let page_height = self.page_height();
-        let heights = self.layout.value_heights_by_line.iter()
+        let heights = self
+            .layout
+            .value_heights_by_line
+            .iter()
             .enumerate()
             .skip(self.scroll);
         let mut sum_heights = 0;
@@ -437,11 +461,7 @@ impl DrawerState {
             }
         }
         let count = self.listed_entries_count();
-        if count > 0 {
-            Some(count - 1)
-        } else {
-            None
-        }
+        if count > 0 { Some(count - 1) } else { None }
     }
     /// Ensure the scroll is consistent with the size of content
     /// and terminal height, and that the selection is visible, if any.
@@ -464,9 +484,8 @@ impl DrawerState {
                 }
                 // let's ensure there's not too much void at end
                 let last_entry = self.listed_entries_count() - 1;
-                while
-                    self.scroll > selection
-                    && heights[self.scroll-1..=last_entry].iter().sum::<usize>() >= page_height
+                while self.scroll > selection
+                    && heights[self.scroll - 1..=last_entry].iter().sum::<usize>() >= page_height
                 {
                     self.scroll -= 1;
                 }
@@ -497,7 +516,11 @@ impl DrawerState {
             layout,
         })
     }
-    pub fn edit_entry_name_by_line(&mut self, line: usize, pos: EditionPos) -> bool {
+    pub fn edit_entry_name_by_line(
+        &mut self,
+        line: usize,
+        pos: EditionPos,
+    ) -> bool {
         if let Some(idx) = self.listed_entry_idx(line) {
             let mut input = ContentSkin::make_input();
             input.set_str(&self.drawer.content.entries[idx].name);
@@ -509,11 +532,15 @@ impl DrawerState {
             false
         }
     }
-    pub fn edit_entry_value_by_line(&mut self, line: usize, pos: EditionPos) -> bool {
+    pub fn edit_entry_value_by_line(
+        &mut self,
+        line: usize,
+        pos: EditionPos,
+    ) -> bool {
         if let Some(idx) = self.listed_entry_idx(line) {
             let mut input = ContentSkin::make_input();
-            input.new_line_on(key!(alt-enter));
-            input.new_line_on(key!(ctrl-enter));
+            input.new_line_on(key!(alt - enter));
+            input.new_line_on(key!(ctrl - enter));
             input.set_str(&self.drawer.content.entries[idx].value);
             pos.apply_to_input(&mut input);
             self.focus = DrawerFocus::ValueEdit { line, input };
@@ -523,7 +550,10 @@ impl DrawerState {
             false
         }
     }
-    pub fn close_input(&mut self, discard: bool) -> bool {
+    pub fn close_input(
+        &mut self,
+        discard: bool,
+    ) -> bool {
         if let DrawerFocus::NameEdit { line, input } = &self.focus {
             let line = *line;
             if let Some(idx) = self.listed_entry_idx(line) {
@@ -564,19 +594,21 @@ impl DrawerState {
                 self.search.clear();
             }
             self.search.update(&self.drawer);
-            self.focus = self.best_search_line()
+            self.focus = self
+                .best_search_line()
                 .or_else(|| previous_idx.and_then(|idx| self.entry_line(idx)))
-                .map_or(
-                    DrawerFocus::NoneSelected,
-                    |line| DrawerFocus::NameSelected { line },
-                );
+                .map_or(DrawerFocus::NoneSelected, |line| {
+                    DrawerFocus::NameSelected { line }
+                });
             return true;
         }
         false
     }
-    pub fn has_best_search(&self, line: usize) -> bool {
-        self.best_search_line()
-            .map_or(false, |l| l == line)
+    pub fn has_best_search(
+        &self,
+        line: usize,
+    ) -> bool {
+        self.best_search_line().map_or(false, |l| l == line)
     }
     pub fn best_search_line(&self) -> Option<usize> {
         if self.focus.is_search() {
@@ -586,4 +618,3 @@ impl DrawerState {
         }
     }
 }
-

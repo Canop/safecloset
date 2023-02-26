@@ -1,4 +1,7 @@
-use serde::{Deserialize, Serialize};
+use serde::{
+    Deserialize,
+    Serialize,
+};
 
 /// one of the socks in the drawer
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
@@ -9,7 +12,10 @@ pub struct Entry {
 
 impl Entry {
     #[allow(dead_code)]
-    pub fn new<N: Into<String>, V: Into<String>>(name: N, value: V) -> Self {
+    pub fn new<N: Into<String>, V: Into<String>>(
+        name: N,
+        value: V,
+    ) -> Self {
         Self {
             name: name.into(),
             value: value.into(),

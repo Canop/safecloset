@@ -17,8 +17,7 @@ static MD_CHANGE_PASSWORD: &str = r#"Type the new passphrase (the previous versi
 static MD_HIDDEN_CHARS: &str = r#"Characters are hidden. Type *^h* to toggle visibility."#;
 static MD_VISIBLE_CHARS: &str = r#"Characters are visible. Type *^h* to hide them."#;
 
-const INTERNAL_HEIGHT: u16 =
-    3    // intro: 3
+const INTERNAL_HEIGHT: u16 = 3    // intro: 3
     + 2  // pwd: 2
     + 3; // char hiding text: 3
 
@@ -45,8 +44,10 @@ impl PasswordDialogView {
 }
 
 impl View<PasswordDialogState> for PasswordDialogView {
-
-    fn set_available_area(&mut self, mut area: Area) {
+    fn set_available_area(
+        &mut self,
+        mut area: Area,
+    ) {
         if area.width > 60 && area.height > 8 {
             let hw = area.width / 2;
             let dhw = (hw * 3 / 4).min(hw - 2);
@@ -66,7 +67,6 @@ impl View<PasswordDialogState> for PasswordDialogView {
         state: &mut PasswordDialogState, // mutable to allow adapt to terminal size changes
         skin: &AppSkin,
     ) -> Result<(), SafeClosetError> {
-
         // border
         let border_colors = skin.dialog.md.table.compound_style.clone();
         let area = &self.area;
@@ -97,5 +97,3 @@ impl View<PasswordDialogState> for PasswordDialogView {
         Ok(())
     }
 }
-
-

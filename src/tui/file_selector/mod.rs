@@ -1,9 +1,11 @@
-mod comments_editor_state;
-mod comments_editor_view;
+mod file_selector_state;
+mod file_selector_view;
+mod file_type;
 
 pub use {
-    comments_editor_state::*,
-    comments_editor_view::*,
+    file_selector_state::*,
+    file_selector_view::*,
+    file_type::*,
 };
 
 use {
@@ -12,18 +14,25 @@ use {
         KeyEvent,
         MouseEvent,
     },
+    std::path::Path,
 };
 
-pub struct CommentsEditor {
-    state: CommentsEditorState,
-    pub view: CommentsEditorView,
+pub struct FileSelector {
+    state: FileSelectorState,
+    pub view: FileSelectorView,
 }
 
-impl CommentsEditor {
-    pub fn new(comments: &str) -> Self {
-        let state = CommentsEditorState::new(comments);
-        let view = CommentsEditorView::default();
+impl FileSelector {
+    pub fn new(
+        intro: String,
+        file_type: FileType,
+    ) -> Self {
+        let state = FileSelectorState::new(intro, file_type);
+        let view = FileSelectorView::default();
         Self { state, view }
+    }
+    pub fn get_selected_file(&self) -> Option<&Path> {
+        self.state.get_selected_file()
     }
     pub fn apply_key_event(
         &mut self,
@@ -38,8 +47,8 @@ impl CommentsEditor {
     ) {
         self.state.on_mouse_event(mouse_event, double_click);
     }
-    pub fn get_comments(&mut self) -> String {
-        self.state.comments.get_content()
+    pub fn get_message(&self) -> &'static str {
+        self.state.message
     }
     pub fn draw(
         &mut self,

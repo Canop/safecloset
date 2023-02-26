@@ -1,6 +1,4 @@
-use {
-    termimad::Area,
-};
+use termimad::Area;
 
 #[derive(Clone, Default)]
 pub struct DrawerDrawingLayout {
@@ -18,7 +16,10 @@ pub struct DrawerDrawingLayout {
 }
 
 impl DrawerDrawingLayout {
-    pub fn is_in_name_column(&self, x: u16) -> bool {
+    pub fn is_in_name_column(
+        &self,
+        x: u16,
+    ) -> bool {
         x <= self.name_width
     }
     pub fn value_width(&self) -> usize {
@@ -27,5 +28,3 @@ impl DrawerDrawingLayout {
         self.lines_area.width as usize - value_left
     }
 }
-
-

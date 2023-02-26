@@ -1,8 +1,19 @@
 use {
     super::*,
-    aes_gcm_siv::{aead::NewAead, Aes256GcmSiv, Key},
-    rand::{thread_rng, Rng, seq::SliceRandom},
-    serde::{Deserialize, Serialize},
+    aes_gcm_siv::{
+        aead::NewAead,
+        Aes256GcmSiv,
+        Key,
+    },
+    rand::{
+        seq::SliceRandom,
+        thread_rng,
+        Rng,
+    },
+    serde::{
+        Deserialize,
+        Serialize,
+    },
     std::{
         fs,
         path::Path,
@@ -12,7 +23,6 @@ use {
 /// The closet containing all the crypted drawers
 #[derive(Serialize, Deserialize)]
 pub struct Closet {
-
     /// Clear comments, which can be read with a standard binary/hex editor
     #[serde(default = "default_clear_comments")]
     pub comments: String,
@@ -49,12 +59,15 @@ fn random_decoy_drawers_count(depth: usize) -> usize {
 }
 
 impl Closet {
-
     pub fn new(depth: usize) -> Result<Self, CoreError> {
         let comments = default_clear_comments();
         let salt = random_password();
         let drawers = Vec::new();
-        let mut closet = Self { comments, salt, drawers };
+        let mut closet = Self {
+            comments,
+            salt,
+            drawers,
+        };
         // creating decoy drawers
         for _ in 0..random_decoy_drawers_count(depth) {
             closet.create_drawer_unchecked(depth, random_password())?;
@@ -63,7 +76,10 @@ impl Closet {
     }
 
     /// Save the closet to a file
-    pub fn save(&self, path: &Path) -> Result<(), CoreError> {
+    pub fn save(
+        &self,
+        path: &Path,
+    ) -> Result<(), CoreError> {
         if path.exists() {
             let backup_path = path.with_extension("old");
             if backup_path.exists() {
@@ -75,7 +91,10 @@ impl Closet {
         Ok(())
     }
 
-    pub fn write_to_file(&self, path: &Path) -> Result<(), CoreError> {
+    pub fn write_to_file(
+        &self,
+        path: &Path,
+    ) -> Result<(), CoreError> {
         if path.exists() {
             return Err(CoreError::FileExists(path.to_path_buf()));
         }
@@ -83,7 +102,6 @@ impl Closet {
         rmp_serde::encode::write_named(&mut file, &self)?;
         Ok(())
     }
-
 
     /// read a closet from a file
     pub fn from_file(path: &Path) -> Result<Self, CoreError> {
@@ -139,13 +157,9 @@ impl Closet {
         for closed_drawer in &self.drawers {
             let open_drawer = time!(
                 "closed_drawer.open",
-                closed_drawer.open(
-                    depth,
-                    password.to_string(),
-                    self,
-                )
+                closed_drawer.open(depth, password.to_string(), self,)
             );
-            if let Ok(open_drawer) =  open_drawer {
+            if let Ok(open_drawer) = open_drawer {
                 return Some(open_drawer);
             }
         }
@@ -169,7 +183,10 @@ impl Closet {
         Ok(self.push_drawer_back(closed_drawer))
     }
 
-    fn push_drawer_back(&mut self, drawer: ClosedDrawer) -> bool {
+    fn push_drawer_back(
+        &mut self,
+        drawer: ClosedDrawer,
+    ) -> bool {
         for idx in 0..self.drawers.len() {
             if self.drawers[idx].has_same_id(&drawer) {
                 self.drawers[idx] = drawer;
@@ -202,7 +219,10 @@ impl Closet {
         })
     }
 
-    pub fn cipher(&self, password: &str) -> Result<Aes256GcmSiv, CoreError> {
+    pub fn cipher(
+        &self,
+        password: &str,
+    ) -> Result<Aes256GcmSiv, CoreError> {
         let config = argon2::Config {
             hash_length: 32,
             ..Default::default()
@@ -214,4 +234,3 @@ impl Closet {
         Ok(Aes256GcmSiv::new(key))
     }
 }
-
