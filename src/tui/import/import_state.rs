@@ -139,8 +139,9 @@ impl ImportState {
         mut open_closet: OpenCloset,
     ) {
         let password = dialog.get_password();
-        if let Some(src_drawer) = open_closet.open_take_drawer(&password) {
-            let import_set = ImportSet::new(src_drawer, &self.dst_drawer_state.drawer);
+        if let Some(src_drawer) = open_closet.open_drawer(&password) {
+            let src = src_drawer.content.entries.clone();
+            let import_set = ImportSet::new(src, &self.dst_drawer_state.drawer);
             let mut menu = Menu::new();
             if import_set.is_empty() {
                 menu.set_intro(

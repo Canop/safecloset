@@ -19,12 +19,12 @@ impl ImportSet {
 
 impl ImportSet {
     pub fn new(
-        mut src: OpenDrawer,
+        mut src: Vec<Entry>,
         dst: &OpenDrawer,
     ) -> Self {
         let dst_entries = &dst.content.entries;
         let mut report = Self::default();
-        for src_entry in src.content.entries.drain(..) {
+        for src_entry in src.drain(..) {
             let dst_entry = dst_entries.iter().find(|&se| se.name == src_entry.name);
             if let Some(dst_entry) = dst_entry {
                 if !dst_entry.value.contains(&src_entry.value) {
