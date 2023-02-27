@@ -141,7 +141,7 @@ It's fuzzy and takes into account the character position to not only find the ma
 
 Searching is typically done by
 
-- typing <kbd>/</kbd> the a few letters of your search
+- typing <kbd>/</kbd> then a few letters of your search
 - hitting <kbd>enter</kbd> if the selection is right, or an arrow key or two to navigate to it
 
 To remove the search, hit <kbd>/</kbd> then <kbd>esc</kbd>.
