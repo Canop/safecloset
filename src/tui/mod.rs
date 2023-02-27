@@ -8,9 +8,11 @@ mod dialog;
 mod drawer_drawing_layout;
 mod drawer_focus;
 mod drawer_state;
+mod file_selector;
 mod global_view;
 mod help;
 mod help_content;
+mod import;
 mod keys;
 mod matched_string;
 mod menu;
@@ -58,9 +60,11 @@ pub(crate) use {
     drawer_drawing_layout::*,
     drawer_focus::*,
     drawer_state::*,
+    file_selector::*,
     global_view::*,
     help::*,
     help_content::*,
+    import::*,
     keys::*,
     matched_string::*,
     menu::*,

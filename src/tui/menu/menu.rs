@@ -6,10 +6,10 @@ use {
 
 pub struct Menu<I> {
     pub state: MenuState<I>,
-    view: MenuView<I>,
+    view: MenuView,
 }
 
-impl<I: ToString + Copy> Menu<I> {
+impl<I: ToString + Clone> Menu<I> {
     pub fn new() -> Self {
         Self {
             state: Default::default(),
@@ -27,7 +27,13 @@ impl<I: ToString + Copy> Menu<I> {
         &mut self,
         area: Area,
     ) {
-        self.view.set_available_area(area);
+        <MenuView as View<MenuState<I>>>::set_available_area(&mut self.view, area);
+    }
+    pub fn set_intro<S: Into<String>>(
+        &mut self,
+        intro: S,
+    ) {
+        self.state.set_intro(intro);
     }
     pub fn add_item(
         &mut self,

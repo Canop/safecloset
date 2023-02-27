@@ -287,6 +287,12 @@ impl AppState {
                 comments_editor.on_mouse_event(mouse_event, double_click);
                 return Ok(());
             }
+            Dialog::Import(import) => {
+                import.on_mouse_event(mouse_event, double_click);
+                if import.is_finished() {
+                    self.dialog = Dialog::None;
+                }
+            }
             Dialog::None => {}
         }
 
@@ -506,6 +512,13 @@ impl AppState {
                     true,
                 ));
             }
+            Action::Import => {
+                if let Some(ds) = self.drawer_state.take() {
+                    self.dialog = Dialog::Import(Import::new(self.open_closet.path().into(), ds));
+                } else {
+                    warn!("What ? How was this option chosen ?");
+                }
+            }
             Action::EditClosetComments => {
                 self.dialog = Dialog::CommentsEditor(CommentsEditor::new(
                     &self.open_closet.root_closet().comments,
@@ -582,6 +595,10 @@ impl AppState {
                 // toggle visibility of password or values
                 if let Dialog::Password(password_dialog) = &mut self.dialog {
                     password_dialog.toggle_hide_chars();
+                    return Ok(CmdResult::Stay);
+                }
+                if let Dialog::Import(import) = &mut self.dialog {
+                    import.toggle_hide_chars();
                     return Ok(CmdResult::Stay);
                 }
                 self.dialog = Dialog::None;
@@ -690,6 +707,7 @@ impl AppState {
                 menu.add_action(Action::OpenAllValues);
             }
             menu.add_action(Action::OpenPasswordChangeDialog);
+            menu.add_action(Action::Import);
         } else {
             menu.add_action(Action::EditClosetComments);
         }
@@ -738,6 +756,18 @@ impl AppState {
                     return Ok(CmdResult::Stay);
                 }
             }
+            Dialog::Import(import) => {
+                if import.on_key(key) {
+                    if import.is_finished() {
+                        let mut temp = Dialog::None;
+                        std::mem::swap(&mut temp, &mut self.dialog);
+                        if let Dialog::Import(import) = temp {
+                            self.drawer_state = Some(import.take_back_drawer());
+                        }
+                    }
+                    return Ok(CmdResult::Stay);
+                }
+            }
             Dialog::None => {}
         }
 
@@ -771,6 +801,7 @@ impl AppState {
                 Dialog::None => {
                     self.close_drawer_input(false); // if there's an entry input
                 }
+                Dialog::Import(_) => {} // managed in the dialog
             }
             return Ok(CmdResult::Stay);
         }

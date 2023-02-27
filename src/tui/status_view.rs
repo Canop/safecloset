@@ -84,9 +84,7 @@ impl StatusView {
     }
 }
 
-impl View for StatusView {
-    type State = AppState;
-
+impl View<AppState> for StatusView {
     fn set_available_area(
         &mut self,
         area: Area,
@@ -130,6 +128,7 @@ impl View for StatusView {
                 Dialog::CommentsEditor(_) => {
                     "Hit *esc* to cancel, *enter* to validate, *^q* to quit"
                 }
+                Dialog::Import(import) => import.status(),
             };
             skin = &app_skin.status.hint;
         }

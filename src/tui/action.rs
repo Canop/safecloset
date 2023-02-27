@@ -64,6 +64,7 @@ make_actions! {
     Cut "*C*ut" key!(ctrl-X),
     EditClosetComments "Edit Closet Comments",
     Help "Help" key!('?'),
+    Import "Import",
     MoveLineDown "Move Line Down" key!(ctrl-down),
     MoveLineUp "Move Line Up" key!(ctrl-up),
     NewDrawer "*N*ew Drawer" key!(ctrl-N),

@@ -15,9 +15,7 @@ pub struct TitleView {
     area: Area,
 }
 
-impl View for TitleView {
-    type State = AppState;
-
+impl View<AppState> for TitleView {
     fn set_available_area(
         &mut self,
         area: Area,

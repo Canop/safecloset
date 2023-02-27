@@ -16,6 +16,7 @@ pub struct MenuItem<I> {
 }
 
 pub struct MenuState<I> {
+    pub intro: Option<String>,
     pub items: Vec<MenuItem<I>>,
     pub selection: usize,
     pub scroll: usize,
@@ -24,6 +25,7 @@ pub struct MenuState<I> {
 impl<I> Default for MenuState<I> {
     fn default() -> Self {
         Self {
+            intro: None,
             items: Vec::new(),
             selection: 0,
             scroll: 0,
@@ -31,7 +33,13 @@ impl<I> Default for MenuState<I> {
     }
 }
 
-impl<I: ToString + Copy> MenuState<I> {
+impl<I: ToString + Clone> MenuState<I> {
+    pub fn set_intro<S: Into<String>>(
+        &mut self,
+        intro: S,
+    ) {
+        self.intro = Some(intro.into());
+    }
     pub fn add_item(
         &mut self,
         action: I,
@@ -43,9 +51,6 @@ impl<I: ToString + Copy> MenuState<I> {
             key,
         });
     }
-    //pub fn items(&self) -> impl Iterator<Item=&I> {
-    //    self.items.iter().map(|i| &i.action)
-    //}
     pub fn clear_item_areas(&mut self) {
         for item in self.items.iter_mut() {
             item.area = None;
@@ -83,11 +88,11 @@ impl<I: ToString + Copy> MenuState<I> {
         } else if key == key!(up) {
             self.selection = (self.selection + items.len() - 1) % items.len();
         } else if key == key!(enter) {
-            return Some(items[self.selection].action);
+            return Some(items[self.selection].action.clone());
         }
         for item in &self.items {
             if item.key == Some(key) {
-                return Some(item.action);
+                return Some(item.action.clone());
             }
         }
         None
@@ -121,7 +126,7 @@ impl<I: ToString + Copy> MenuState<I> {
             if let Some(selection) = self.item_idx_at(mouse_event.column, mouse_event.row) {
                 self.selection = selection;
                 if double_click {
-                    return Some(self.items[self.selection].action);
+                    return Some(self.items[self.selection].action.clone());
                 }
             }
         }

@@ -43,9 +43,7 @@ This drawer is still empty.
 Hit the *n* key to create a new entry.
 "#;
 
-impl View for ContentView {
-    type State = AppState;
-
+impl View<AppState> for ContentView {
     fn set_available_area(
         &mut self,
         area: Area,
@@ -89,6 +87,10 @@ impl View for ContentView {
             Dialog::CommentsEditor(comments_editor) => {
                 comments_editor.view.set_available_area(self.area.clone());
                 comments_editor.draw(w, app_skin)?;
+            }
+            Dialog::Import(import) => {
+                import.set_available_area(self.area.clone());
+                import.draw(w, app_skin)?;
             }
             Dialog::None => {}
         }

@@ -33,6 +33,12 @@ impl PasswordDialog {
     pub fn toggle_hide_chars(&mut self) {
         self.state.password.password_mode ^= true;
     }
+    pub fn set_hide_chars(
+        &mut self,
+        hide: bool,
+    ) {
+        self.state.password.password_mode = hide;
+    }
     pub fn get_password(&self) -> String {
         self.state.get_password()
     }
