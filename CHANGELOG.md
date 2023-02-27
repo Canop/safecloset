@@ -1,3 +1,6 @@
+### next
+Import feature: lets you import from another drawer, from a drawer of another closet file, or from a CSV file.
+
 <a name="v1.0.0"></a>
 ### v1.0.0 - 2023-01-13
 There's no reason to wait more for a 1.0.0: SafeCloset is stable and complete.
