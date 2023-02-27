@@ -160,6 +160,18 @@ Use <kbd>ctrl</kbd><kbd>↑</kbd> and <kbd>ctrl</kbd><kbd>↓</kbd> to move the 
 
 If you have some text in the clipboard, you may paste it in the current cell with <kbd>ctrl</kbd><kbd>v</kbd>.
 
+# Import
+
+You may import keys/values from another drawer, from a drawer in another file, or from a CSV file.
+
+This may be useful to reorganize your drawers, or when you edited your closet in two copies on two computers.
+
+To start the import, open the destination drawer, select `Import` in the menu, then answer the questions of the wizard.
+
+This is a safe operation:
+
+* no value is even modified: if a key is present both in the source and the destination, and the values aren't the same, the new value after import is the concatenation of both values with a separator, and *you* decide what parts to keep
+* there's no change until you save, so if you made a mess by importing the wrong drawer, just don't save
 
 # Advice
 

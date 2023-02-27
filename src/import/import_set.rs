@@ -1,6 +1,6 @@
 use crate::core::*;
 
-/// The subset of the drawer with the things to import
+/// The subset of the drawer or csv file with the things to import
 #[derive(Debug, Default)]
 pub struct ImportSet {
     new_keys: Vec<Entry>,

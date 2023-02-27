@@ -42,7 +42,7 @@ impl Default for Step {
     fn default() -> Self {
         let mut menu = Menu::new();
         menu.set_intro(
-            "Importing adds content from another drawer.\n\
+            "Importing adds content from another drawer or from a CSV file.\n\
             This operation never removes content.",
         );
         menu.add_item(OriginKind::LocalFile, Some(key!(s)));
