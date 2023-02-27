@@ -8,7 +8,10 @@ use {
     },
     crokey::crossterm::event::Event,
     crossbeam::select,
-    termimad::{Area, EventSource},
+    termimad::{
+        Area,
+        EventSource,
+    },
 };
 
 /// Run the Terminal User Interface until the user decides to quit.

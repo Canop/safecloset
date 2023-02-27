@@ -1,6 +1,10 @@
 use {
     aes_gcm_siv::Nonce,
-    rand::{thread_rng, Rng, RngCore},
+    rand::{
+        thread_rng,
+        Rng,
+        RngCore,
+    },
     std::ops::Range,
 };
 

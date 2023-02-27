@@ -18,13 +18,16 @@ impl Identified for OpenDrawer {
 }
 
 impl OpenDrawer {
-
     pub(crate) fn new(
         depth: usize,
         password: String,
         content: DrawerContent,
     ) -> Self {
-        Self { depth, password, content }
+        Self {
+            depth,
+            password,
+            content,
+        }
     }
 
     /// Change the drawer_content into a closed_drawer
@@ -47,6 +50,4 @@ impl OpenDrawer {
             crypted_content.into_boxed_slice(),
         ))
     }
-
 }
-

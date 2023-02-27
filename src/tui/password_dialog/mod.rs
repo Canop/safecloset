@@ -10,7 +10,10 @@ pub use {
 
 use {
     super::*,
-    crokey::crossterm::event::{KeyEvent, MouseEvent},
+    crokey::crossterm::event::{
+        KeyEvent,
+        MouseEvent,
+    },
 };
 
 pub struct PasswordDialog {
@@ -36,10 +39,17 @@ impl PasswordDialog {
     pub fn purpose(&self) -> PasswordDialogPurpose {
         self.state.purpose
     }
-    pub fn apply_key_event(&mut self, key: KeyEvent) -> bool {
+    pub fn apply_key_event(
+        &mut self,
+        key: KeyEvent,
+    ) -> bool {
         self.state.apply_key_event(key)
     }
-    pub fn on_mouse_event(&mut self, mouse_event: MouseEvent, double_click: bool) {
+    pub fn on_mouse_event(
+        &mut self,
+        mouse_event: MouseEvent,
+        double_click: bool,
+    ) {
         self.state.on_mouse_event(mouse_event, double_click);
     }
     pub fn draw(
@@ -50,5 +60,3 @@ impl PasswordDialog {
         self.view.draw(w, &mut self.state, app_skin)
     }
 }
-
-

@@ -1,8 +1,10 @@
 use {
     super::*,
-    serde::{Deserialize, Serialize},
+    serde::{
+        Deserialize,
+        Serialize,
+    },
 };
-
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DrawerId {
@@ -12,7 +14,7 @@ pub struct DrawerId {
 impl DrawerId {
     pub fn new() -> Self {
         DrawerId {
-            bytes: random_bytes(20)
+            bytes: random_bytes(20),
         }
     }
 }
@@ -20,8 +22,10 @@ impl DrawerId {
 pub trait Identified {
     fn get_id(&self) -> &DrawerId;
 
-    fn has_same_id<I: Identified>(&self, other: &I) -> bool {
+    fn has_same_id<I: Identified>(
+        &self,
+        other: &I,
+    ) -> bool {
         self.get_id() == other.get_id()
     }
-
 }

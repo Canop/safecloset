@@ -16,11 +16,17 @@ pub struct GlobalView {
 impl View for GlobalView {
     type State = AppState;
 
-    fn set_available_area(&mut self, area: Area) {
+    fn set_available_area(
+        &mut self,
+        area: Area,
+    ) {
         self.area = area;
-        self.title.set_available_area(Area::new(0, 0, self.area.width, 1));
-        self.content.set_available_area(Area::new(0, 1, self.area.width, self.area.height - 2));
-        self.status.set_available_area(Area::new(0, self.area.height - 1, self.area.width, 1));
+        self.title
+            .set_available_area(Area::new(0, 0, self.area.width, 1));
+        self.content
+            .set_available_area(Area::new(0, 1, self.area.width, self.area.height - 2));
+        self.status
+            .set_available_area(Area::new(0, self.area.height - 1, self.area.width, 1));
     }
     fn draw(
         &mut self,

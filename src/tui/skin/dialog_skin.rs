@@ -18,10 +18,6 @@ impl Default for DialogSkin {
         md.set_bg(gray(4));
         let mut sel_md = md.clone();
         sel_md.set_bg(gray(8));
-        Self {
-            md,
-            sel_md,
-        }
+        Self { md, sel_md }
     }
 }
-

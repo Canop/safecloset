@@ -2,7 +2,10 @@ use {
     super::*,
     crate::error::SafeClosetError,
     termimad::{
-        minimad::{Alignment, Composite},
+        minimad::{
+            Alignment,
+            Composite,
+        },
         Area,
     },
 };
@@ -15,7 +18,10 @@ pub struct TitleView {
 impl View for TitleView {
     type State = AppState;
 
-    fn set_available_area(&mut self, area: Area) {
+    fn set_available_area(
+        &mut self,
+        area: Area,
+    ) {
         self.area = area;
     }
     fn draw(
@@ -29,7 +35,8 @@ impl View for TitleView {
         let composite = Composite::from_inline(&md);
         w.go_to(self.area.left, self.area.top)?;
         let width = self.area.width as usize;
-        app_skin.title
+        app_skin
+            .title
             .write_composite_fill(w, composite, width, Alignment::Unspecified)?;
         Ok(())
     }
@@ -53,4 +60,3 @@ fn state_info(state: &AppState) -> &'static str {
         }
     }
 }
-

@@ -1,11 +1,9 @@
 use {
-    crate::{
-        tui::*,
-    },
+    crate::tui::*,
     std::marker::PhantomData,
     termimad::{
-        *,
         minimad::*,
+        *,
     },
 };
 
@@ -27,7 +25,10 @@ impl<I> Default for MenuView<I> {
 impl<I: ToString + Copy> View for MenuView<I> {
     type State = MenuState<I>;
 
-    fn set_available_area(&mut self, available_area: Area) {
+    fn set_available_area(
+        &mut self,
+        available_area: Area,
+    ) {
         if available_area != self.available_area {
             self.available_area = available_area;
         }
@@ -45,12 +46,7 @@ impl<I: ToString + Copy> View for MenuView<I> {
         let border_colors = skin.md.table.compound_style.clone();
         let area = self.compute_area(state.items.len());
         let h = area.height as usize - 2; // internal height
-        let scrollbar = compute_scrollbar(
-            state.scroll,
-            state.items.len(),
-            h,
-            area.top + 1,
-        );
+        let scrollbar = compute_scrollbar(state.scroll, state.items.len(), h, area.top + 1);
         state.fix_scroll(h);
         let mut rect = Rect::new(area.clone(), border_colors);
         rect.set_border_style(BORDER_STYLE_BLAND);
@@ -78,7 +74,8 @@ impl<I: ToString + Copy> View for MenuView<I> {
                     label_width,
                     Alignment::Left,
                 )?;
-                let key_desc = item.key
+                let key_desc = item
+                    .key
                     .map_or("".to_string(), |key| KEY_FORMAT.to_string(key));
                 skin.write_composite_fill(
                     w,
@@ -104,15 +101,17 @@ impl<I: ToString + Copy> View for MenuView<I> {
 }
 
 impl<I> MenuView<I> {
-    fn compute_area(&self, items_count: usize) -> Area {
+    fn compute_area(
+        &self,
+        items_count: usize,
+    ) -> Area {
         let screen = &self.available_area;
         let ideal_height = items_count as u16 + 2; // margin of 1
         let sw2 = screen.width / 2;
-        let w2 = 19.min(sw2-3); // menu half width
+        let w2 = 19.min(sw2 - 3); // menu half width
         let left = sw2 - w2;
         let h = screen.height.min(ideal_height);
         let top = ((screen.height - h) * 3 / 5).max(1);
-        Area::new(left, top, w2*2, h)
+        Area::new(left, top, w2 * 2, h)
     }
 }
-

@@ -1,8 +1,8 @@
 mod closed_drawer;
 mod closet;
 mod core_error;
-mod drawer_id;
 mod drawer_content;
+mod drawer_id;
 mod drawer_settings;
 mod entry;
 mod open_closet;
@@ -13,8 +13,8 @@ pub use {
     closed_drawer::*,
     closet::*,
     core_error::*,
-    drawer_id::*,
     drawer_content::*,
+    drawer_id::*,
     drawer_settings::*,
     entry::*,
     open_closet::*,
@@ -28,7 +28,6 @@ pub const MIN_PASSWORD_LENGTH: usize = 2;
 /// a complex scenario
 #[test]
 fn test_create_write_read() {
-
     let pwd1 = "some test password (not a hard one but it's a test)";
     let pwd2 = "请教别人一次是五分钟的傻子，从不请教别人是一辈子的傻子。";
     let pwd3 = "les sanglots lents et violents de l'autre âne";
@@ -143,7 +142,10 @@ fn test_create_write_read() {
         vec![entry2.clone(), entry2b.clone(), entry2c.clone()],
     );
     let drawer3 = open_closet.open_drawer(pwd3).unwrap();
-    assert_eq!(drawer3.content.entries, vec![entry3.clone(), entry3b.clone()]);
+    assert_eq!(
+        drawer3.content.entries,
+        vec![entry3.clone(), entry3b.clone()]
+    );
 
     // clean the temporary dir
     temp_dir.close().unwrap();
@@ -152,7 +154,6 @@ fn test_create_write_read() {
 /// test changing the password
 #[test]
 fn test_password_change() {
-
     let pwd1 = "*p*w*d*1";
     let pwd2 = "PWD2";
     let pwd3 = "p-w-d-3";

@@ -8,4 +8,3 @@ pub static KEY_FORMAT: Lazy<KeyEventFormat> = Lazy::new(|| {
         .with_implicit_shift()
         .with_control("^")
 });
-

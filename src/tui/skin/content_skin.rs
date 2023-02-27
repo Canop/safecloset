@@ -1,13 +1,12 @@
 use {
-    crokey::crossterm::{
-        style::{
-            Attribute,
-            Color,
-            Color::*,
-        },
+    crokey::crossterm::style::{
+        Attribute,
+        Color,
+        Color::*,
     },
     termimad::{
-        ansi, gray,
+        ansi,
+        gray,
         CompoundStyle,
         InputField,
         MadSkin,
@@ -16,14 +15,12 @@ use {
 };
 
 pub struct ContentSkin {
-
     /// view background
     pub bg: Color,
 
     normal_styles: Styles,
     selected_styles: Styles,
     faded_styles: Styles,
-
 }
 
 #[derive(Clone)]
@@ -40,11 +37,7 @@ impl Default for ContentSkin {
         let bg = gray(2);
         let mut md = MadSkin::default();
         md.set_fg(ansi(230));
-        md.bold = CompoundStyle::new(
-            Some(AnsiValue(222)),
-            None,
-            Attribute::Bold.into(),
-        );
+        md.bold = CompoundStyle::new(Some(AnsiValue(222)), None, Attribute::Bold.into());
         md.italic = CompoundStyle::with_fg(AnsiValue(222));
         md.set_bg(bg);
         let char_match_fg = AnsiValue(41);
@@ -77,7 +70,11 @@ impl ContentSkin {
         input_field.set_normal_style(CompoundStyle::with_fgbg(ansi(230), gray(0)));
         input_field
     }
-    pub fn styles(&self, selected: bool, faded: bool) -> &Styles {
+    pub fn styles(
+        &self,
+        selected: bool,
+        faded: bool,
+    ) -> &Styles {
         if faded {
             &self.faded_styles
         } else if selected {
@@ -86,16 +83,32 @@ impl ContentSkin {
             &self.normal_styles
         }
     }
-    pub fn match_style(&self, selected: bool, faded: bool) -> &CompoundStyle {
+    pub fn match_style(
+        &self,
+        selected: bool,
+        faded: bool,
+    ) -> &CompoundStyle {
         &self.styles(selected, faded).char_match
     }
-    pub fn txt_style(&self, selected: bool, faded: bool) -> &CompoundStyle {
+    pub fn txt_style(
+        &self,
+        selected: bool,
+        faded: bool,
+    ) -> &CompoundStyle {
         &self.styles(selected, faded).md.paragraph.compound_style
     }
-    pub fn tbl_style(&self, selected: bool, faded: bool) -> &CompoundStyle {
+    pub fn tbl_style(
+        &self,
+        selected: bool,
+        faded: bool,
+    ) -> &CompoundStyle {
         &self.styles(selected, faded).md.table.compound_style
     }
-    pub fn scrollbar_style(&self, selected: bool, faded: bool) -> &ScrollBarStyle {
+    pub fn scrollbar_style(
+        &self,
+        selected: bool,
+        faded: bool,
+    ) -> &ScrollBarStyle {
         &self.styles(selected, faded).md.scrollbar
     }
 }

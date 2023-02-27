@@ -79,4 +79,3 @@ make_actions! {
     Search "Search" key!('/'),
     ToggleHiding "Toggle *H*iding" key!(ctrl-H), // hiding either pwd chars or unselected values
 }
-

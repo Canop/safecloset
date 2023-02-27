@@ -9,11 +9,13 @@ use {
 /// Note that this isn't a general purpose TUI framework, it's only
 /// suitable for this application
 pub trait View: Default {
-
     type State;
 
     /// set the outside area. This view may take it wholly or partially
-    fn set_available_area(&mut self, area: Area);
+    fn set_available_area(
+        &mut self,
+        area: Area,
+    );
 
     /// Render the view in its area
     fn draw(
@@ -22,6 +24,4 @@ pub trait View: Default {
         state: &mut Self::State, // mutable to allow adapt to terminal size changes
         app_skin: &AppSkin,
     ) -> Result<(), SafeClosetError>;
-
 }
-

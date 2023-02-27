@@ -2,7 +2,10 @@
 //! (there will probably be a common crate in the future)
 use {
     super::NameMatch,
-    std::fmt::{self, Write},
+    std::fmt::{
+        self,
+        Write,
+    },
 };
 
 // weights used in match score computing
@@ -23,7 +26,10 @@ pub struct FuzzyPattern {
 }
 
 impl fmt::Display for FuzzyPattern {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(
+        &self,
+        f: &mut fmt::Formatter<'_>,
+    ) -> fmt::Result {
         for &c in self.chars.iter() {
             f.write_char(c)?
         }
@@ -42,7 +48,6 @@ fn is_word_separator(c: char) -> bool {
 }
 
 impl FuzzyPattern {
-
     /// build a pattern which will later be usable for fuzzy search.
     /// A pattern should be reused
     pub fn from(pat: &str) -> Self {
@@ -87,9 +92,9 @@ impl FuzzyPattern {
                         if pat_idx < rev_idx {
                             break;
                         }
-                        if cand_chars[cand_idx-rev_idx] == self.chars[pat_idx-rev_idx] {
+                        if cand_chars[cand_idx - rev_idx] == self.chars[pat_idx - rev_idx] {
                             // we move the pos forward
-                            pos[pat_idx-rev_idx] = cand_idx-rev_idx;
+                            pos[pat_idx - rev_idx] = cand_idx - rev_idx;
                         } else {
                             break;
                         }
@@ -113,15 +118,15 @@ impl FuzzyPattern {
         let mut nb_holes = 0;
         let mut nb_singled_chars = 0;
         for idx in 1..pos.len() {
-            if pos[idx] > 1 + pos[idx-1] {
+            if pos[idx] > 1 + pos[idx - 1] {
                 nb_holes += 1;
-                if idx > 1 && pos[idx-1] > 1 + pos[idx-2] {
+                if idx > 1 && pos[idx - 1] > 1 + pos[idx - 2] {
                     // we improve a simple case: the one of a singleton which was created
                     // by pushing forward a char
-                    if cand_chars[pos[idx-2]+1] == cand_chars[pos[idx-1]] {
+                    if cand_chars[pos[idx - 2] + 1] == cand_chars[pos[idx - 1]] {
                         // in some cases we're really removing another singletons but
                         // let's forget this
-                        pos[idx-1] = pos[idx-2]+1;
+                        pos[idx - 1] = pos[idx - 2] + 1;
                         nb_holes -= 1;
                     } else {
                         nb_singled_chars += 1;
@@ -159,7 +164,10 @@ impl FuzzyPattern {
     /// return a match if the pattern can be found in the candidate string.
     /// The algorithm tries to return the best one. For example if you search
     /// "abc" in "ababca-abc", the returned match would be at the end.
-    pub fn find(&self, candidate: &str) -> Option<NameMatch> {
+    pub fn find(
+        &self,
+        candidate: &str,
+    ) -> Option<NameMatch> {
         if candidate.len() < self.chars.len() {
             return None;
         }
@@ -194,4 +202,3 @@ impl FuzzyPattern {
         best_match
     }
 }
-

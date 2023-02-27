@@ -2,10 +2,16 @@ use {
     super::*,
     crate::error::SafeClosetError,
     crokey::crossterm::{
-        style::{Color, SetBackgroundColor},
+        style::{
+            Color,
+            SetBackgroundColor,
+        },
         terminal,
     },
-    minimad::{Alignment, Composite},
+    minimad::{
+        Alignment,
+        Composite,
+    },
     termimad::*,
 };
 
@@ -38,10 +44,12 @@ Hit the *n* key to create a new entry.
 "#;
 
 impl View for ContentView {
-
     type State = AppState;
 
-    fn set_available_area(&mut self, area: Area) {
+    fn set_available_area(
+        &mut self,
+        area: Area,
+    ) {
         self.area = area;
     }
     fn draw(
@@ -60,7 +68,9 @@ impl View for ContentView {
             if state.open_closet.just_created() && state.created_drawers == 0 {
                 styles.md.write_in_area_on(w, MD_NEW_CLOSET, &self.area)?;
             } else {
-                styles.md.write_in_area_on(w, MD_NO_DRAWER_OPEN, &self.area)?;
+                styles
+                    .md
+                    .write_in_area_on(w, MD_NO_DRAWER_OPEN, &self.area)?;
             }
         }
         match &mut state.dialog {
@@ -94,7 +104,10 @@ impl ContentView {
         &self.area
     }
     /// Clear the whole area (and everything to the right)
-    fn clear(&self, w: &mut W) -> Result<(), SafeClosetError> {
+    fn clear(
+        &self,
+        w: &mut W,
+    ) -> Result<(), SafeClosetError> {
         let area = self.get_area();
         w.queue(SetBackgroundColor(self.bg()))?;
         let x = area.left;
@@ -105,7 +118,10 @@ impl ContentView {
         Ok(())
     }
     /// Clear from the cursor to end of line, whatever the area
-    fn clear_line(&self, w: &mut W) -> Result<(), SafeClosetError> {
+    fn clear_line(
+        &self,
+        w: &mut W,
+    ) -> Result<(), SafeClosetError> {
         w.queue(terminal::Clear(terminal::ClearType::UntilNewLine))?;
         Ok(())
     }
@@ -118,13 +134,15 @@ impl ContentView {
     ) -> Result<(), SafeClosetError> {
         if des.drawer.content.entries.is_empty() {
             skin.styles(false, faded)
-                .md.write_in_area_on(w, MD_EMPTY_DRAWER, &self.area)?;
+                .md
+                .write_in_area_on(w, MD_EMPTY_DRAWER, &self.area)?;
             return Ok(());
         }
         if self.area.height < 7 || self.area.width < 20 {
             warn!("Terminal too small to render drawer content");
             skin.styles(false, faded)
-                .md.write_in_area_on(w, "*terminal too small*", &self.area)?;
+                .md
+                .write_in_area_on(w, "*terminal too small*", &self.area)?;
             return Ok(());
         }
         let x = self.area.left;
@@ -154,10 +172,7 @@ impl ContentView {
             des.search.input.display_on(w)?;
         } else if des.search.has_content() {
             txt_style.queue_str(w, "/")?;
-            let (fitted, width) = StrFit::make_string(
-                &des.search.input.get_content(),
-                name_width,
-            );
+            let (fitted, width) = StrFit::make_string(&des.search.input.get_content(), name_width);
             txt_style.queue_str(w, fitted)?;
             if width < name_width {
                 tbl_style.queue_str(w, &" ".repeat(name_width - width))?;
@@ -182,8 +197,8 @@ impl ContentView {
         tbl_style.queue_str(w, "┼")?;
         tbl_style.queue_str(w, &"─".repeat(value_width + 1))?;
         // -- entries
-        let global_scrollbar_style = skin
-            .scrollbar_style(false, faded || des.focus.is_entry_edit());
+        let global_scrollbar_style =
+            skin.scrollbar_style(false, faded || des.focus.is_entry_edit());
         let mut line = des.scroll;
         let mut empty_lines = 0; // number of names to skip
         let area = &layout.lines_area;

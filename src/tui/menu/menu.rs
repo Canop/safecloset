@@ -23,10 +23,17 @@ impl<I: ToString + Copy> Menu<I> {
     ) -> Result<(), SafeClosetError> {
         self.view.draw(w, &mut self.state, app_skin)
     }
-    pub fn set_available_area(&mut self, area: Area) {
+    pub fn set_available_area(
+        &mut self,
+        area: Area,
+    ) {
         self.view.set_available_area(area);
     }
-    pub fn add_item(&mut self, action: I, key: Option<KeyEvent>) {
+    pub fn add_item(
+        &mut self,
+        action: I,
+        key: Option<KeyEvent>,
+    ) {
         self.state.add_item(action, key);
     }
 }

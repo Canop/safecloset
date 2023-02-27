@@ -1,5 +1,6 @@
-use {
-    serde::{Deserialize, Serialize},
+use serde::{
+    Deserialize,
+    Serialize,
 };
 
 /// settings of a drawer, saved in the drawer

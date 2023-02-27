@@ -8,7 +8,10 @@ pub use {
 
 use {
     super::*,
-    crokey::crossterm::event::{KeyEvent, MouseEvent},
+    crokey::crossterm::event::{
+        KeyEvent,
+        MouseEvent,
+    },
 };
 
 pub struct CommentsEditor {
@@ -17,17 +20,22 @@ pub struct CommentsEditor {
 }
 
 impl CommentsEditor {
-    pub fn new(
-        comments: &str,
-    ) -> Self {
+    pub fn new(comments: &str) -> Self {
         let state = CommentsEditorState::new(comments);
         let view = CommentsEditorView::default();
         Self { state, view }
     }
-    pub fn apply_key_event(&mut self, key: KeyEvent) -> bool {
+    pub fn apply_key_event(
+        &mut self,
+        key: KeyEvent,
+    ) -> bool {
         self.state.apply_key_event(key)
     }
-    pub fn on_mouse_event(&mut self, mouse_event: MouseEvent, double_click: bool) {
+    pub fn on_mouse_event(
+        &mut self,
+        mouse_event: MouseEvent,
+        double_click: bool,
+    ) {
         self.state.on_mouse_event(mouse_event, double_click);
     }
     pub fn get_comments(&mut self) -> String {
@@ -41,5 +49,3 @@ impl CommentsEditor {
         self.view.draw(w, &mut self.state, app_skin)
     }
 }
-
-
