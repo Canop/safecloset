@@ -1,6 +1,7 @@
 use {
     crokey::*,
     crossterm::event::KeyEvent,
+    std::fmt,
 };
 
 macro_rules! make_actions {
@@ -44,6 +45,11 @@ macro_rules! make_actions {
                 return None;
             }
         }
+        impl fmt::Display for Action {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                write!(f, "{}", self.label())
+            }
+        }
     }
 }
 
@@ -58,6 +64,7 @@ make_actions! {
     Cut "*C*ut" key!(ctrl-X),
     EditClosetComments "Edit Closet Comments",
     Help "Help" key!('?'),
+    Import "Import",
     MoveLineDown "Move Line Down" key!(ctrl-down),
     MoveLineUp "Move Line Up" key!(ctrl-up),
     NewDrawer "*N*ew Drawer" key!(ctrl-N),
@@ -73,4 +80,3 @@ make_actions! {
     Search "Search" key!('/'),
     ToggleHiding "Toggle *H*iding" key!(ctrl-H), // hiding either pwd chars or unselected values
 }
-

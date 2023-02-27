@@ -1,7 +1,8 @@
 use {
     super::*,
-    crokey::crossterm::{
-        style::{Color, Color::*},
+    crokey::crossterm::style::{
+        Color,
+        Color::*,
     },
     termimad::*,
 };
@@ -22,7 +23,13 @@ impl Default for AppSkin {
         let content = ContentSkin::default();
         let dialog = DialogSkin::default();
         let status = StatusSkin::default();
-        Self { title, help, content, dialog, status }
+        Self {
+            title,
+            help,
+            content,
+            dialog,
+            status,
+        }
     }
 }
 
@@ -43,4 +50,3 @@ fn make_help_skin() -> MadSkin {
     help.italic = CompoundStyle::with_fg(Color::AnsiValue(222));
     help
 }
-

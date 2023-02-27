@@ -1,6 +1,10 @@
 use {
     super::*,
-    crokey::crossterm::event::{KeyEvent, MouseEvent, MouseEventKind},
+    crokey::crossterm::event::{
+        KeyEvent,
+        MouseEvent,
+        MouseEventKind,
+    },
     minimad::Text,
     termimad::*,
 };
@@ -23,7 +27,10 @@ impl Default for Help {
 }
 
 impl Help {
-    pub fn set_available_area(&mut self, area: Area) {
+    pub fn set_available_area(
+        &mut self,
+        area: Area,
+    ) {
         self.area = area;
     }
     pub fn apply_key_event(

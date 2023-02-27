@@ -1,13 +1,18 @@
 use {
     super::*,
-    aes_gcm_siv::{aead::Aead, Nonce},
-    serde::{Deserialize, Serialize},
+    aes_gcm_siv::{
+        aead::Aead,
+        Nonce,
+    },
+    serde::{
+        Deserialize,
+        Serialize,
+    },
 };
 
 /// a closed, crypted, drawer
 #[derive(Serialize, Deserialize)]
 pub struct ClosedDrawer {
-
     id: DrawerId,
 
     nonce: Box<[u8]>,
@@ -23,7 +28,6 @@ impl Identified for ClosedDrawer {
 }
 
 impl ClosedDrawer {
-
     pub fn new(
         id: DrawerId,
         nonce: Box<[u8]>,

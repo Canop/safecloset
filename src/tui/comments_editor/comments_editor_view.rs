@@ -12,14 +12,13 @@ pub struct CommentsEditorView {
 static MD_BEFORE: &str = r#"Closet comments (not crypted):"#;
 static MD_AFTER: &str = r#"Hit *^enter* or *alt-enter* to add a line, and *enter* to validate"#;
 
-impl CommentsEditorView {
-}
+impl CommentsEditorView {}
 
-impl View for CommentsEditorView {
-
-    type State = CommentsEditorState;
-
-    fn set_available_area(&mut self, mut area: Area) {
+impl View<CommentsEditorState> for CommentsEditorView {
+    fn set_available_area(
+        &mut self,
+        mut area: Area,
+    ) {
         if area.width > 60 && area.height > 11 {
             area.left = 2;
             area.width -= 4;
@@ -33,10 +32,9 @@ impl View for CommentsEditorView {
     fn draw(
         &mut self,
         w: &mut W,
-        state: &mut Self::State, // mutable to allow adapt to terminal size changes
+        state: &mut CommentsEditorState, // mutable to allow adapt to terminal size changes
         skin: &AppSkin,
     ) -> Result<(), SafeClosetError> {
-
         // border
         let border_colors = skin.dialog.md.table.compound_style.clone();
         let area = &self.area;
@@ -50,7 +48,7 @@ impl View for CommentsEditorView {
         skin.dialog.md.write_in_area_on(w, MD_BEFORE, &intro_area)?;
 
         // comments textarea
-        let text_area = Area::new(area.left + 1, area.top + 3, area.width -2, area.height - 7);
+        let text_area = Area::new(area.left + 1, area.top + 3, area.width - 2, area.height - 7);
         state.comments.set_area(text_area);
         state.comments.display_on(w)?;
 
@@ -61,5 +59,3 @@ impl View for CommentsEditorView {
         Ok(())
     }
 }
-
-

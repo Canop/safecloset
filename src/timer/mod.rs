@@ -1,7 +1,14 @@
 use {
-    crossbeam::channel::{bounded, Receiver},
+    crossbeam::channel::{
+        bounded,
+        Receiver,
+    },
     std::{
-        sync::{Arc, Condvar, Mutex},
+        sync::{
+            Arc,
+            Condvar,
+            Mutex,
+        },
         thread,
         time::Duration,
     },
@@ -15,9 +22,11 @@ pub struct Timer {
 
 #[derive(Debug, Clone, Copy)]
 enum TimerCommand {
-    #[allow(dead_code)] RingNow,
+    #[allow(dead_code)]
+    RingNow,
     Reset,
-    #[allow(dead_code)] Stop,
+    #[allow(dead_code)]
+    Stop,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -29,15 +38,12 @@ pub enum TimerResult {
 }
 
 impl Timer {
-
-    pub fn new(
-        delay: Duration,
-    ) -> (Self, Receiver<TimerResult>) {
+    pub fn new(delay: Duration) -> (Self, Receiver<TimerResult>) {
         let cmd: Option<TimerCommand> = None;
         let pair = Arc::new((Mutex::new(cmd), Condvar::new()));
         let timer_pair = Arc::clone(&pair);
         let (tx_ring, rx_ring) = bounded(1);
-        thread::spawn(move|| {
+        thread::spawn(move || {
             let (cmd, cvar) = &*timer_pair;
             let mut cmd = cmd.lock().unwrap();
             // we use the ring channel to notifiy the outside
@@ -69,19 +75,22 @@ impl Timer {
                                 break;
                             }
                         }
-                    },
+                    }
                     Err(e) => {
                         warn!("crash in timer: {}", e);
                         tx_ring.send(TimerResult::Crash).unwrap();
                         break;
-                    },
+                    }
                 }
             }
         });
         rx_ring.recv().unwrap(); // we wait for the thread to be started
         (Self { pair }, rx_ring)
     }
-    fn send(&self, timer_command: TimerCommand) {
+    fn send(
+        &self,
+        timer_command: TimerCommand,
+    ) {
         let _ = self.pair.0.lock().unwrap().insert(timer_command);
         self.pair.1.notify_all();
     }
@@ -103,7 +112,10 @@ mod timer_tests {
 
     use {
         super::*,
-        std::time::{Duration, Instant},
+        std::time::{
+            Duration,
+            Instant,
+        },
     };
 
     const MARGIN: Duration = Duration::from_millis(100);
@@ -150,7 +162,7 @@ mod timer_tests {
         let delay = Duration::from_millis(100);
         let start = Instant::now();
         let (timer, timer_rx) = Timer::new(delay);
-        thread::spawn(move|| {
+        thread::spawn(move || {
             for _ in 0..5 {
                 thread::sleep(delay / 2);
                 timer.reset();

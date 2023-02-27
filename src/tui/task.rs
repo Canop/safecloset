@@ -1,4 +1,3 @@
-
 /// a potentially long task, which is queued before execution
 pub enum Task {
     Save,

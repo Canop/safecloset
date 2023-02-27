@@ -36,13 +36,19 @@ impl Default for SearchState {
 }
 
 impl SearchState {
-    pub fn set_best_line(&mut self, best_line: usize) {
+    pub fn set_best_line(
+        &mut self,
+        best_line: usize,
+    ) {
         if let Some(result) = self.result.as_mut() {
             result.best_line = Some(best_line);
         }
     }
     /// recompute the result from the input content
-    pub fn update(&mut self, drawer: &OpenDrawer){
+    pub fn update(
+        &mut self,
+        drawer: &OpenDrawer,
+    ) {
         if self.input.is_empty() {
             self.result = None;
         } else {

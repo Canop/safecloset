@@ -1,12 +1,14 @@
 use super::*;
 
 /// the dialog that may be displayed over the drawer
+#[allow(clippy::large_enum_variant)]
 pub enum Dialog {
     None,
-    Menu(Menu),
+    Menu(ActionMenu),
     Help(Help),
     Password(PasswordDialog),
     CommentsEditor(CommentsEditor),
+    Import(Import),
 }
 
 impl Dialog {

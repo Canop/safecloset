@@ -1,9 +1,10 @@
 use {
-    crokey::crossterm::{
-        style::Color::*,
-    },
+    crokey::crossterm::style::Color::*,
     termimad::{
-        ansi, gray, CompoundStyle, MadSkin,
+        ansi,
+        gray,
+        CompoundStyle,
+        MadSkin,
     },
 };
 
@@ -28,7 +29,11 @@ impl Default for StatusSkin {
         task.set_bg(ansi(222));
         let mut error = MadSkin::default();
         error.paragraph.set_fgbg(AnsiValue(254), AnsiValue(160));
-        Self { hint, info, task, error }
+        Self {
+            hint,
+            info,
+            task,
+            error,
+        }
     }
 }
-
