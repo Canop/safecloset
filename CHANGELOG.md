@@ -1,4 +1,5 @@
-### next
+<a name="v1.1.0"></a>
+### v1.1.0 - 2023-02-28
 Import feature: lets you import from another drawer, from a drawer of another closet file, or from a CSV file.
 
 <a name="v1.0.0"></a>
