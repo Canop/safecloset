@@ -11,4 +11,7 @@ pub struct DrawerSettings {
     /// whether to show the whole content of all values
     #[serde(default)]
     pub open_all_values: bool,
+    /// whether to show values as markdown
+    #[serde(default)]
+    pub values_as_markdown: bool,
 }

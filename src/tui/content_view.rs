@@ -275,7 +275,12 @@ impl ContentView {
                             .queue_str(w, &"▦".repeat(value_width))?;
                     } else if open {
                         let styles = skin.styles(selected, faded);
-                        let text = styles.md.area_text(&entry.value, &value_area);
+                        let tw = Some(value_area.width as usize - 1);
+                        let text = if des.values_as_markdown() {
+                            FmtText::from(&styles.md, &entry.value, tw)
+                        } else {
+                            FmtText::raw_str(&styles.md, &entry.value, tw)
+                        };
                         let mut text_view = TextView::from(&value_area, &text);
                         text_view.show_scrollbar = true;
                         text_view.write_on(w)?;

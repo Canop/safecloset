@@ -413,9 +413,9 @@ dependencies = [
 
 [[package]]
 name = "minimad"
-version = "0.10.0"
+version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fed1b13e2000bd8e238d97a97de6fc30224f89a08b0aa5aaa09ed1bd68ba2fa1"
+checksum = "38b136454924e4d020e55c4992e07c105b40d5c41b84662862f0e15bc0a2efef"
 dependencies = [
  "once_cell",
 ]
@@ -633,7 +633,7 @@ dependencies = [
 
 [[package]]
 name = "safecloset"
-version = "1.1.0"
+version = "1.2.0-dev"
 dependencies = [
  "aes-gcm-siv",
  "argh",
@@ -765,9 +765,9 @@ dependencies = [
 
 [[package]]
 name = "termimad"
-version = "0.21.1"
+version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8743d628f9b0eb33087c1e1c4915d91efca23ae69f7c81981489128a0e17d300"
+checksum = "749b18b17745261a883ab334d931adffc8c5e07e71c73a861e77124557e7b41f"
 dependencies = [
  "coolor",
  "crossbeam",
