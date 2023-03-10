@@ -63,7 +63,7 @@ You may add newlines in values with <kbd>ctrl</kbd><kbd>enter</kbd> or <kbd>alt<
 
 ![multiline](img/multiline.png)
 
-*You may notice the values are rendered as Markdown.*
+*You may notice the values are rendered as Markdown. This is opt-in, with a toggle in the drawer's menu.*
 
 Don't hesitate to store hundreds of secrets in the same drawer as you'll easily find them with the fuzzy search.
 

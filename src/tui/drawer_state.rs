@@ -214,6 +214,10 @@ impl DrawerState {
         self.layout.has_scrollbar = self.content_height() > self.page_height();
     }
 
+    pub fn values_as_markdown(&self) -> bool {
+        self.drawer.content.settings.values_as_markdown
+    }
+
     pub fn update_search(&mut self) {
         self.search.update(&self.drawer)
     }

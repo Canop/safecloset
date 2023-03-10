@@ -79,4 +79,5 @@ make_actions! {
     SaveDrawer "*S*ave Drawer" key!(ctrl-S),
     Search "Search" key!('/'),
     ToggleHiding "Toggle *H*iding" key!(ctrl-H), // hiding either pwd chars or unselected values
+    ToggleMarkdown "Toggle Markdown",
 }

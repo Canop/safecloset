@@ -607,6 +607,13 @@ impl AppState {
                     return Ok(CmdResult::Stay);
                 }
             }
+            Action::ToggleMarkdown => {
+                self.dialog = Dialog::None;
+                if let Some(ds) = &mut self.drawer_state {
+                    ds.drawer.content.settings.values_as_markdown ^= true;
+                    return Ok(CmdResult::Stay);
+                }
+            }
             Action::OpenAllValues | Action::CloseAllValues => {
                 self.dialog = Dialog::None;
                 if let Some(ds) = &mut self.drawer_state {
@@ -701,6 +708,7 @@ impl AppState {
                 menu.add_action(Action::CloseShallowDrawer);
             }
             menu.add_action(Action::ToggleHiding);
+            menu.add_action(Action::ToggleMarkdown);
             if ds.drawer.content.settings.open_all_values {
                 menu.add_action(Action::CloseAllValues);
             } else {
