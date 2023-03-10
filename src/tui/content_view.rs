@@ -287,9 +287,14 @@ impl ContentView {
                     } else {
                         let styles = skin.styles(selected, faded);
                         let first_line = entry.value.split('\n').next().unwrap();
+                        let first_line = if des.values_as_markdown() {
+                            Composite::from_inline(first_line)
+                        } else {
+                            Composite::raw_str(first_line)
+                        };
                         styles.md.write_composite_fill(
                             w,
-                            Composite::from_inline(first_line),
+                            first_line,
                             value_width,
                             Alignment::Left,
                         )?;
