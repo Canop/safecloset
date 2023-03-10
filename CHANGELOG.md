@@ -1,3 +1,7 @@
+<a name="v1.2.0"></a>
+### v1.2.0 - 2023-03-10
+Values aren't rendered as markdown by default anymore. Markdown rendering is now opt-in, through the drawer menu - Fix #27,#28
+
 <a name="v1.1.0"></a>
 ### v1.1.0 - 2023-02-28
 Import feature: lets you import from another drawer, from a drawer of another closet file, or from a CSV file.
