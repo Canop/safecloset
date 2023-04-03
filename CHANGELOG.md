@@ -1,3 +1,6 @@
+### next
+- better clipboard support on Mac - Fix #30
+
 <a name="v1.2.1"></a>
 ### v1.2.1 - 2023-03-10
 Values aren't rendered as markdown by default anymore. Markdown rendering is now opt-in, through the drawer menu - Fix #27,#28
