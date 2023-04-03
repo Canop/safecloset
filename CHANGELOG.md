@@ -1,5 +1,6 @@
-### next
-- better clipboard support on Mac - Fix #30
+<a name="v1.2.2"></a>
+### v1.2.2 - 2023-04-03
+Better clipboard support on Mac - Fix #30
 
 <a name="v1.2.1"></a>
 ### v1.2.1 - 2023-03-10
