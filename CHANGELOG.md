@@ -1,4 +1,5 @@
-### next
+<a name="v1.2.3"></a>
+### v1.2.3 - 2023-04-06
 Fix a crash on some combinations of scroll+search
 
 <a name="v1.2.2"></a>
