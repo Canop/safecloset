@@ -476,6 +476,10 @@ impl DrawerState {
         let content_height = self.layout.content_height;
         let page_height = self.page_height();
         let heights = &self.layout.value_heights_by_line;
+        if self.scroll >= content_height {
+            // this may happen after searching
+            self.scroll = 0;
+        }
         if content_height <= page_height {
             self.scroll = 0;
         } else if let Some(selection) = self.focus.line() {

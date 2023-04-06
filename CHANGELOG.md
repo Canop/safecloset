@@ -1,3 +1,6 @@
+### next
+Fix a crash on some combinations of scroll+search
+
 <a name="v1.2.2"></a>
 ### v1.2.2 - 2023-04-03
 Better clipboard support on Mac - Fix #30

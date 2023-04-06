@@ -1,6 +1,6 @@
 use termimad::Area;
 
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub struct DrawerDrawingLayout {
     /// the area containing the lines, without the header
     pub lines_area: Area,
