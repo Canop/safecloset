@@ -68,6 +68,18 @@ impl From<OpenDrawer> for DrawerState {
 }
 
 impl DrawerState {
+    pub fn sort(&mut self) {
+        if self.search.result.is_some() {
+            // we should not have fallen here
+            warn!("not sorting when a filter is applied");
+            return;
+        }
+        self.focus = DrawerFocus::NoneSelected;
+        self.drawer
+            .content
+            .entries
+            .sort_by_key(|e| e.name.to_lowercase());
+    }
     pub fn move_line(
         &mut self,
         dir: Direction,

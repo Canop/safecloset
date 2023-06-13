@@ -533,6 +533,11 @@ impl AppState {
                     self.set_error("no open drawer");
                 }
             }
+            Action::SortAll => {
+                if let Some(ds) = &mut self.drawer_state {
+                    ds.sort();
+                }
+            }
             Action::CloseShallowDrawer | Action::CloseDeepDrawer => {
                 self.dialog = Dialog::None;
                 self.queue_task(Task::Save);
@@ -716,6 +721,9 @@ impl AppState {
             }
             menu.add_action(Action::OpenPasswordChangeDialog);
             menu.add_action(Action::Import);
+            if ds.search.result.is_none() {
+                menu.add_action(Action::SortAll);
+            }
         } else {
             menu.add_action(Action::EditClosetComments);
         }
