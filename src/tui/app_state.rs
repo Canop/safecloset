@@ -545,50 +545,14 @@ impl AppState {
                 debug!("user requests quit");
                 return Ok(CmdResult::Quit);
             }
-            Action::MoveLineUp => {
+            Action::SwapLineUp => {
                 if let Some(ds) = &mut self.drawer_state {
-                    let entries = &mut ds.drawer.content.entries;
-                    let len = entries.len();
-                    match &mut ds.focus {
-                        NameSelected { line } => {
-                            let new_line = (*line + len - 1) % len;
-                            entries.swap(*line, new_line);
-                            ds.focus = NameSelected { line: new_line };
-                        }
-                        ValueSelected { line } => {
-                            let new_line = (*line + len - 1) % len;
-                            entries.swap(*line, new_line);
-                            ds.focus = ValueSelected { line: new_line };
-                        }
-                        ValueEdit { input, .. } => {
-                            input.move_current_line_up();
-                        }
-                        _ => {}
-                    }
-                    ds.update_search();
+                    ds.swap_line(Direction::Up);
                 }
             }
-            Action::MoveLineDown => {
+            Action::SwapLineDown => {
                 if let Some(ds) = &mut self.drawer_state {
-                    let entries = &mut ds.drawer.content.entries;
-                    let len = entries.len();
-                    match &mut ds.focus {
-                        NameSelected { line } => {
-                            let new_line = (*line + 1) % len;
-                            entries.swap(*line, new_line);
-                            ds.focus = NameSelected { line: new_line };
-                        }
-                        ValueSelected { line } => {
-                            let new_line = (*line + 1) % len;
-                            entries.swap(*line, new_line);
-                            ds.focus = ValueSelected { line: new_line };
-                        }
-                        ValueEdit { input, .. } => {
-                            input.move_current_line_down();
-                        }
-                        _ => {}
-                    }
-                    ds.update_search();
+                    ds.swap_line(Direction::Down);
                 }
             }
             Action::ToggleHiding => {
