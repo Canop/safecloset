@@ -1,3 +1,6 @@
+### next
+- Group matching entries, available in the menu when there's a search and more than one matching entries
+
 <a name="v1.2.3"></a>
 ### v1.2.3 - 2023-04-06
 Fix a crash on some combinations of scroll+search

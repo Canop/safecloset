@@ -152,9 +152,9 @@ impl DrawerState {
     }
 
     /// Move entries so that the matching ones are together
-    /// (entries up to and including to the first matching one
+    /// (entries up to and including the first matching one
     /// don't move).
-    /// Order among matches, and order among non-matches are
+    /// Order among matches, and order among non-matches, are
     /// preserved.
     /// Search is cleared and focus is set to selection of the group's head
     pub fn group_matching_entries(&mut self) {
