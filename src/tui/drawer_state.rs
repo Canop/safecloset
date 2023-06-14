@@ -74,9 +74,9 @@ impl DrawerState {
     pub fn sort(&mut self) {
         let entries = &mut self.drawer.content.entries;
         if let Some(result) = self.search.result.as_ref() {
-            let matches = &result.entries;
             // We sort among filtered entries, not moving the other ones.
             // Algorithm by @Stargateur
+            let matches = &result.entries;
             for (i, m) in matches.iter().enumerate() {
                 entries.swap(i, m.idx);
             }

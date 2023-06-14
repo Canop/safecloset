@@ -689,9 +689,9 @@ impl AppState {
             if ds.match_count() > 1 {
                 menu.add_action(Action::GroupMatchingEntries);
             }
+            menu.add_action(Action::Sort);
             menu.add_action(Action::OpenPasswordChangeDialog);
             menu.add_action(Action::Import);
-            menu.add_action(Action::Sort);
         } else {
             menu.add_action(Action::EditClosetComments);
         }
