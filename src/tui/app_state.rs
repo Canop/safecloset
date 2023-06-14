@@ -533,7 +533,7 @@ impl AppState {
                     self.set_error("no open drawer");
                 }
             }
-            Action::SortAll => {
+            Action::Sort => {
                 if let Some(ds) = &mut self.drawer_state {
                     ds.sort();
                 }
@@ -721,9 +721,7 @@ impl AppState {
             }
             menu.add_action(Action::OpenPasswordChangeDialog);
             menu.add_action(Action::Import);
-            if ds.search.result.is_none() {
-                menu.add_action(Action::SortAll);
-            }
+            menu.add_action(Action::Sort);
         } else {
             menu.add_action(Action::EditClosetComments);
         }

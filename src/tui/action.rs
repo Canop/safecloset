@@ -78,7 +78,7 @@ make_actions! {
     RemoveLine "Remove Line" key!(d),
     SaveDrawer "*S*ave Drawer" key!(ctrl-S),
     Search "Search" key!('/'),
-    SortAll "Sort",
+    Sort "Sort",
     ToggleHiding "Toggle *H*iding" key!(ctrl-H), // hiding either pwd chars or unselected values
     ToggleMarkdown "Toggle Markdown",
 }
