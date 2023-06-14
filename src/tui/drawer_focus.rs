@@ -5,6 +5,9 @@ use {
 
 /// Where the focus of the user/app is in the drawer,
 /// and the related data.
+///
+/// The 'line' in most variant is the index among matched
+/// entries in case of filtering.
 pub enum DrawerFocus {
     NoneSelected,
     NameSelected { line: usize },
