@@ -91,6 +91,50 @@ impl DrawerState {
             entries.sort_by_key(|e| e.name.to_lowercase());
         }
     }
+    /// Swap the focused line with either the one before or
+    /// the one after.
+    /// Depending on the focus, this "line" is either an entry, or
+    /// a text line in the edited value
+    pub fn swap_line(
+        &mut self,
+        dir: Direction,
+    ) {
+        use DrawerFocus::*;
+        if let ValueEdit { input, .. } = &mut self.focus {
+            match dir {
+                Direction::Up => input.move_current_line_up(),
+                Direction::Down => input.move_current_line_down(),
+            };
+        } else {
+            let Some(line) = self.focus.line() else { return };
+            let entries = &mut self.drawer.content.entries;
+            let matches = self.search.result.as_ref().map(|r| &r.entries);
+            let len = if let Some(matches) = matches {
+                matches.len()
+            } else {
+                entries.len()
+            };
+            if len < 2 {
+                return;
+            }
+            let new_line = match dir {
+                Direction::Up => (line + len - 1) % len,
+                Direction::Down => (line + len + 1) % len,
+            };
+            if let Some(matches) = matches {
+                // we convert (line, new_line) into real entry indexes
+                entries.swap(matches[line].idx, matches[new_line].idx);
+            } else {
+                // directly swapping entries, it's easy
+                entries.swap(line, new_line);
+            };
+            if let Some(line) = self.focus.selection_mut() {
+                *line = new_line
+            }
+        }
+        self.update_search();
+    }
+    /// Move the focus/selection one line up
     pub fn move_line(
         &mut self,
         dir: Direction,
@@ -172,6 +216,32 @@ impl DrawerState {
                 }
             }
         }
+    }
+
+    /// Move entries so that the matching ones are together
+    /// (entries up to and including the first matching one
+    /// don't move).
+    /// Order among matches, and order among non-matches, are
+    /// preserved.
+    /// Search is cleared and focus is set to selection of the group's head
+    pub fn group_matching_entries(&mut self) {
+        let matches = self.search.result.as_mut().map(|r| &mut r.entries);
+        let Some(matches) = matches else { return };
+        // head index where we stack all matches
+        let Some(head) = matches.get(0).map(|m| m.idx) else { return };
+        if matches.is_empty() {
+            return;
+        };
+        let entries = &mut self.drawer.content.entries;
+        let mut ordered_entries: Vec<_> = entries.drain(0..head).collect();
+        for m in matches {
+            m.idx -= ordered_entries.len();
+            ordered_entries.push(entries.remove(m.idx));
+        }
+        ordered_entries.append(entries);
+        self.drawer.content.entries = ordered_entries;
+        self.search.clear();
+        self.focus = DrawerFocus::NameSelected { line: head };
     }
 
     /// update the drawer drawing layout.
@@ -647,5 +717,9 @@ impl DrawerState {
         } else {
             None
         }
+    }
+    /// Return the number of filtered entries (0 if there's no search)
+    pub fn match_count(&self) -> usize {
+        self.search.result.as_ref().map_or(0, |r| r.entries.len())
     }
 }

@@ -550,50 +550,20 @@ impl AppState {
                 debug!("user requests quit");
                 return Ok(CmdResult::Quit);
             }
-            Action::MoveLineUp => {
+            Action::SwapLineUp => {
                 if let Some(ds) = &mut self.drawer_state {
-                    let entries = &mut ds.drawer.content.entries;
-                    let len = entries.len();
-                    match &mut ds.focus {
-                        NameSelected { line } => {
-                            let new_line = (*line + len - 1) % len;
-                            entries.swap(*line, new_line);
-                            ds.focus = NameSelected { line: new_line };
-                        }
-                        ValueSelected { line } => {
-                            let new_line = (*line + len - 1) % len;
-                            entries.swap(*line, new_line);
-                            ds.focus = ValueSelected { line: new_line };
-                        }
-                        ValueEdit { input, .. } => {
-                            input.move_current_line_up();
-                        }
-                        _ => {}
-                    }
-                    ds.update_search();
+                    ds.swap_line(Direction::Up);
                 }
             }
-            Action::MoveLineDown => {
+            Action::SwapLineDown => {
                 if let Some(ds) = &mut self.drawer_state {
-                    let entries = &mut ds.drawer.content.entries;
-                    let len = entries.len();
-                    match &mut ds.focus {
-                        NameSelected { line } => {
-                            let new_line = (*line + 1) % len;
-                            entries.swap(*line, new_line);
-                            ds.focus = NameSelected { line: new_line };
-                        }
-                        ValueSelected { line } => {
-                            let new_line = (*line + 1) % len;
-                            entries.swap(*line, new_line);
-                            ds.focus = ValueSelected { line: new_line };
-                        }
-                        ValueEdit { input, .. } => {
-                            input.move_current_line_down();
-                        }
-                        _ => {}
-                    }
-                    ds.update_search();
+                    ds.swap_line(Direction::Down);
+                }
+            }
+            Action::GroupMatchingEntries => {
+                self.dialog = Dialog::None;
+                if let Some(ds) = &mut self.drawer_state {
+                    ds.group_matching_entries();
                 }
             }
             Action::ToggleHiding => {
@@ -609,21 +579,18 @@ impl AppState {
                 self.dialog = Dialog::None;
                 if let Some(ds) = &mut self.drawer_state {
                     ds.drawer.content.settings.hide_values ^= true;
-                    return Ok(CmdResult::Stay);
                 }
             }
             Action::ToggleMarkdown => {
                 self.dialog = Dialog::None;
                 if let Some(ds) = &mut self.drawer_state {
                     ds.drawer.content.settings.values_as_markdown ^= true;
-                    return Ok(CmdResult::Stay);
                 }
             }
             Action::OpenAllValues | Action::CloseAllValues => {
                 self.dialog = Dialog::None;
                 if let Some(ds) = &mut self.drawer_state {
                     ds.drawer.content.settings.open_all_values ^= true;
-                    return Ok(CmdResult::Stay);
                 }
             }
             Action::Copy => {
@@ -718,6 +685,9 @@ impl AppState {
                 menu.add_action(Action::CloseAllValues);
             } else {
                 menu.add_action(Action::OpenAllValues);
+            }
+            if ds.match_count() > 1 {
+                menu.add_action(Action::GroupMatchingEntries);
             }
             menu.add_action(Action::OpenPasswordChangeDialog);
             menu.add_action(Action::Import);
