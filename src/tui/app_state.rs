@@ -591,6 +591,12 @@ impl AppState {
                     ds.update_search();
                 }
             }
+            Action::GroupMatchingEntries => {
+                self.dialog = Dialog::None;
+                if let Some(ds) = &mut self.drawer_state {
+                    ds.group_matching_entries();
+                }
+            }
             Action::ToggleHiding => {
                 // toggle visibility of password or values
                 if let Dialog::Password(password_dialog) = &mut self.dialog {
@@ -604,21 +610,18 @@ impl AppState {
                 self.dialog = Dialog::None;
                 if let Some(ds) = &mut self.drawer_state {
                     ds.drawer.content.settings.hide_values ^= true;
-                    return Ok(CmdResult::Stay);
                 }
             }
             Action::ToggleMarkdown => {
                 self.dialog = Dialog::None;
                 if let Some(ds) = &mut self.drawer_state {
                     ds.drawer.content.settings.values_as_markdown ^= true;
-                    return Ok(CmdResult::Stay);
                 }
             }
             Action::OpenAllValues | Action::CloseAllValues => {
                 self.dialog = Dialog::None;
                 if let Some(ds) = &mut self.drawer_state {
                     ds.drawer.content.settings.open_all_values ^= true;
-                    return Ok(CmdResult::Stay);
                 }
             }
             Action::Copy => {
@@ -713,6 +716,9 @@ impl AppState {
                 menu.add_action(Action::CloseAllValues);
             } else {
                 menu.add_action(Action::OpenAllValues);
+            }
+            if ds.match_count() > 1 {
+                menu.add_action(Action::GroupMatchingEntries);
             }
             menu.add_action(Action::OpenPasswordChangeDialog);
             menu.add_action(Action::Import);

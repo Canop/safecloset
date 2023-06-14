@@ -151,6 +151,32 @@ impl DrawerState {
         }
     }
 
+    /// Move entries so that the matching ones are together
+    /// (entries up to and including the first matching one
+    /// don't move).
+    /// Order among matches, and order among non-matches, are
+    /// preserved.
+    /// Search is cleared and focus is set to selection of the group's head
+    pub fn group_matching_entries(&mut self) {
+        let matches = self.search.result.as_mut().map(|r| &mut r.entries);
+        let Some(matches) = matches else { return };
+        // head index where we stack all matches
+        let Some(head) = matches.get(0).map(|m| m.idx) else { return };
+        if matches.is_empty() {
+            return;
+        };
+        let entries = &mut self.drawer.content.entries;
+        let mut ordered_entries: Vec<_> = entries.drain(0..head).collect();
+        for m in matches {
+            m.idx -= ordered_entries.len();
+            ordered_entries.push(entries.remove(m.idx));
+        }
+        ordered_entries.append(entries);
+        self.drawer.content.entries = ordered_entries;
+        self.search.clear();
+        self.focus = DrawerFocus::NameSelected { line: head };
+    }
+
     /// update the drawer drawing layout.
     ///
     /// Must be called before every drawing as it depends on about everything:
@@ -624,5 +650,9 @@ impl DrawerState {
         } else {
             None
         }
+    }
+    /// Return the number of filtered entries (0 if there's no search)
+    pub fn match_count(&self) -> usize {
+        self.search.result.as_ref().map_or(0, |r| r.entries.len())
     }
 }

@@ -63,6 +63,7 @@ make_actions! {
     Copy "*C*opy" key!(ctrl-C),
     Cut "*C*ut" key!(ctrl-X),
     EditClosetComments "Edit Closet Comments",
+    GroupMatchingEntries "Group Matching Entries",
     Help "Help" key!('?'),
     Import "Import",
     MoveLineDown "Move Line Down" key!(ctrl-down),
