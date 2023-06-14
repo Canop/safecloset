@@ -1,5 +1,6 @@
 ### next
 - Group matching entries, available in the menu when there's a search and more than one matching entries
+- ctrl-up and ctrl-down now available for moving entries even when the list is filtered
 
 <a name="v1.2.3"></a>
 ### v1.2.3 - 2023-04-06
