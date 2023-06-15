@@ -1,4 +1,5 @@
-### next
+<a name="v1.3.0"></a>
+### v1.3.0 - 2023-06-15
 - Sort, accessible through the menu - Fix #31
 - Group matching entries, available in the menu when there's a search and more than one matching entries
 - ctrl-up and ctrl-down now available for moving entries even when the list is filtered - Fix #34
