@@ -68,6 +68,29 @@ impl From<OpenDrawer> for DrawerState {
 }
 
 impl DrawerState {
+    /// Sort entries
+    ///
+    /// If the list is filtered, only matches are moved
+    pub fn sort(&mut self) {
+        let entries = &mut self.drawer.content.entries;
+        if let Some(result) = self.search.result.as_ref() {
+            // We sort among filtered entries, not moving the other ones.
+            // Algorithm by @Stargateur
+            let matches = &result.entries;
+            for (i, m) in matches.iter().enumerate() {
+                entries.swap(i, m.idx);
+            }
+            entries[0..matches.len()].sort_by_key(|e| e.name.to_lowercase());
+            for (i, m) in matches.iter().enumerate().rev() {
+                entries.swap(i, m.idx);
+            }
+            self.update_search();
+        } else {
+            // We sort all entries
+            self.focus = DrawerFocus::NoneSelected;
+            entries.sort_by_key(|e| e.name.to_lowercase());
+        }
+    }
     /// Swap the focused line with either the one before or
     /// the one after.
     /// Depending on the focus, this "line" is either an entry, or

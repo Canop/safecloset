@@ -1,6 +1,7 @@
 ### next
+- Sort, accessible through the menu - Fix #31
 - Group matching entries, available in the menu when there's a search and more than one matching entries
-- ctrl-up and ctrl-down now available for moving entries even when the list is filtered
+- ctrl-up and ctrl-down now available for moving entries even when the list is filtered - Fix #34
 
 <a name="v1.2.3"></a>
 ### v1.2.3 - 2023-04-06
