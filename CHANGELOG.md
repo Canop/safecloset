@@ -1,3 +1,7 @@
+<a name="v1.3.1"></a>
+### v1.3.1 - 2023-09-06
+- fix shift-character extending the selection
+
 <a name="v1.3.0"></a>
 ### v1.3.0 - 2023-06-15
 - Sort, accessible through the menu - Fix #31
