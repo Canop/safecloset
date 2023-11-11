@@ -1,3 +1,7 @@
+<a name="v1.3.2"></a>
+### v1.3.2 - 2023-11-11
+- update some dependencies
+
 <a name="v1.3.1"></a>
 ### v1.3.1 - 2023-09-06
 - fix shift-character extending the selection

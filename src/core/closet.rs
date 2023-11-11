@@ -1,7 +1,7 @@
 use {
     super::*,
     aes_gcm_siv::{
-        aead::NewAead,
+        KeyInit,
         Aes256GcmSiv,
         Key,
     },
@@ -230,7 +230,7 @@ impl Closet {
         //config.variant = argon2::Variant::Argon2i;
         //config.version = argon2::Version::Version13;
         let hash = argon2::hash_raw(password.as_bytes(), self.salt.as_bytes(), &config)?;
-        let key = Key::from_slice(&hash);
+        let key = Key::<Aes256GcmSiv>::from_slice(&hash);
         Ok(Aes256GcmSiv::new(key))
     }
 }
