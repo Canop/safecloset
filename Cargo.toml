@@ -9,7 +9,7 @@ keywords = ["secret", "tui", "cryptography", "password"]
 license = "AGPL-3.0"
 categories = ["command-line-interface", "cryptography"]
 readme = "README.md"
-rust-version = "1.59"
+rust-version = "1.62"
 
 [features]
 default = ["clipboard"]

@@ -1,8 +1,8 @@
 use {
     super::*,
     aes_gcm_siv::{
-        aead::Aead,
         Nonce,
+        aead::Aead,
     },
     serde::{
         Deserialize,

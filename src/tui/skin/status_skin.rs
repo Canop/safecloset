@@ -1,10 +1,10 @@
 use {
     crokey::crossterm::style::Color::*,
     termimad::{
-        ansi,
-        gray,
         CompoundStyle,
         MadSkin,
+        ansi,
+        gray,
     },
 };
 

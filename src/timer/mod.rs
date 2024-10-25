@@ -1,7 +1,7 @@
 use {
     crossbeam::channel::{
-        bounded,
         Receiver,
+        bounded,
     },
     std::{
         sync::{

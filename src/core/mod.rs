@@ -137,15 +137,16 @@ fn test_create_write_read() {
     let drawer1 = open_closet.open_drawer(pwd1).unwrap();
     assert_eq!(drawer1.content.entries, vec![entry1.clone()]);
     let drawer2 = open_closet.open_drawer(pwd2).unwrap();
-    assert_eq!(
-        drawer2.content.entries,
-        vec![entry2.clone(), entry2b.clone(), entry2c.clone()],
-    );
+    assert_eq!(drawer2.content.entries, vec![
+        entry2.clone(),
+        entry2b.clone(),
+        entry2c.clone()
+    ],);
     let drawer3 = open_closet.open_drawer(pwd3).unwrap();
-    assert_eq!(
-        drawer3.content.entries,
-        vec![entry3.clone(), entry3b.clone()]
-    );
+    assert_eq!(drawer3.content.entries, vec![
+        entry3.clone(),
+        entry3b.clone()
+    ]);
 
     // clean the temporary dir
     temp_dir.close().unwrap();

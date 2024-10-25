@@ -24,12 +24,12 @@ command = [
 	"cargo", "clippy",
 	"--color", "always",
 	"--",
-	"-A", "clippy::match_like_matches_macro",
-	"-A", "clippy::collapsible_if",
-	"-A", "clippy::collapsible_else_if",
-	"-A", "clippy::module_inception",
 	"-A", "clippy::bool_to_int_with_if",
+	"-A", "clippy::collapsible_else_if",
+	"-A", "clippy::collapsible_if",
 	"-A", "clippy::manual_clamp",
+	"-A", "clippy::match_like_matches_macro",
+	"-A", "clippy::module_inception",
 ]
 need_stdout = false
 
@@ -41,3 +41,6 @@ watch = ["tests"]
 [jobs.doc]
 command = ["cargo", "doc", "--color", "always", "--no-deps"]
 need_stdout = false
+
+[keybindings]
+c = "job:clippy"

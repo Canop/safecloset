@@ -1,23 +1,19 @@
 use {
     crokey::crossterm::style::{
         Attribute,
-        Color,
         Color::*,
     },
     termimad::{
-        ansi,
-        gray,
         CompoundStyle,
         InputField,
         MadSkin,
         ScrollBarStyle,
+        ansi,
+        gray,
     },
 };
 
 pub struct ContentSkin {
-    /// view background
-    pub bg: Color,
-
     normal_styles: Styles,
     selected_styles: Styles,
     faded_styles: Styles,
@@ -55,7 +51,6 @@ impl Default for ContentSkin {
         faded_styles.md.blend_with(bg, 0.6);
 
         Self {
-            bg,
             normal_styles,
             selected_styles,
             faded_styles,

@@ -7,7 +7,6 @@ mod menu_view;
 
 pub use {
     action_menu::*,
-    confirm::*,
     inform::*,
     menu::*,
     menu_state::*,

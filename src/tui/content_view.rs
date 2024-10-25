@@ -159,14 +159,14 @@ impl ContentView {
         let txt_style = skin.txt_style(false, faded);
         // -- header
         w.go_to(x, 1)?;
-        tbl_style.queue_str(w, &"─".repeat(name_width + 1))?;
+        tbl_style.queue_str(w, "─".repeat(name_width + 1))?;
         tbl_style.queue_str(w, "┬")?;
         let value_header_width = if scrollbar.is_some() {
             value_width + 1
         } else {
             value_width
         };
-        tbl_style.queue_str(w, &"─".repeat(value_header_width))?;
+        tbl_style.queue_str(w, "─".repeat(value_header_width))?;
         w.go_to(x, 2)?;
         if des.focus.is_search() {
             txt_style.queue_str(w, "/")?;
@@ -177,7 +177,7 @@ impl ContentView {
             let (fitted, width) = StrFit::make_string(&des.search.input.get_content(), name_width);
             txt_style.queue_str(w, fitted)?;
             if width < name_width {
-                tbl_style.queue_str(w, &" ".repeat(name_width - width))?;
+                tbl_style.queue_str(w, " ".repeat(name_width - width))?;
             }
         } else {
             skin.styles(false, faded).md.write_composite_fill(
@@ -195,9 +195,9 @@ impl ContentView {
             Alignment::Center,
         )?;
         w.go_to(x, 3)?;
-        tbl_style.queue_str(w, &"─".repeat(name_width + 1))?;
+        tbl_style.queue_str(w, "─".repeat(name_width + 1))?;
         tbl_style.queue_str(w, "┼")?;
-        tbl_style.queue_str(w, &"─".repeat(value_width + 1))?;
+        tbl_style.queue_str(w, "─".repeat(value_width + 1))?;
         // -- entries
         let global_scrollbar_style =
             skin.scrollbar_style(false, faded || des.focus.is_entry_edit());
@@ -272,7 +272,7 @@ impl ContentView {
                     };
                     if hidden {
                         skin.txt_style(false, true)
-                            .queue_str(w, &"▦".repeat(value_width))?;
+                            .queue_str(w, "▦".repeat(value_width))?;
                     } else if open {
                         let styles = skin.styles(selected, faded);
                         let tw = Some(value_area.width as usize - 1);

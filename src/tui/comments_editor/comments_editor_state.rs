@@ -1,10 +1,12 @@
 use {
     crate::tui::ContentSkin,
-    crokey::crossterm::event::{
-        KeyEvent,
-        MouseEvent,
+    crokey::{
+        crossterm::event::{
+            KeyEvent,
+            MouseEvent,
+        },
+        key,
     },
-    crokey::key,
     termimad::*,
 };
 

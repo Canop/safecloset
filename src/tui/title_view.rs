@@ -2,11 +2,11 @@ use {
     super::*,
     crate::error::SafeClosetError,
     termimad::{
+        Area,
         minimad::{
             Alignment,
             Composite,
         },
-        Area,
     },
 };
 

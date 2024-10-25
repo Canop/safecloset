@@ -1,11 +1,13 @@
 use {
-    crokey::crossterm::event::{
-        KeyEvent,
-        MouseButton,
-        MouseEvent,
-        MouseEventKind,
+    crokey::{
+        crossterm::event::{
+            KeyEvent,
+            MouseButton,
+            MouseEvent,
+            MouseEventKind,
+        },
+        key,
     },
-    crokey::key,
     termimad::Area,
 };
 

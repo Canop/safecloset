@@ -1,14 +1,14 @@
 use {
     super::*,
     aes_gcm_siv::{
-        KeyInit,
         Aes256GcmSiv,
         Key,
+        KeyInit,
     },
     rand::{
+        Rng,
         seq::SliceRandom,
         thread_rng,
-        Rng,
     },
     serde::{
         Deserialize,

@@ -33,6 +33,7 @@ use {
         error::SafeClosetError,
     },
     crokey::crossterm::{
+        QueueableCommand,
         cursor,
         event::{
             DisableMouseCapture,
@@ -42,7 +43,6 @@ use {
             EnterAlternateScreen,
             LeaveAlternateScreen,
         },
-        QueueableCommand,
     },
     std::{
         io::Write,

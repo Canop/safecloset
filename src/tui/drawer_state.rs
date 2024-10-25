@@ -106,7 +106,9 @@ impl DrawerState {
                 Direction::Down => input.move_current_line_down(),
             };
         } else {
-            let Some(line) = self.focus.line() else { return };
+            let Some(line) = self.focus.line() else {
+                return;
+            };
             let entries = &mut self.drawer.content.entries;
             let matches = self.search.result.as_ref().map(|r| &r.entries);
             let len = if let Some(matches) = matches {
@@ -228,7 +230,9 @@ impl DrawerState {
         let matches = self.search.result.as_mut().map(|r| &mut r.entries);
         let Some(matches) = matches else { return };
         // head index where we stack all matches
-        let Some(head) = matches.get(0).map(|m| m.idx) else { return };
+        let Some(head) = matches.first().map(|m| m.idx) else {
+            return;
+        };
         if matches.is_empty() {
             return;
         };

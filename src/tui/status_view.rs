@@ -2,11 +2,11 @@ use {
     super::*,
     crate::error::SafeClosetError,
     termimad::{
+        Area,
         minimad::{
             Alignment,
             Composite,
         },
-        Area,
     },
 };
 
@@ -101,7 +101,7 @@ impl View<AppState> for StatusView {
         w.go_to(self.area.left, self.area.top)?;
         let skin;
         let text;
-        if let Some(task) = state.pending_tasks.get(0) {
+        if let Some(task) = state.pending_tasks.first() {
             text = task.label();
             skin = &app_skin.status.task;
         } else if let Some(ref message) = &state.message {
