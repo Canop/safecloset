@@ -21,6 +21,7 @@ extra_javascript:
 
 theme:
         name: mkdocs
+        favicon: /favicon.png
         nav_style: dark
         custom_dir: custom_theme
         highlightjs: true

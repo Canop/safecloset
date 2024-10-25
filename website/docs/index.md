@@ -1,9 +1,5 @@
 
-<p class=logo>
-<img class=logo width=64px src="img/logo-safecloset.png">
-</p>
-
-# Introduction
+# Purpose
 
 **SafeCloset** is a **secure**, **cross-platform**, and **convenient** secret holder, running as a terminal application without interprocess communication nor temporary files.
 
