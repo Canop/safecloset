@@ -2,19 +2,23 @@
 /* standard classes */
 
 :root {
-	--text: #222;
-	--accent: #ffd787;
-	--dark-accent: #22790a;
-	--bg: #fff;
-	--sidenav-bg: linear-gradient(#333333,#222222);
+	--text: #333;
+	--strong-text: #111;
+	--accent: #d43847; // #b52222;
+	--dark-accent: var(--accent);
+	--bg: #eee;
+	--kbd-fg: #fff;
+	--kbd-bg: var(--accent);
+	--sidenav-bg: #b52222;
 	--top-nav-bg: var(--sidenav-bg);
 	--sidenav-fg: #fff;
 	--link-fg: #000;
 	--code-fg: #111;
-	--code-bg: #dde3dd99;
+	--code-bg: #fafafa;
 	--inline-code-bg: var(--code-bg);
 	--inline-code-border: none;
-	--hovered-menu-bg: linear-gradient(#444, var(--accent));
+	--hovered-menu-bg: var(--bg);
+	--hovered-menu-fg: var(--text);
 }
 
 body::before {
@@ -22,39 +26,24 @@ body::before {
 }
 
 body {
-	background-image:
-		linear-gradient(to right, rgba(255,255,255,0.8) 0%, rgba(255,255,255,1) 25%, rgba(255,255,255,1) 75%, rgba(255,255,255,0.8) 100%),
-		url("../img/lyon.jpg");
-	background-position: center;
-	background-size: cover;
-    background-attachment: fixed;
-}
-@media (max-width: 800px) {
-	body {
-		background-image:
-			linear-gradient(to right, rgba(255,255,255,0.8) 0%, rgba(255,255,255,1) 10%, rgba(255,255,255,1) 90%, rgba(255,255,255,0.8) 100%),
-			url("../img/lyon.jpg");
-        background-position: center;
-        background-size: cover;
-        background-attachment: fixed;
-	}
-}
-
-body {
 	font-size: 17px;
 	background-color: var(--bg);
 	color: var(--text);
+}
+body .modal-content {
+	background: var(--accent);
+	color: #eee;
 }
 .modal-dialog {
 	font-size: 15px;
 	color: #ccc;
 }
 .modal-dialog a {
-	color: var(--accent);
+	color: #fff;
 }
 .modal-dialog a:hover {
 	text-decoration: underline;
-	color: var(--accent);
+	color: #fff;
 }
 
 body .bg-secondary {
@@ -87,16 +76,16 @@ p.logo {
 	border-bottom: solid 1px;
 	padding-bottom: 8px;
 	margin: 40px 0 25px 0;
-	border-image-source: linear-gradient(to right, var(--accent), #888);
+	border-image-source: linear-gradient(to right, var(--accent), #8880);
 	border-image-slice: 1;
-	color: #111;
+	color: var(--strong-text);
 }
 .modal-body h2 {
 	font-size: 18px;
 }
 .container h2 {
 	font-size: 20px;
-	color: #111;
+	color: var(--strong-text);
 	margin: 25px 0 20px 0;
 }
 .modal-body h3 {
@@ -104,19 +93,18 @@ p.logo {
 }
 .container h3 {
 	font-size: 16px;
-	color: #111;
+	color: var(--strong-text);
 }
 .modal-body h4, .modal-dialog h4 {
 	font-size: 16px;
 	color: #ddd;
 }
 .container h4 {
-	color: #111;
+	color: var(--strong-text);
 }
 
 body .navbar {
-	background: var(--top-nav-bg);
-	border-bottom: 1px solid var(--accent);
+	background: var(--top-nav-bg) !important;
 	padding: 0;
 }
 
@@ -124,8 +112,8 @@ html body .navbar-default .navbar-nav > .active > a.nav-link,
 html body .navbar-default .navbar-nav > .active > a.nav-link:focus,
 html body .navbar .navbar-nav > .active > a.nav-link,
 html body .navbar .navbar-nav > .active > a.nav-link:focus {
-	background-image: linear-gradient(#111,#162020);
-	color: var(--accent);
+	background: var(--bg);
+	color: var(--strong-text);
 }
 .navbar-default .navbar-nav > .open > a,
 .navbar .navbar-nav > .open > a,
@@ -140,6 +128,12 @@ html body .navbar .navbar-nav > .active > a.nav-link:focus {
 .navbar-default .navbar-nav > li > a:focus,
 .navbar .navbar-nav > li > a:focus {
 	background: var(--hovered-menu-bg);
+	color: var(--hovered-menu-fg);
+}
+
+body .navbar-dark .navbar-nav .nav-link:hover, body .navbar-dark .navbar-nav .nav-link:focus {
+	background: var(--hovered-menu-bg);
+	color: var(--strong-text);
 }
 
 pre {
@@ -174,7 +168,8 @@ body .navbar-dark .navbar-nav a.nav-link
 body li.nav-item a:hover,
 body a.nav-link:hover
 {
-	color: var(--accent);
+	color: var(--hovered-menu-fg);
+	background: var(--bg);
 }
 [role="main"] a {
 	text-decoration: underline;
@@ -186,8 +181,8 @@ body a.nav-link:hover
 
 kbd {
 	padding: 2px 4px;
-	color: var(--accent);
-	background: var(--sidenav-bg);
+	color: var(--kbd-fg);
+	background: var(--kbd-bg);
 	border-radius: 2px;
 	box-shadow: none;
 	font-weight: bold;
@@ -229,7 +224,7 @@ body .navbar {
 	line-height: 36px;
 }
 body .navbar-brand {
-	background: url(../img/logo-white.svg) no-repeat;
+	background: url(../img/logo-var(--bg).svg) no-repeat;
 	background-position: 5px center;
 	background-size: 70px 40px;
 	padding-left: 85px;
@@ -238,7 +233,6 @@ body .navbar-brand {
 }
 
 .bs-sidebar .nav > li > a {
-	border-right: 1px solid transparent;
 }
 .bs-sidebar .nav > .active > a,
 .bs-sidebar .nav > .active:hover > a,
@@ -248,8 +242,8 @@ body .navbar-brand {
 .bs-sidebar .nav > li > a.active:focus
 {
 	font-weight: initial;
-	background-color: #bed7e632;
-	border-right: 1px solid;
+	background-color: var(--bg);
+	color: var(--strong-text);
 }
 .bs-sidebar .nav > .main.active > a,
 .bs-sidebar .nav > .main.active:hover > a,
@@ -259,7 +253,10 @@ body .navbar-brand {
 .bs-sidebar .nav > li > a {
   font-weight: normal;
 }
-
+.bs-sidebar .nav > li > a:hover, .bs-sidebar .nav > li > a:focus,
+.bs-sidebar .nav > li > a.active, .bs-sidebar .nav > li > a.active:hover, .bs-sidebar .nav > li > a.active:focus {
+	border: none;
+}
 .table-striped > tbody > tr:nth-of-type(2n+1) {
 	background: transparent;
 }
@@ -300,9 +297,6 @@ body ul.dropdown-menu li a:hover {
 	/**background: #111;
 	color: #ff5f87;**/
 }
-body .nav>li>a:hover, body .nav>li>a:focus {
-	background: #222;
-}
 body .toc-header {
 	font-weight: bold;
 	font-size: 18px;
@@ -318,7 +312,7 @@ body .toc-header {
 }
 
 td code {
-	white-space: nowrap;
+	var(--bg)-space: nowrap;
 }
 
 .modal-content {
@@ -326,7 +320,7 @@ td code {
 }
 
 code.no-wrap {
-	white-space: normal;
+	var(--bg)-space: normal;
 }
 
 

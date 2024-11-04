@@ -16,7 +16,6 @@ extra_css:
         - css/link-to-dystroy.css
 
 extra_javascript:
-        - js/autoclose-tree.js
         - js/link-to-dystroy.js
 
 theme:
