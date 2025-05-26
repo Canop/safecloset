@@ -1,9 +1,9 @@
 use {
     super::*,
     crate::tui::ContentSkin,
-    crokey::crossterm::event::{
-        KeyEvent,
-        MouseEvent,
+    crokey::{
+        KeyCombination,
+        crossterm::event::MouseEvent,
     },
     std::path::{
         Path,
@@ -47,9 +47,9 @@ impl FileSelectorState {
     }
     pub fn apply_key_event(
         &mut self,
-        key: KeyEvent,
+        key: KeyCombination,
     ) -> bool {
-        let b = self.input.apply_key_event(key);
+        let b = self.input.apply_key_combination(key);
         self.update_path();
         b
     }

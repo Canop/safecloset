@@ -1,6 +1,5 @@
 use {
     crokey::*,
-    crossterm::event::KeyEvent,
     std::fmt,
 };
 
@@ -19,7 +18,7 @@ macro_rules! make_actions {
                 }
             }
             #[allow(unreachable_code)]
-            pub fn key(self) -> Option<KeyEvent> {
+            pub fn key(self) -> Option<KeyCombination> {
                 match self {
                     $( Action::$variant => {
                         $(
@@ -29,7 +28,7 @@ macro_rules! make_actions {
                     })*
                 }
             }
-            pub fn for_key(mut key: KeyEvent) -> Option<Self> {
+            pub fn for_key(mut key: KeyCombination) -> Option<Self> {
                 // small hack because on Windows/Azerty I seem
                 // to receive 'shift-?' for '?' from crossterm
                 if key == key!(shift-'?') {

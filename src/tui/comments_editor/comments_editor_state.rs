@@ -1,10 +1,8 @@
 use {
     crate::tui::ContentSkin,
     crokey::{
-        crossterm::event::{
-            KeyEvent,
-            MouseEvent,
-        },
+        KeyCombination,
+        crossterm::event::MouseEvent,
         key,
     },
     termimad::*,
@@ -24,9 +22,9 @@ impl CommentsEditorState {
     }
     pub fn apply_key_event(
         &mut self,
-        key: KeyEvent,
+        key: KeyCombination,
     ) -> bool {
-        self.comments.apply_key_event(key)
+        self.comments.apply_key_combination(key)
     }
     /// handle a mouse event
     pub fn on_mouse_event(

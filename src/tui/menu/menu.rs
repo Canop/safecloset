@@ -1,6 +1,6 @@
 use {
     crate::tui::*,
-    crokey::crossterm::event::KeyEvent,
+    crokey::KeyCombination,
     termimad::Area,
 };
 
@@ -38,7 +38,7 @@ impl<I: ToString + Clone> Menu<I> {
     pub fn add_item(
         &mut self,
         action: I,
-        key: Option<KeyEvent>,
+        key: Option<KeyCombination>,
     ) {
         self.state.add_item(action, key);
     }

@@ -7,10 +7,8 @@ use {
         tui::menu::*,
     },
     crokey::{
-        crossterm::event::{
-            KeyEvent,
-            MouseEvent,
-        },
+        KeyCombination,
+        crossterm::event::MouseEvent,
         key,
     },
     std::path::{
@@ -215,7 +213,7 @@ impl ImportState {
     }
     pub fn apply_key_event(
         &mut self,
-        key: KeyEvent,
+        key: KeyCombination,
     ) -> bool {
         if key == key!(esc) {
             self.step = Step::Finished;

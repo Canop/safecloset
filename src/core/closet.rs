@@ -7,8 +7,8 @@ use {
     },
     rand::{
         Rng,
+        rng,
         seq::SliceRandom,
-        thread_rng,
     },
     serde::{
         Deserialize,
@@ -47,12 +47,12 @@ fn default_clear_comments() -> String {
 /// the given depth
 fn random_decoy_drawers_count(depth: usize) -> usize {
     let mut n = match depth {
-        0 => thread_rng().gen_range(3..6),
-        1 => thread_rng().gen_range(1..3),
-        2 => thread_rng().gen_range(0..2),
+        0 => rng().random_range(3..6),
+        1 => rng().random_range(1..3),
+        2 => rng().random_range(0..2),
         _ => 0,
     };
-    while thread_rng().gen_bool(0.2) {
+    while rng().random_bool(0.2) {
         n += 1;
     }
     n
@@ -198,7 +198,7 @@ impl Closet {
 
     /// Change the order of drawers
     pub fn shuffle_drawers(&mut self) {
-        self.drawers.shuffle(&mut thread_rng());
+        self.drawers.shuffle(&mut rng());
     }
 
     /// Close the drawer then reopen it.
