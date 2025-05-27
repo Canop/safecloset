@@ -1,9 +1,11 @@
 use {
     super::*,
-    crokey::crossterm::event::{
-        KeyEvent,
-        MouseEvent,
-        MouseEventKind,
+    crokey::{
+        KeyCombination,
+        crossterm::event::{
+            MouseEvent,
+            MouseEventKind,
+        },
     },
     minimad::Text,
     termimad::*,
@@ -35,7 +37,7 @@ impl Help {
     }
     pub fn apply_key_event(
         &mut self,
-        key: KeyEvent,
+        key: KeyCombination,
     ) -> bool {
         // the only events we're interested into are the ones which impact the
         // scroll position so we create a text view and ask it after the event
@@ -47,7 +49,7 @@ impl Help {
         );
         let mut text_view = TextView::from(&self.area, &fmt_text);
         text_view.set_scroll(self.scroll);
-        if text_view.apply_key_event(key) {
+        if text_view.apply_key_combination(key) {
             self.scroll = text_view.scroll;
             true
         } else {

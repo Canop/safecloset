@@ -1,7 +1,7 @@
 use {
     crokey::{
+        KeyCombination,
         crossterm::event::{
-            KeyEvent,
             MouseButton,
             MouseEvent,
             MouseEventKind,
@@ -14,7 +14,7 @@ use {
 pub struct MenuItem<I> {
     pub action: I,
     pub area: Option<Area>,
-    pub key: Option<KeyEvent>,
+    pub key: Option<KeyCombination>,
 }
 
 pub struct MenuState<I> {
@@ -45,7 +45,7 @@ impl<I: ToString + Clone> MenuState<I> {
     pub fn add_item(
         &mut self,
         action: I,
-        key: Option<KeyEvent>,
+        key: Option<KeyCombination>,
     ) {
         self.items.push(MenuItem {
             action,
@@ -82,7 +82,7 @@ impl<I: ToString + Clone> MenuState<I> {
     /// the menu mechanics)
     pub fn on_key(
         &mut self,
-        key: KeyEvent,
+        key: KeyCombination,
     ) -> Option<I> {
         let items = &self.items;
         if key == key!(down) {

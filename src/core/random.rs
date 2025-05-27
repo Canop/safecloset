@@ -3,7 +3,7 @@ use {
     rand::{
         Rng,
         RngCore,
-        thread_rng,
+        rng,
     },
     std::ops::Range,
 };
@@ -15,7 +15,7 @@ const PASSWORD_CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
 
 pub fn random_bytes(count: usize) -> Box<[u8]> {
     let mut vec = vec![0u8; count];
-    thread_rng().fill_bytes(&mut vec);
+    rng().fill_bytes(&mut vec);
     vec.into_boxed_slice()
 }
 
@@ -24,7 +24,7 @@ pub fn random_bytes(count: usize) -> Box<[u8]> {
 /// min_size and max_size are both included.
 #[allow(dead_code)]
 pub fn random_bytes_random_size(range: Range<usize>) -> Box<[u8]> {
-    random_bytes(thread_rng().gen_range(range))
+    random_bytes(rng().random_range(range))
 }
 
 /// Generate a random nonce for AES-GCM.
@@ -32,15 +32,15 @@ pub fn random_bytes_random_size(range: Range<usize>) -> Box<[u8]> {
 /// AES-GCM nonces are 12 bytes (96 bits)
 pub fn random_nonce() -> Nonce {
     let mut nonce = Nonce::default();
-    thread_rng().fill_bytes(&mut nonce[0..12]);
+    rng().fill_bytes(&mut nonce[0..12]);
     nonce
 }
 
 pub fn random_password() -> String {
-    let mut rng = thread_rng();
-    (0..rng.gen_range(30..80))
+    let mut rng = rng();
+    (0..rng.random_range(30..80))
         .map(|_| {
-            let idx = rng.gen_range(0..PASSWORD_CHARSET.len());
+            let idx = rng.random_range(0..PASSWORD_CHARSET.len());
             PASSWORD_CHARSET[idx] as char
         })
         .collect()
