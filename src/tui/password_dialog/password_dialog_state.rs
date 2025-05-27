@@ -1,9 +1,9 @@
 use {
     super::*,
     crate::tui::ContentSkin,
-    crokey::crossterm::event::{
-        KeyEvent,
-        MouseEvent,
+    crokey::{
+        KeyCombination,
+        crossterm::event::MouseEvent,
     },
     termimad::*,
 };
@@ -27,9 +27,9 @@ impl PasswordDialogState {
     }
     pub fn apply_key_event(
         &mut self,
-        key: KeyEvent,
+        key: KeyCombination,
     ) -> bool {
-        self.password.apply_key_event(key)
+        self.password.apply_key_combination(key)
     }
     /// handle a mouse event
     pub fn on_mouse_event(

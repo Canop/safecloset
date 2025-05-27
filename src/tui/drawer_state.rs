@@ -713,7 +713,7 @@ impl DrawerState {
         &self,
         line: usize,
     ) -> bool {
-        self.best_search_line().map_or(false, |l| l == line)
+        self.best_search_line() == Some(line)
     }
     pub fn best_search_line(&self) -> Option<usize> {
         if self.focus.is_search() {

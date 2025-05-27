@@ -6,7 +6,10 @@ use {
         error::SafeClosetError,
         timer::Timer,
     },
-    crokey::crossterm::event::Event,
+    crokey::{
+        KeyCombination,
+        crossterm::event::Event,
+    },
     crossbeam::select,
     termimad::{
         Area,
@@ -17,7 +20,6 @@ use {
 /// Run the Terminal User Interface until the user decides to quit.
 ///
 /// The terminal must be already in alternate and raw mode
-#[allow(unused_mut)]
 pub(super) fn run(
     w: &mut W,
     open_closet: OpenCloset,
@@ -38,18 +40,13 @@ pub(super) fn run(
                 let timed_event = timed_event?;
                 let mut quit = false;
                 match timed_event.event {
-                    Event::Resize(mut width, mut height) => {
-                        // I don't know why but Crossterm seems to always report an
-                        // understimated size on Windows
-                        #[cfg(windows)]
-                        {
-                            width += 1;
-                            height += 1;
-                        }
+                    Event::Resize(width, height) => {
                         view.set_available_area(Area::new(0, 0, width, height));
                     }
                     Event::Key(key) => {
-                        let cmd_result = state.on_key(key)?;
+                        let key_combination = KeyCombination::from(key);
+                        debug!("key combination pressed: {}", key_combination);
+                        let cmd_result = state.on_key(key_combination)?;
                         if cmd_result.quit() {
                             debug!("user requests quit");
                             quit = true;
@@ -59,6 +56,9 @@ pub(super) fn run(
                     Event::Mouse(mouse_event) => {
                         state.on_mouse_event(mouse_event, timed_event.double_click)?;
                         timer.reset();
+                    }
+                    Event::FocusGained | Event::FocusLost | Event::Paste(_) => {
+                        debug!("ignoring event: {:?}", timed_event.event);
                     }
                 }
                 event_source.unblock(quit);

@@ -10,9 +10,9 @@ pub use {
 
 use {
     super::*,
-    crokey::crossterm::event::{
-        KeyEvent,
-        MouseEvent,
+    crokey::{
+        KeyCombination,
+        crossterm::event::MouseEvent,
     },
     std::path::PathBuf,
     termimad::Area,
@@ -37,7 +37,7 @@ impl Import {
     }
     pub fn on_key(
         &mut self,
-        key: KeyEvent,
+        key: KeyCombination,
     ) -> bool {
         self.state.apply_key_event(key)
     }

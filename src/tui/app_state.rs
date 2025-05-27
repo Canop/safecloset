@@ -7,7 +7,6 @@ use {
     },
     crokey::*,
     crossterm::event::{
-        KeyEvent,
         KeyModifiers,
         MouseButton,
         MouseEvent,
@@ -702,13 +701,13 @@ impl AppState {
     /// Handle a key event
     pub fn on_key(
         &mut self,
-        key: KeyEvent,
+        key: KeyCombination,
     ) -> Result<CmdResult, SafeClosetError> {
         use DrawerFocus::*;
         self.message = None;
 
         if let Some(input) = self.drawer_input() {
-            if input.apply_key_event(key) {
+            if input.apply_key_combination(key) {
                 if let Some(ds) = &mut self.drawer_state {
                     if ds.focus.is_search() {
                         ds.search.update(&ds.drawer);
@@ -851,7 +850,7 @@ impl AppState {
             }
         }
 
-        if key == key!(insert) || as_letter(key) == Some('i') {
+        if key == key!(insert) || key.as_letter() == Some('i') {
             if let Some(ds) = &mut self.drawer_state {
                 if let NameSelected { line } = &ds.focus {
                     let line = *line;
@@ -865,7 +864,7 @@ impl AppState {
             return Ok(CmdResult::Stay);
         }
 
-        if as_letter(key) == Some('a') {
+        if key.as_letter() == Some('a') {
             if let Some(ds) = &mut self.drawer_state {
                 if let NameSelected { line } = &ds.focus {
                     let line = *line;

@@ -10,9 +10,9 @@ pub use {
 
 use {
     super::*,
-    crokey::crossterm::event::{
-        KeyEvent,
-        MouseEvent,
+    crokey::{
+        KeyCombination,
+        crossterm::event::MouseEvent,
     },
     std::path::Path,
 };
@@ -36,7 +36,7 @@ impl FileSelector {
     }
     pub fn apply_key_event(
         &mut self,
-        key: KeyEvent,
+        key: KeyCombination,
     ) -> bool {
         self.state.apply_key_event(key)
     }
