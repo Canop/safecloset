@@ -28,7 +28,7 @@ rmp-serde = "=1.3.0"
 rust-argon2 = "=0.8.3"
 secular = { version = "1.0.1", features = ["normalization"] }
 serde = { version = "1.0.219", features = ["derive"] }
-termimad = "=0.32.0"
+termimad = "=0.33.0"
 terminal-clipboard = { version = "=0.4.1", optional = true }
 thiserror = "=2.0.12"
 unicode-width = "=0.2.0"
