@@ -15,6 +15,8 @@ use {
     termimad::InputField,
 };
 
+const SELECT_NON_SPACE_ON_DOUBLE_CLICK: bool = true;
+
 /// TUI Application state
 pub struct AppState {
     pub open_closet: OpenCloset,
@@ -296,7 +298,15 @@ impl AppState {
         }
 
         if let Some(input) = self.drawer_input() {
-            if input.apply_mouse_event(mouse_event, double_click) {
+            // if double-click select_non_space_around
+            if input.focused() && double_click && SELECT_NON_SPACE_ON_DOUBLE_CLICK {
+                if let Some(pos) = input.get_mouse_event_pos(mouse_event) {
+                    // we select the non-space around the position
+                    input.set_cursor_pos(pos);
+                    input.select_non_space_around();
+                    return Ok(());
+                }
+            } else if input.apply_mouse_event(mouse_event, double_click) {
                 return Ok(());
             } else if let Some(ds) = &mut self.drawer_state {
                 // unfocusing the input, validating it
