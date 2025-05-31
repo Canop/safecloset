@@ -1,3 +1,7 @@
+<a name="v1.4.0"></a>
+### v1.4.0 - 2025-05-31
+- change double-click behavior to select all non-space characters around instead of selecting only "word characters" - This is more convenient when the text you want to select is an email or a password
+
 <a name="v1.3.2"></a>
 ### v1.3.2 - 2023-11-11
 - update some dependencies
