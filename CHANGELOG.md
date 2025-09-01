@@ -1,3 +1,7 @@
+<a name="v1.4.1"></a>
+### v1.4.1 - 2025-09-01
+- fix safecloset not compiling anymore when --locked is ommited
+
 <a name="v1.4.0"></a>
 ### v1.4.0 - 2025-05-31
 - change double-click behavior to select all non-space characters around instead of selecting only "word characters" - This is more convenient when the text you want to select is an email or a password
