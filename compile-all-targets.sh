@@ -40,22 +40,22 @@ cross_build() {
     cp "target/$target/release/$exec" "build/$target/"
 }
 
-# cross_build "x86-64 GLIBC" "x86_64-unknown-linux-gnu" ""
-# cross_build "MUSL" "x86_64-unknown-linux-musl" ""
-# cross_build "ARM 32" "armv7-unknown-linux-gnueabihf" ""
-# cross_build "ARM 32 MUSL" "armv7-unknown-linux-musleabi" ""
-# cross_build "ARM 64" "aarch64-unknown-linux-gnu" ""
-# cross_build "ARM 64 MUSL" "aarch64-unknown-linux-musl" ""
+cross_build "x86-64 GLIBC" "x86_64-unknown-linux-gnu" "clipboard"
+cross_build "MUSL" "x86_64-unknown-linux-musl" ""
+cross_build "ARM 32" "armv7-unknown-linux-gnueabihf" ""
+cross_build "ARM 32 MUSL" "armv7-unknown-linux-musleabi" ""
+cross_build "ARM 64" "aarch64-unknown-linux-gnu" ""
+cross_build "ARM 64 MUSL" "aarch64-unknown-linux-musl" ""
 cross_build "Windows" "x86_64-pc-windows-gnu" "clipboard"
 cross_build "Android" "aarch64-linux-android" "clipboard"
 
-# Build the default X86_64 linux version (with clipboard support, needing a recent GLIBC)
-# recent glibc
-echo -e "${H2}Compiling the standard linux version${EH}"
-cargo build --release --features "clipboard"
-strip "target/release/$NAME"
-mkdir build/x86_64-linux/
-cp "target/release/$NAME" build/x86_64-linux/
+# build the local version
+target=$(./target.sh)
+echo -e "${H2}Compiling the local target - $target${EH}"
+cargo clean
+cargo build --release  --features "clipboard"
+mkdir "build/$target/"
+cp "target/release/$NAME" "build/$target/"
 
 # add a summary of content
 echo '
