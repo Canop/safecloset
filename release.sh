@@ -1,6 +1,6 @@
 # build a new release of safecloset
 # This isn't used for normal compilation but for the building of the official releases
-version=$(sed 's/version = "\([0-9.]\{1,\}\)"/\1/;t;d' Cargo.toml | head -1)
+version=$(./version.sh)
 
 echo "Building release $version"
 
