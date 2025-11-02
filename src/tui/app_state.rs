@@ -489,7 +489,7 @@ impl AppState {
         action: Action,
     ) -> Result<CmdResult, SafeClosetError> {
         use DrawerFocus::*;
-        debug!("executing action {:?}", action);
+        debug!("executing action {action:?}");
         match action {
             Action::Back => {
                 if self.is_pending_removal() {

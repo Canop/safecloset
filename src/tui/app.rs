@@ -45,7 +45,7 @@ pub(super) fn run(
                     }
                     Event::Key(key) => {
                         let key_combination = KeyCombination::from(key);
-                        debug!("key combination pressed: {}", key_combination);
+                        debug!("key combination pressed: {key_combination}");
                         let cmd_result = state.on_key(key_combination)?;
                         if cmd_result.quit() {
                             debug!("user requests quit");
@@ -82,8 +82,8 @@ pub(super) fn run(
             // timer (so that safecloset doesn't stay open
             // if you quit your PC)
             recv(timer_rx) -> ring => {
-                info!("Inactivity detection, quitting (delay: {:?})", MAX_INACTIVITY);
-                debug!("ring type: {:?}", ring);
+                info!("Inactivity detection, quitting (delay: {MAX_INACTIVITY:?})");
+                debug!("ring type: {ring:?}");
                 event_source.unblock(true);
                 break;
             }

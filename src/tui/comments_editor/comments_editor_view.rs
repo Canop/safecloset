@@ -9,8 +9,8 @@ pub struct CommentsEditorView {
     area: Area,
 }
 
-static MD_BEFORE: &str = r#"Closet comments (not crypted):"#;
-static MD_AFTER: &str = r#"Hit *^enter* or *alt-enter* to add a line, and *enter* to validate"#;
+static MD_BEFORE: &str = r"Closet comments (not crypted):";
+static MD_AFTER: &str = r"Hit *^enter* or *alt-enter* to add a line, and *enter* to validate";
 
 impl CommentsEditorView {}
 

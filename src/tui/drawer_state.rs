@@ -129,9 +129,9 @@ impl DrawerState {
             } else {
                 // directly swapping entries, it's easy
                 entries.swap(line, new_line);
-            };
+            }
             if let Some(line) = self.focus.selection_mut() {
-                *line = new_line
+                *line = new_line;
             }
         }
         self.update_search();
@@ -235,7 +235,7 @@ impl DrawerState {
         };
         if matches.is_empty() {
             return;
-        };
+        }
         let entries = &mut self.drawer.content.entries;
         let mut ordered_entries: Vec<_> = entries.drain(0..head).collect();
         for m in matches {
@@ -316,7 +316,7 @@ impl DrawerState {
     }
 
     pub fn update_search(&mut self) {
-        self.search.update(&self.drawer)
+        self.search.update(&self.drawer);
     }
 
     /// Tell what part of the drawer screen has been clicked
@@ -540,7 +540,7 @@ impl DrawerState {
                         *selection = last_visible_line.unwrap();
                     }
                     _ => {
-                        warn!("unacounted scroll command: {:?}", scroll_command);
+                        warn!("unacounted scroll command: {scroll_command:?}");
                     }
                 }
             }

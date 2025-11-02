@@ -23,25 +23,25 @@ pub struct ContentView {
     area: Area,
 }
 
-static MD_NEW_CLOSET: &str = r#"
+static MD_NEW_CLOSET: &str = r"
 This is a new closet.
 
 To store secrets, you must create at least a drawer.
 
 This is done with the *^n* key combination (*control-n*).
-"#;
+";
 
-static MD_NO_DRAWER_OPEN: &str = r#"
+static MD_NO_DRAWER_OPEN: &str = r"
 Hit *^n* to create a new drawer.
 
 Hit *^o* to open an existing one.
-"#;
+";
 
-static MD_EMPTY_DRAWER: &str = r#"
+static MD_EMPTY_DRAWER: &str = r"
 This drawer is still empty.
 
 Hit the *n* key to create a new entry.
-"#;
+";
 
 impl View<AppState> for ContentView {
     fn set_available_area(

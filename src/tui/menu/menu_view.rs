@@ -89,7 +89,7 @@ impl<I: ToString + Clone> View<MenuState<I>> for MenuView {
                 )?;
                 let key_desc = item
                     .key
-                    .map_or("".to_string(), |key| KEY_FORMAT.to_string(key));
+                    .map_or(String::new(), |key| KEY_FORMAT.to_string(key));
                 skin.write_composite_fill(
                     w,
                     mad_inline!("*$0", &key_desc),

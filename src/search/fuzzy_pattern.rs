@@ -31,7 +31,7 @@ impl fmt::Display for FuzzyPattern {
         f: &mut fmt::Formatter<'_>,
     ) -> fmt::Result {
         for &c in self.chars.iter() {
-            f.write_char(c)?
+            f.write_char(c)?;
         }
         Ok(())
     }
@@ -195,7 +195,7 @@ impl FuzzyPattern {
                         // anyway to have pos[0] much greater than the
                         // start of the search)
                     }
-                    _ => {}
+                    MatchSearchResult::None => {}
                 }
             }
         }

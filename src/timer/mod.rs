@@ -77,7 +77,7 @@ impl Timer {
                         }
                     }
                     Err(e) => {
-                        warn!("crash in timer: {}", e);
+                        warn!("crash in timer: {e}");
                         tx_ring.send(TimerResult::Crash).unwrap();
                         break;
                     }
