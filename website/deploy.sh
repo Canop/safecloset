@@ -1,4 +1,4 @@
-mkdocs build
+ddoc
 cp -r site/* ~/dev/www/dystroy/safecloset/
 
 # deploy on dystroy.org

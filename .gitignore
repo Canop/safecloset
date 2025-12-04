@@ -1,8 +1,10 @@
 .bacon-locations
+.intentionally-empty-file.o
 /target
 /*.closet
 /*.old
 /*.zip
+/zigbuild
 /build
 /releases
 /deploy.sh

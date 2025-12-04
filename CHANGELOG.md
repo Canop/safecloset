@@ -1,5 +1,9 @@
 <a name="v1.4.1"></a>
 ### v1.4.1 - 2025-09-01
+- updated some dependencies
+
+<a name="v1.4.1"></a>
+### v1.4.1 - 2025-09-01
 - fix safecloset not compiling anymore when --locked is ommited
 - release archive contain executable for Mac, Linux, Android, and Windows - Fix #19
 

@@ -31,9 +31,9 @@ Once it's installed, use cargo to install safecloset:
 
 *(if you encountered a problem and solved it, please tell me so that we can help other users)*
 
-## Why `--locked`
+## Why --locked
 
-This forces the dependencies to be in the same version than when I released.
+The `--locked` argument forces the dependencies to be in the same version than when I released.
 This protects against some possible attacks on the dependency chain.
 
 ## Compilation failed

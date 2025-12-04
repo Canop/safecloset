@@ -5,7 +5,7 @@ version=$(./version.sh)
 echo "Building release $version"
 
 # make the build directory and compile for all targets
-./compile-all-targets.sh
+./build-all-targets.sh
 
 # add the readme and changelog in the build directory
 echo "This is safecloset. More info and installation instructions on https://github.com/Canop/safecloset" > build/README.md

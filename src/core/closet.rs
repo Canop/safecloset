@@ -224,11 +224,16 @@ impl Closet {
         password: &str,
     ) -> Result<Aes256GcmSiv, CoreError> {
         let config = argon2::Config {
+            ad: &[],
             hash_length: 32,
-            ..Default::default()
+            lanes: 1,
+            mem_cost: 4096,
+            secret: &[],
+            thread_mode: argon2::ThreadMode::default(),
+            time_cost: 3,
+            variant: argon2::Variant::Argon2i,
+            version: argon2::Version::Version13,
         };
-        //config.variant = argon2::Variant::Argon2i;
-        //config.version = argon2::Version::Version13;
         let hash = argon2::hash_raw(password.as_bytes(), self.salt.as_bytes(), &config)?;
         let key = Key::<Aes256GcmSiv>::from_slice(&hash);
         Ok(Aes256GcmSiv::new(key))

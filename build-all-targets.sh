@@ -1,8 +1,8 @@
-# WARNING: This script is NOT meant for normal installation, it's dedicated
-# to the compilation of all supported targets, from a linux machine.
+#WARNING: This script is NOT meant for normal installation, it's dedicated
+# to the compilation of all supported targets.
 # This is a long process and it involves specialized toolchains.
-# For usual compilation do
-#     cargo build --release
+# For normal installation do
+#     cargo install --path .
 
 H1="\n\e[30;104;1m\e[2K\n\e[A" # style first header
 H2="\n\e[30;104m\e[1K\n\e[A" # style second header
@@ -12,23 +12,24 @@ version=$(./version.sh)
 
 echo -e "${H1}Compilation of all targets for $NAME $version${EH}"
  
-# clean previous build
+# Clean previous build
 rm -rf build
 mkdir build
 echo "   build cleaned"
 
 # Build versions for other platforms using cargo cross
 cross_build() {
+    export RUSTFLAGS=""
     target_name="$1"
     target="$2"
     features="$3"
     echo -e "${H2}Compiling the $target_name version (target=$target, features='$features')${EH}"
-    cargo clean
+    cargo clean --quiet
     if [[ -n $features ]]
     then
-        cross build --target "$target" --release --features "$features"
+        cross build --quiet --target "$target" --release --features "$features"
     else
-        cross build --target "$target" --release
+        cross build --quiet --target "$target" --release
     fi
     mkdir "build/$target"
     if [[ $target_name == 'Windows' ]]
@@ -38,16 +39,48 @@ cross_build() {
         exec="$NAME"
     fi
     cp "target/$target/release/$exec" "build/$target/"
+    echo "   Done"
 }
 
 cross_build "x86-64 GLIBC" "x86_64-unknown-linux-gnu" "clipboard"
+cross_build "NetBSD/amd64" "x86_64-unknown-netbsd" ""
 cross_build "MUSL" "x86_64-unknown-linux-musl" ""
 cross_build "ARM 32" "armv7-unknown-linux-gnueabihf" ""
 cross_build "ARM 32 MUSL" "armv7-unknown-linux-musleabi" ""
 cross_build "ARM 64" "aarch64-unknown-linux-gnu" ""
 cross_build "ARM 64 MUSL" "aarch64-unknown-linux-musl" ""
 cross_build "Windows" "x86_64-pc-windows-gnu" "clipboard"
-cross_build "Android" "aarch64-linux-android" "clipboard"
+
+# use zig to build a version for GLIBC 2.28
+target="x86_64-unknown-linux-gnu"
+glibc_version="2.28"
+zig_target="$target.$glibc_version"
+echo -e "${H2}Compiling for $target with GLIBC $glibc_version version${EH}"
+cargo zigbuild --release --target "$zig_target"
+folder="$target-glibc$glibc_version"
+mkdir "build/$folder"
+cp "target/$target/release/$NAME" "build/$folder/"
+echo "   Done"
+
+# use zig with docker to build a Mac version
+target="aarch64-apple-darwin"
+echo -e "${H2}Compiling for $target ${EH}"
+docker run \
+    --rm -it -v $(pwd):/io -w /io ghcr.io/rust-cross/cargo-zigbuild \
+    cargo zigbuild --release --target "$target" --target-dir "zigbuild"
+mkdir "build/$target"
+cp "zigbuild/$target/release/$NAME" "build/$target/"
+echo "   Done"
+
+# use cargo-ndk to build an android version
+# cargo-ndk and the NDK must first be installed and ANDROID_NDK_HOME point to the NDK
+ndk_target="x86_64"
+target="${ndk_target}-linux-android"
+echo -e "${H2}Compiling for $target ${EH}"
+cargo ndk build -t $ndk_target --features clipboard --release
+mkdir "build/$target"
+cp "target/$target/release/$NAME" "build/$target/"
+echo "   Done"
 
 # build the local version
 target=$(./target.sh)
@@ -56,6 +89,7 @@ cargo clean
 cargo build --release  --features "clipboard"
 mkdir "build/$target/"
 cp "target/release/$NAME" "build/$target/"
+echo "   Done"
 
 # add a summary of content
 echo '
@@ -65,3 +99,4 @@ For more information, or if you prefer to compile yourself, see https://dystroy.
 ' > build/install.md
 
 echo -e "${H1}FINISHED${EH}"
+

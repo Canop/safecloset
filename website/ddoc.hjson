@@ -1,0 +1,50 @@
+
+# This is a configuration file for the ddoc static site generator.
+# For details and instruction, see https://dystroy.org/ddoc/
+
+title: "safecloset"
+description: "Secret Keeper"
+favicon: "img/favicon.ico"
+
+pages: {
+    Overview: index.md
+    Features: features.md
+    Install: install.md
+    Usage: usage.md
+    Community: community.md
+}
+
+// Nav links can have { img, url, class, label}, all optional
+// URL starting with '/' are relative to the site's root
+nav_links: {
+    before_menu: [
+        {
+            img: img/dystroy-rust-white.svg
+            url: https://dystroy.org
+            alt: dystroy.org homepage
+            class: external-nav-link
+        }
+        {
+            label: SafeCloset
+            url: /index.md
+            alt: SafeCloset homepage
+            class: home-link
+        }
+    ]
+    after_menu: [
+        {
+            img: img/github-mark-white.svg
+            class: external-nav-link
+            alt: GitHub
+            url: https://github.com/Canop/safecloset
+        }
+    ]
+}
+
+// UI options
+ui: {
+    // if true, the generated HTML includes a checkbox which
+    // can be styled into a hamburger menu for small screens
+    hamburger_checkbox: true
+}
+
