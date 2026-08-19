@@ -155,12 +155,12 @@ impl Closet {
         depth: usize,
         password: &str,
     ) -> Option<OpenDrawer> {
+        if self.drawers.is_empty() {
+            return None;
+        }
+        let cipher = time!("cipher", self.cipher(password)).ok()?;
         for closed_drawer in &self.drawers {
-            let open_drawer = time!(
-                "closed_drawer.open",
-                closed_drawer.open(depth, password.to_string(), self,)
-            );
-            if let Ok(open_drawer) = open_drawer {
+            if let Ok(open_drawer) = closed_drawer.open(depth, password, &cipher) {
                 return Some(open_drawer);
             }
         }

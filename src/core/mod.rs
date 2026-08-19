@@ -158,16 +158,13 @@ fn test_create_write_read() {
 /// drawer is lost on the way
 #[test]
 fn test_root_drawers_shuffled_on_save() {
-    // the number of saves must be high enough for the test not to fail
-    // when the shuffles happen to give back the same order
+    // enough saves for identical orders to be very improbable
     const SAVES: usize = 10;
 
     let temp_dir = tempfile::tempdir().unwrap();
     let path = temp_dir.path().join("test-shuffle.closet");
     let mut open_closet = OpenCloset::create(path.to_path_buf()).unwrap();
 
-    // the order is read back from the file, as it's the one an attacker
-    // having several versions of it would see
     let mut orders = Vec::new();
     for _ in 0..SAVES {
         open_closet.close_and_save().unwrap();
