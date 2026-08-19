@@ -153,6 +153,58 @@ fn test_create_write_read() {
     temp_dir.close().unwrap();
 }
 
+/// check the drawers of the root closet are reordered on save, so that the
+/// position of a drawer in the file tells nothing about it, and that no
+/// drawer is lost on the way
+#[test]
+fn test_root_drawers_shuffled_on_save() {
+    // the number of saves must be high enough for the test not to fail
+    // when the shuffles happen to give back the same order
+    const SAVES: usize = 10;
+
+    let temp_dir = tempfile::tempdir().unwrap();
+    let path = temp_dir.path().join("test-shuffle.closet");
+    let mut open_closet = OpenCloset::create(path.to_path_buf()).unwrap();
+
+    // the order is read back from the file, as it's the one an attacker
+    // having several versions of it would see
+    let mut orders = Vec::new();
+    for _ in 0..SAVES {
+        open_closet.close_and_save().unwrap();
+        let ids: Vec<DrawerId> = Closet::from_file(&path)
+            .unwrap()
+            .drawers
+            .iter()
+            .map(|closed_drawer| closed_drawer.get_id().clone())
+            .collect();
+        orders.push(ids);
+    }
+
+    // a new closet holds at least 3 decoy drawers
+    let first_order = &orders[0];
+    assert!(first_order.len() >= 3);
+
+    // every save must keep every drawer, exactly once
+    for order in &orders[1..] {
+        assert_eq!(order.len(), first_order.len());
+        for id in first_order {
+            assert_eq!(
+                order.iter().filter(|other_id| *other_id == id).count(),
+                1,
+                "a drawer was lost or duplicated on save",
+            );
+        }
+    }
+
+    // and the order must change
+    assert!(
+        orders[1..].iter().any(|order| order != first_order),
+        "the drawers of the root closet aren't reordered on save",
+    );
+
+    temp_dir.close().unwrap();
+}
+
 /// test changing the password
 #[test]
 fn test_password_change() {

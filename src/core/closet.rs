@@ -75,11 +75,12 @@ impl Closet {
         Ok(closet)
     }
 
-    /// Save the closet to a file
+    /// Save the closet to a file.
     pub fn save(
-        &self,
+        &mut self,
         path: &Path,
     ) -> Result<(), CoreError> {
+        self.shuffle_drawers();
         if path.exists() {
             let backup_path = path.with_extension("old");
             if backup_path.exists() {
