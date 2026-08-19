@@ -43,6 +43,19 @@ fn default_clear_comments() -> String {
     "Closet file written with SafeCloset\nhttps://dystroy.org/safecloset".to_string()
 }
 
+/// Remove all permissions but the owner's, on systems having them
+#[cfg(unix)]
+fn restrict_permissions(path: &Path) -> Result<(), CoreError> {
+    use std::os::unix::fs::PermissionsExt;
+    fs::set_permissions(path, fs::Permissions::from_mode(0o600))?;
+    Ok(())
+}
+
+#[cfg(not(unix))]
+fn restrict_permissions(_path: &Path) -> Result<(), CoreError> {
+    Ok(())
+}
+
 /// compute the number of decoy drawers we must create for
 /// the given depth
 fn random_decoy_drawers_count(depth: usize) -> usize {
@@ -87,6 +100,8 @@ impl Closet {
                 fs::remove_file(&backup_path)?;
             }
             fs::rename(path, &backup_path)?;
+            // the backup may come from a version not restricting permissions
+            restrict_permissions(&backup_path)?;
         }
         self.write_to_file(path)?;
         Ok(())
@@ -99,7 +114,14 @@ impl Closet {
         if path.exists() {
             return Err(CoreError::FileExists(path.to_path_buf()));
         }
-        let mut file = fs::File::create(path)?;
+        let mut options = fs::OpenOptions::new();
+        options.write(true).create_new(true);
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::OpenOptionsExt;
+            options.mode(0o600);
+        }
+        let mut file = options.open(path)?;
         rmp_serde::encode::write_named(&mut file, &self)?;
         Ok(())
     }

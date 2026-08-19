@@ -502,9 +502,10 @@ impl DrawerState {
         &mut self,
         scroll_command: ScrollCommand,
     ) {
-        let page_height = self.page_height();
         let initial_scroll = self.scroll;
-        self.scroll = scroll_command.apply(self.scroll, self.layout.content_height, page_height);
+        let entries_count = self.listed_entries_count();
+        let page_entries_count = self.page_entries_count();
+        self.scroll = scroll_command.apply(self.scroll, entries_count, page_entries_count);
         // if fix_scroll reverts to the previous position, it's because doing
         // differently would hide the selection. In this case, and when the
         // selection can be moved, we move it (and the fix_scroll happening
@@ -546,6 +547,13 @@ impl DrawerState {
             }
         }
     }
+    /// Number of entries visible from the current scroll, at least one
+    fn page_entries_count(&self) -> usize {
+        match self.last_visible_line() {
+            Some(last_line) => (last_line + 1).saturating_sub(self.scroll).max(1),
+            None => 1,
+        }
+    }
     pub fn last_visible_line(&self) -> Option<usize> {
         let page_height = self.page_height();
         let heights = self
@@ -573,13 +581,17 @@ impl DrawerState {
         let content_height = self.layout.content_height;
         let page_height = self.page_height();
         let heights = &self.layout.value_heights_by_line;
-        if self.scroll >= content_height {
-            // this may happen after searching
+        let entries_count = heights.len();
+        if entries_count == 0 || content_height <= page_height {
             self.scroll = 0;
+            return;
         }
-        if content_height <= page_height {
-            self.scroll = 0;
-        } else if let Some(selection) = self.focus.line() {
+        // the scroll counts entries, not lines
+        if self.scroll >= entries_count {
+            self.scroll = entries_count - 1;
+        }
+        if let Some(selection) = self.focus.line() {
+            let selection = selection.min(entries_count - 1);
             if self.scroll >= selection {
                 self.scroll = selection;
             } else {
@@ -588,7 +600,7 @@ impl DrawerState {
                     self.scroll += 1;
                 }
                 // let's ensure there's not too much void at end
-                let last_entry = self.listed_entries_count() - 1;
+                let last_entry = entries_count - 1;
                 while self.scroll > selection
                     && heights[self.scroll - 1..=last_entry].iter().sum::<usize>() >= page_height
                 {
@@ -725,5 +737,99 @@ impl DrawerState {
     /// Return the number of filtered entries (0 if there's no search)
     pub fn match_count(&self) -> usize {
         self.search.result.as_ref().map_or(0, |r| r.entries.len())
+    }
+}
+
+#[cfg(test)]
+mod drawer_state_tests {
+
+    use {
+        super::*,
+        crate::core::OpenCloset,
+    };
+
+    /// The scroll counts entries while the content height counts lines:
+    /// check no scroll command can push it out of the entries, which would
+    /// make the drawing panic.
+    #[test]
+    fn test_scroll_stays_among_entries() {
+        const ENTRIES_COUNT: usize = 3;
+
+        let temp_dir = tempfile::tempdir().unwrap();
+        let path = temp_dir.path().join("test-scroll.closet");
+        let mut open_closet = OpenCloset::create(path).unwrap();
+        let drawer = open_closet.create_drawer("test-scroll-passphrase").unwrap();
+        // values much taller than the page, so that lines outnumber entries
+        let value = "line\n".repeat(30);
+        for i in 0..ENTRIES_COUNT {
+            drawer
+                .content
+                .entries
+                .push(Entry::new(format!("key {i}"), value.clone()));
+        }
+        drawer.content.settings.open_all_values = true;
+        let drawer = open_closet.take_deepest_open_drawer().unwrap();
+
+        // nothing is selected, as just after opening a drawer
+        let mut drawer_state: DrawerState = drawer.into();
+        let area = Area::new(0, 0, 80, 20);
+        let commands = [
+            ScrollCommand::Bottom,
+            ScrollCommand::Pages(1),
+            ScrollCommand::Pages(5),
+            ScrollCommand::Lines(1),
+            ScrollCommand::Lines(100),
+            ScrollCommand::Top,
+            ScrollCommand::Pages(-3),
+            ScrollCommand::Lines(-100),
+        ];
+        for command in commands {
+            drawer_state.update_drawing_layout(&area);
+            drawer_state.apply_scroll_command(command);
+            assert!(
+                drawer_state.scroll < ENTRIES_COUNT,
+                "scroll is {} among {ENTRIES_COUNT} entries after {command:?}",
+                drawer_state.scroll,
+            );
+            drawer_state.update_drawing_layout(&area);
+            // panics if the scroll is out of the entries
+            let _ = drawer_state.scrollbar();
+        }
+
+        temp_dir.close().unwrap();
+    }
+
+    /// A search shrinks the list without any scroll command being applied:
+    /// check the scroll is brought back among the remaining entries.
+    #[test]
+    fn test_scroll_fixed_when_search_shrinks_the_list() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let path = temp_dir.path().join("test-scroll-search.closet");
+        let mut open_closet = OpenCloset::create(path).unwrap();
+        let drawer = open_closet.create_drawer("test-scroll-passphrase").unwrap();
+        let value = "line\n".repeat(30);
+        for name in ["aaa 0", "aaa 1", "aaa 2", "aaa 3", "zzz 0", "zzz 1"] {
+            drawer.content.entries.push(Entry::new(name, value.clone()));
+        }
+        drawer.content.settings.open_all_values = true;
+        let drawer = open_closet.take_deepest_open_drawer().unwrap();
+
+        let mut drawer_state: DrawerState = drawer.into();
+        let area = Area::new(0, 0, 80, 20);
+        drawer_state.update_drawing_layout(&area);
+        drawer_state.apply_scroll_command(ScrollCommand::Bottom);
+        assert_eq!(drawer_state.scroll, 5);
+
+        // only the 2 "zzz" entries are listed now
+        drawer_state.search.input.set_str("zzz");
+        drawer_state.update_search();
+        assert_eq!(drawer_state.listed_entries_count(), 2);
+
+        drawer_state.update_drawing_layout(&area);
+        assert!(drawer_state.scroll < 2, "scroll is {}", drawer_state.scroll);
+        // panics if the scroll is out of the listed entries
+        let _ = drawer_state.scrollbar();
+
+        temp_dir.close().unwrap();
     }
 }

@@ -202,6 +202,40 @@ fn test_root_drawers_shuffled_on_save() {
     temp_dir.close().unwrap();
 }
 
+/// check no other user can read a closet file, nor the backup made when
+/// saving over a closet written by a version not restricting permissions
+#[cfg(unix)]
+#[test]
+fn test_closet_file_permissions() {
+    use std::{
+        fs,
+        os::unix::fs::PermissionsExt,
+    };
+
+    fn mode(path: &std::path::Path) -> u32 {
+        fs::metadata(path).unwrap().permissions().mode() & 0o777
+    }
+
+    let temp_dir = tempfile::tempdir().unwrap();
+    let path = temp_dir.path().join("test-permissions.closet");
+    let mut open_closet = OpenCloset::create(path.to_path_buf()).unwrap();
+    open_closet.close_and_save().unwrap();
+    assert_eq!(mode(&path), 0o600, "mode is {:o}", mode(&path));
+
+    fs::set_permissions(&path, fs::Permissions::from_mode(0o644)).unwrap();
+    open_closet.close_and_save().unwrap();
+    let backup_path = path.with_extension("old");
+    assert_eq!(mode(&path), 0o600, "mode is {:o}", mode(&path));
+    assert_eq!(
+        mode(&backup_path),
+        0o600,
+        "backup mode is {:o}",
+        mode(&backup_path),
+    );
+
+    temp_dir.close().unwrap();
+}
+
 /// test changing the password
 #[test]
 fn test_password_change() {
