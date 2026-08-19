@@ -40,6 +40,11 @@ tempfile = "=3.2.0"
 lto = true
 strip = true
 
+# key derivation is unusably slow in unoptimized builds, which makes
+# the tests opening reference closets very long
+[profile.dev.package.rust-argon2]
+opt-level = 3
+
 [patch.crates-io]
 # crokey = { path = "../crokey" }
 # coolor = { path = "../coolor" }

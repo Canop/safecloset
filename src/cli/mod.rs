@@ -17,7 +17,7 @@ pub fn run() -> Result<(), SafeClosetError> {
         println!("SafeCloset {}", env!("CARGO_PKG_VERSION"),);
         return Ok(());
     }
-    info!("args: {:#?}", &args);
+    info!("args: {:#?}", args);
 
     if let Some(path) = &args.path {
         let closet = OpenCloset::open_or_create(path.clone())?;

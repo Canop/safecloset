@@ -69,7 +69,7 @@ impl AppState {
         error: S,
     ) {
         let text = error.into();
-        warn!("error: {:?}", &text);
+        warn!("error: {:?}", text);
         self.message = Some(Message { text, error: true });
     }
     #[allow(dead_code)]
@@ -78,7 +78,7 @@ impl AppState {
         info: S,
     ) {
         let text = info.into();
-        debug!("info: {:?}", &text);
+        debug!("info: {:?}", text);
         self.message = Some(Message { text, error: false });
     }
 

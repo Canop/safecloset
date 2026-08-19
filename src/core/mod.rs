@@ -1,5 +1,7 @@
 mod closed_drawer;
 mod closet;
+#[cfg(test)]
+mod compat_test;
 mod core_error;
 mod drawer_content;
 mod drawer_id;
