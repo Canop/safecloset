@@ -281,6 +281,22 @@ fn test_save_backup_and_temporary_file() {
     temp_dir.close().unwrap();
 }
 
+/// check closing a drawer into a closet which doesn't hold it is an error,
+/// and not a silent loss of its content
+#[test]
+fn test_close_drawer_in_wrong_closet() {
+    // deep closets, as they hold few decoy drawers
+    let mut closet = Closet::new(3).unwrap();
+    let mut other_closet = Closet::new(3).unwrap();
+    let drawer = closet
+        .create_drawer(3, "test-wrong-closet-passphrase".to_string())
+        .unwrap();
+    assert!(matches!(
+        other_closet.close_drawer(drawer),
+        Err(CoreError::InvalidPushBack),
+    ));
+}
+
 /// test changing the password
 #[test]
 fn test_password_change() {

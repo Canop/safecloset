@@ -264,9 +264,15 @@ impl Closet {
     pub fn close_drawer(
         &mut self,
         mut open_drawer: OpenDrawer,
-    ) -> Result<bool, CoreError> {
+    ) -> Result<(), CoreError> {
         let closed_drawer = open_drawer.close(self)?;
-        Ok(self.push_drawer_back(closed_drawer))
+        if self.push_drawer_back(closed_drawer) {
+            Ok(())
+        } else {
+            // the drawer isn't in this closet: dropping it here would
+            // silently lose its content
+            Err(CoreError::InvalidPushBack)
+        }
     }
 
     fn push_drawer_back(
