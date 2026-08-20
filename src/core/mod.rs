@@ -236,6 +236,51 @@ fn test_closet_file_permissions() {
     temp_dir.close().unwrap();
 }
 
+/// check a save leaves the previous version in the backup, the new one in
+/// the closet file, and no temporary file behind, even when a previous save
+/// was interrupted
+#[test]
+fn test_save_backup_and_temporary_file() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let path = temp_dir.path().join("test-backup.closet");
+    let mut open_closet = OpenCloset::create(path.to_path_buf()).unwrap();
+    open_closet.close_and_save().unwrap();
+    let drawers_count = Closet::from_file(&path).unwrap().drawers.len();
+
+    open_closet.create_drawer("test-backup-passphrase").unwrap();
+    open_closet.close_and_save().unwrap();
+
+    // the backup must hold the version before that drawer was created
+    let backup_path = path.with_extension("old");
+    assert_eq!(
+        Closet::from_file(&backup_path).unwrap().drawers.len(),
+        drawers_count,
+    );
+    assert_eq!(
+        Closet::from_file(&path).unwrap().drawers.len(),
+        drawers_count + 1,
+    );
+
+    let mut file_names: Vec<String> = std::fs::read_dir(temp_dir.path())
+        .unwrap()
+        .map(|dir_entry| dir_entry.unwrap().file_name().into_string().unwrap())
+        .collect();
+    file_names.sort();
+    assert_eq!(file_names, ["test-backup.closet", "test-backup.old"]);
+
+    // a temporary file left by an interrupted save must not prevent saving
+    let writing_path = temp_dir.path().join("test-backup.closet.writing");
+    std::fs::write(&writing_path, b"interrupted").unwrap();
+    open_closet.close_and_save().unwrap();
+    assert!(!writing_path.exists());
+    assert_eq!(
+        Closet::from_file(&path).unwrap().drawers.len(),
+        drawers_count + 1,
+    );
+
+    temp_dir.close().unwrap();
+}
+
 /// test changing the password
 #[test]
 fn test_password_change() {

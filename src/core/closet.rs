@@ -16,7 +16,10 @@ use {
     },
     std::{
         fs,
-        path::Path,
+        path::{
+            Path,
+            PathBuf,
+        },
     },
 };
 
@@ -56,6 +59,32 @@ fn restrict_permissions(_path: &Path) -> Result<(), CoreError> {
     Ok(())
 }
 
+/// Path of the file the closet is written to before it replaces the
+/// previous version
+fn writing_path(path: &Path) -> PathBuf {
+    let mut file_name = path.file_name().unwrap_or_default().to_os_string();
+    file_name.push(".writing");
+    path.with_file_name(file_name)
+}
+
+/// Make a rename durable, on systems where a directory can be synced.
+///
+/// Failing to sync isn't worth failing the save, as the content is already
+/// written and renamed.
+#[cfg(unix)]
+fn sync_dir(path: &Path) {
+    let dir = match path.parent() {
+        Some(dir) if !dir.as_os_str().is_empty() => dir,
+        _ => Path::new("."),
+    };
+    if let Err(e) = fs::File::open(dir).and_then(|dir| dir.sync_all()) {
+        warn!("can't sync directory: {e}");
+    }
+}
+
+#[cfg(not(unix))]
+fn sync_dir(_path: &Path) {}
+
 /// compute the number of decoy drawers we must create for
 /// the given depth
 fn random_decoy_drawers_count(depth: usize) -> usize {
@@ -94,16 +123,25 @@ impl Closet {
         path: &Path,
     ) -> Result<(), CoreError> {
         self.shuffle_drawers();
+        let writing_path = writing_path(path);
+        if writing_path.exists() {
+            fs::remove_file(&writing_path)?;
+        }
+        if let Err(e) = self.write_to_file(&writing_path) {
+            let _ = fs::remove_file(&writing_path);
+            return Err(e);
+        }
         if path.exists() {
             let backup_path = path.with_extension("old");
             if backup_path.exists() {
                 fs::remove_file(&backup_path)?;
             }
-            fs::rename(path, &backup_path)?;
+            fs::copy(path, &backup_path)?;
             // the backup may come from a version not restricting permissions
             restrict_permissions(&backup_path)?;
         }
-        self.write_to_file(path)?;
+        fs::rename(&writing_path, path)?;
+        sync_dir(path);
         Ok(())
     }
 
@@ -123,6 +161,7 @@ impl Closet {
         }
         let mut file = options.open(path)?;
         rmp_serde::encode::write_named(&mut file, &self)?;
+        file.sync_all()?;
         Ok(())
     }
 
