@@ -107,16 +107,10 @@ impl AppState {
             })
     }
 
-    #[allow(dead_code)]
     fn is_on_entry_value(&self) -> bool {
-        match self.drawer_state.as_ref() {
-            Some(ds) => match &ds.focus {
-                DrawerFocus::NameEdit { .. } => true,
-                DrawerFocus::ValueEdit { .. } => true,
-                _ => false,
-            },
-            _ => false,
-        }
+        self.drawer_state
+            .as_ref()
+            .map_or(false, |ds| ds.focus.is_on_entry_value())
     }
     #[allow(dead_code)]
     fn has_input(&self) -> bool {
