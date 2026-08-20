@@ -351,3 +351,68 @@ fn test_password_change() {
     // clean the temporary dir
     temp_dir.close().unwrap();
 }
+
+/// Compare the writing of a closet with and without buffering, and measure
+/// the writing done by SafeCloset.
+///
+/// Not run by default:
+///
+/// ```not_rust
+/// cargo test --release bench_write_buffering -- --ignored --nocapture
+/// ```
+#[test]
+#[ignore = "benchmark, run explicitly"]
+fn bench_write_buffering() {
+    use std::{
+        fs,
+        io::BufWriter,
+        time::{
+            Duration,
+            Instant,
+        },
+    };
+    const RUNS: u32 = 5;
+
+    let reference =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("test-closets/1.4.2.closet");
+    let closet = Closet::from_file(&reference).unwrap();
+    let temp_dir = tempfile::tempdir().unwrap();
+
+    let mut unbuffered = Duration::ZERO;
+    for i in 0..RUNS {
+        let path = temp_dir.path().join(format!("unbuffered-{i}"));
+        let start = Instant::now();
+        let mut file = fs::File::create(&path).unwrap();
+        rmp_serde::encode::write_named(&mut file, &closet).unwrap();
+        file.sync_all().unwrap();
+        unbuffered += start.elapsed();
+    }
+
+    let mut buffered = Duration::ZERO;
+    for i in 0..RUNS {
+        let path = temp_dir.path().join(format!("buffered-{i}"));
+        let start = Instant::now();
+        let file = fs::File::create(&path).unwrap();
+        let mut writer = BufWriter::new(file);
+        rmp_serde::encode::write_named(&mut writer, &closet).unwrap();
+        let file = writer.into_inner().unwrap();
+        file.sync_all().unwrap();
+        buffered += start.elapsed();
+    }
+
+    let mut written = Duration::ZERO;
+    for i in 0..RUNS {
+        let path = temp_dir.path().join(format!("write-to-file-{i}.closet"));
+        let start = Instant::now();
+        closet.write_to_file(&path).unwrap();
+        written += start.elapsed();
+    }
+
+    let size = fs::metadata(temp_dir.path().join("unbuffered-0"))
+        .unwrap()
+        .len();
+    println!("closet of {size} bytes, {RUNS} runs each:");
+    println!("  unbuffered:    {:?} per write", unbuffered / RUNS);
+    println!("  buffered:      {:?} per write", buffered / RUNS);
+    println!("  write_to_file: {:?} per write", written / RUNS);
+}

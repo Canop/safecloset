@@ -16,6 +16,7 @@ use {
     },
     std::{
         fs,
+        io::BufWriter,
         path::{
             Path,
             PathBuf,
@@ -159,8 +160,14 @@ impl Closet {
             use std::os::unix::fs::OpenOptionsExt;
             options.mode(0o600);
         }
-        let mut file = options.open(path)?;
-        rmp_serde::encode::write_named(&mut file, &self)?;
+        let file = options.open(path)?;
+        // the serialization does very small writes, so buffering is what
+        // makes saving fast
+        let mut writer = BufWriter::new(file);
+        rmp_serde::encode::write_named(&mut writer, &self)?;
+        // not letting the writer be dropped, as it would hide a failure
+        // of the last flush
+        let file = writer.into_inner().map_err(|e| e.into_error())?;
         file.sync_all()?;
         Ok(())
     }
