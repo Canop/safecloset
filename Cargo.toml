@@ -1,6 +1,6 @@
 [package]
 name = "safecloset"
-version = "1.4.2"
+version = "1.4.2-dev"
 edition = "2021"
 authors = ["dystroy <denys.seguret@gmail.com>"]
 repository = "https://github.com/Canop/safecloset"
@@ -39,6 +39,11 @@ tempfile = "=3.2.0"
 [profile.release]
 lto = true
 strip = true
+
+# key derivation is unusably slow in unoptimized builds, which makes
+# the tests opening reference closets very long
+[profile.dev.package.rust-argon2]
+opt-level = 3
 
 [patch.crates-io]
 # crokey = { path = "../crokey" }

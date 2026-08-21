@@ -13,31 +13,27 @@ pub enum Direction {
 }
 
 impl ScrollCommand {
-    fn to_lines(
+    fn to_entries(
         self,
-        content_height: usize,
-        page_height: usize,
+        entries_count: usize,
+        page_entries_count: usize,
     ) -> i32 {
         match self {
-            Self::Top => -(content_height as i32),
-            Self::Bottom => content_height as i32,
+            Self::Top => -(entries_count as i32),
+            Self::Bottom => entries_count as i32,
             Self::Lines(n) => n,
-            Self::Pages(n) => n * page_height as i32,
+            Self::Pages(n) => n * page_entries_count as i32,
         }
     }
-    /// compute the new scroll value
+    /// compute the new scroll value, which is a number of entries
     pub fn apply(
         self,
         scroll: usize,
-        content_height: usize,
-        page_height: usize,
+        entries_count: usize,
+        page_entries_count: usize,
     ) -> usize {
-        if content_height > page_height {
-            (scroll as i32 + self.to_lines(content_height, page_height))
-                .min((content_height - page_height - 1) as i32)
-                .max(0) as usize
-        } else {
-            0
-        }
+        (scroll as i32 + self.to_entries(entries_count, page_entries_count))
+            .min(entries_count as i32 - 1)
+            .max(0) as usize
     }
 }

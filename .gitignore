@@ -3,6 +3,8 @@
 /target
 /*.closet
 /*.old
+# safety net: a reference closet must never be saved over
+test-closets/*.old
 /*.zip
 /zigbuild
 /build

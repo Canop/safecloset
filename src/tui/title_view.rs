@@ -29,7 +29,7 @@ impl View<AppState> for TitleView {
         app_skin: &AppSkin,
     ) -> Result<(), SafeClosetError> {
         let path = state.open_closet.path().to_string_lossy();
-        let md = format!(" **SafeCloset** ` ` {} ` ` {} ", &path, state_info(state));
+        let md = format!(" **SafeCloset** ` ` {} ` ` {} ", path, state_info(state));
         let composite = Composite::from_inline(&md);
         w.go_to(self.area.left, self.area.top)?;
         let width = self.area.width as usize;

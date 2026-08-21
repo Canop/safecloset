@@ -1050,7 +1050,7 @@ checksum = "b39cdef0fa800fc44525c84ccb54a029961a8215f9619753635a9c0d2538d46d"
 
 [[package]]
 name = "safecloset"
-version = "1.4.2"
+version = "1.4.2-dev"
 dependencies = [
  "aes-gcm-siv",
  "argh",

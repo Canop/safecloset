@@ -1,5 +1,7 @@
 mod closed_drawer;
 mod closet;
+#[cfg(test)]
+mod compat_test;
 mod core_error;
 mod drawer_content;
 mod drawer_id;
@@ -151,6 +153,150 @@ fn test_create_write_read() {
     temp_dir.close().unwrap();
 }
 
+/// check the drawers of the root closet are reordered on save, so that the
+/// position of a drawer in the file tells nothing about it, and that no
+/// drawer is lost on the way
+#[test]
+fn test_root_drawers_shuffled_on_save() {
+    // enough saves for identical orders to be very improbable
+    const SAVES: usize = 10;
+
+    let temp_dir = tempfile::tempdir().unwrap();
+    let path = temp_dir.path().join("test-shuffle.closet");
+    let mut open_closet = OpenCloset::create(path.to_path_buf()).unwrap();
+
+    let mut orders = Vec::new();
+    for _ in 0..SAVES {
+        open_closet.close_and_save().unwrap();
+        let ids: Vec<DrawerId> = Closet::from_file(&path)
+            .unwrap()
+            .drawers
+            .iter()
+            .map(|closed_drawer| closed_drawer.get_id().clone())
+            .collect();
+        orders.push(ids);
+    }
+
+    // a new closet holds at least 3 decoy drawers
+    let first_order = &orders[0];
+    assert!(first_order.len() >= 3);
+
+    // every save must keep every drawer, exactly once
+    for order in &orders[1..] {
+        assert_eq!(order.len(), first_order.len());
+        for id in first_order {
+            assert_eq!(
+                order.iter().filter(|other_id| *other_id == id).count(),
+                1,
+                "a drawer was lost or duplicated on save",
+            );
+        }
+    }
+
+    // and the order must change
+    assert!(
+        orders[1..].iter().any(|order| order != first_order),
+        "the drawers of the root closet aren't reordered on save",
+    );
+
+    temp_dir.close().unwrap();
+}
+
+/// check no other user can read a closet file, nor the backup made when
+/// saving over a closet written by a version not restricting permissions
+#[cfg(unix)]
+#[test]
+fn test_closet_file_permissions() {
+    use std::{
+        fs,
+        os::unix::fs::PermissionsExt,
+    };
+
+    fn mode(path: &std::path::Path) -> u32 {
+        fs::metadata(path).unwrap().permissions().mode() & 0o777
+    }
+
+    let temp_dir = tempfile::tempdir().unwrap();
+    let path = temp_dir.path().join("test-permissions.closet");
+    let mut open_closet = OpenCloset::create(path.to_path_buf()).unwrap();
+    open_closet.close_and_save().unwrap();
+    assert_eq!(mode(&path), 0o600, "mode is {:o}", mode(&path));
+
+    fs::set_permissions(&path, fs::Permissions::from_mode(0o644)).unwrap();
+    open_closet.close_and_save().unwrap();
+    let backup_path = path.with_extension("old");
+    assert_eq!(mode(&path), 0o600, "mode is {:o}", mode(&path));
+    assert_eq!(
+        mode(&backup_path),
+        0o600,
+        "backup mode is {:o}",
+        mode(&backup_path),
+    );
+
+    temp_dir.close().unwrap();
+}
+
+/// check a save leaves the previous version in the backup, the new one in
+/// the closet file, and no temporary file behind, even when a previous save
+/// was interrupted
+#[test]
+fn test_save_backup_and_temporary_file() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let path = temp_dir.path().join("test-backup.closet");
+    let mut open_closet = OpenCloset::create(path.to_path_buf()).unwrap();
+    open_closet.close_and_save().unwrap();
+    let drawers_count = Closet::from_file(&path).unwrap().drawers.len();
+
+    open_closet.create_drawer("test-backup-passphrase").unwrap();
+    open_closet.close_and_save().unwrap();
+
+    // the backup must hold the version before that drawer was created
+    let backup_path = path.with_extension("old");
+    assert_eq!(
+        Closet::from_file(&backup_path).unwrap().drawers.len(),
+        drawers_count,
+    );
+    assert_eq!(
+        Closet::from_file(&path).unwrap().drawers.len(),
+        drawers_count + 1,
+    );
+
+    let mut file_names: Vec<String> = std::fs::read_dir(temp_dir.path())
+        .unwrap()
+        .map(|dir_entry| dir_entry.unwrap().file_name().into_string().unwrap())
+        .collect();
+    file_names.sort();
+    assert_eq!(file_names, ["test-backup.closet", "test-backup.old"]);
+
+    // a temporary file left by an interrupted save must not prevent saving
+    let writing_path = temp_dir.path().join("test-backup.closet.writing");
+    std::fs::write(&writing_path, b"interrupted").unwrap();
+    open_closet.close_and_save().unwrap();
+    assert!(!writing_path.exists());
+    assert_eq!(
+        Closet::from_file(&path).unwrap().drawers.len(),
+        drawers_count + 1,
+    );
+
+    temp_dir.close().unwrap();
+}
+
+/// check closing a drawer into a closet which doesn't hold it is an error,
+/// and not a silent loss of its content
+#[test]
+fn test_close_drawer_in_wrong_closet() {
+    // deep closets, as they hold few decoy drawers
+    let mut closet = Closet::new(3).unwrap();
+    let mut other_closet = Closet::new(3).unwrap();
+    let drawer = closet
+        .create_drawer(3, "test-wrong-closet-passphrase".to_string())
+        .unwrap();
+    assert!(matches!(
+        other_closet.close_drawer(drawer),
+        Err(CoreError::InvalidPushBack),
+    ));
+}
+
 /// test changing the password
 #[test]
 fn test_password_change() {
@@ -220,4 +366,69 @@ fn test_password_change() {
 
     // clean the temporary dir
     temp_dir.close().unwrap();
+}
+
+/// Compare the writing of a closet with and without buffering, and measure
+/// the writing done by SafeCloset.
+///
+/// Not run by default:
+///
+/// ```not_rust
+/// cargo test --release bench_write_buffering -- --ignored --nocapture
+/// ```
+#[test]
+#[ignore = "benchmark, run explicitly"]
+fn bench_write_buffering() {
+    use std::{
+        fs,
+        io::BufWriter,
+        time::{
+            Duration,
+            Instant,
+        },
+    };
+    const RUNS: u32 = 5;
+
+    let reference =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("test-closets/1.4.2.closet");
+    let closet = Closet::from_file(&reference).unwrap();
+    let temp_dir = tempfile::tempdir().unwrap();
+
+    let mut unbuffered = Duration::ZERO;
+    for i in 0..RUNS {
+        let path = temp_dir.path().join(format!("unbuffered-{i}"));
+        let start = Instant::now();
+        let mut file = fs::File::create(&path).unwrap();
+        rmp_serde::encode::write_named(&mut file, &closet).unwrap();
+        file.sync_all().unwrap();
+        unbuffered += start.elapsed();
+    }
+
+    let mut buffered = Duration::ZERO;
+    for i in 0..RUNS {
+        let path = temp_dir.path().join(format!("buffered-{i}"));
+        let start = Instant::now();
+        let file = fs::File::create(&path).unwrap();
+        let mut writer = BufWriter::new(file);
+        rmp_serde::encode::write_named(&mut writer, &closet).unwrap();
+        let file = writer.into_inner().unwrap();
+        file.sync_all().unwrap();
+        buffered += start.elapsed();
+    }
+
+    let mut written = Duration::ZERO;
+    for i in 0..RUNS {
+        let path = temp_dir.path().join(format!("write-to-file-{i}.closet"));
+        let start = Instant::now();
+        closet.write_to_file(&path).unwrap();
+        written += start.elapsed();
+    }
+
+    let size = fs::metadata(temp_dir.path().join("unbuffered-0"))
+        .unwrap()
+        .len();
+    println!("closet of {size} bytes, {RUNS} runs each:");
+    println!("  unbuffered:    {:?} per write", unbuffered / RUNS);
+    println!("  buffered:      {:?} per write", buffered / RUNS);
+    println!("  write_to_file: {:?} per write", written / RUNS);
 }

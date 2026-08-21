@@ -69,7 +69,7 @@ impl AppState {
         error: S,
     ) {
         let text = error.into();
-        warn!("error: {:?}", &text);
+        warn!("error: {:?}", text);
         self.message = Some(Message { text, error: true });
     }
     #[allow(dead_code)]
@@ -78,7 +78,7 @@ impl AppState {
         info: S,
     ) {
         let text = info.into();
-        debug!("info: {:?}", &text);
+        debug!("info: {:?}", text);
         self.message = Some(Message { text, error: false });
     }
 
@@ -107,16 +107,10 @@ impl AppState {
             })
     }
 
-    #[allow(dead_code)]
     fn is_on_entry_value(&self) -> bool {
-        match self.drawer_state.as_ref() {
-            Some(ds) => match &ds.focus {
-                DrawerFocus::NameEdit { .. } => true,
-                DrawerFocus::ValueEdit { .. } => true,
-                _ => false,
-            },
-            _ => false,
-        }
+        self.drawer_state
+            .as_ref()
+            .map_or(false, |ds| ds.focus.is_on_entry_value())
     }
     #[allow(dead_code)]
     fn has_input(&self) -> bool {

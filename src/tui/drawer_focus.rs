@@ -72,6 +72,11 @@ impl DrawerFocus {
             _ => false,
         }
     }
+    /// Whether a paste would go to an entry value, which may hold
+    /// several lines, and not to a name or to the search
+    pub fn is_on_entry_value(&self) -> bool {
+        matches!(self, Self::ValueSelected { .. } | Self::ValueEdit { .. })
+    }
     pub fn is_entry_edit(&self) -> bool {
         matches!(
             self,
@@ -99,6 +104,40 @@ impl DrawerFocus {
             Self::ValueEdit { line, input } if *line == entry_line => Some(input),
             _ => None,
         }
+    }
+}
+
+#[cfg(test)]
+mod drawer_focus_tests {
+
+    use {
+        super::*,
+        crate::tui::ContentSkin,
+    };
+
+    /// check a paste keeps its lines only when it goes to a value: it's
+    /// silently truncated to its first line everywhere else
+    #[test]
+    fn test_is_on_entry_value() {
+        assert!(DrawerFocus::ValueSelected { line: 0 }.is_on_entry_value());
+        assert!(
+            DrawerFocus::ValueEdit {
+                line: 0,
+                input: ContentSkin::make_input(),
+            }
+            .is_on_entry_value()
+        );
+        assert!(!DrawerFocus::NoneSelected.is_on_entry_value());
+        assert!(!DrawerFocus::NameSelected { line: 0 }.is_on_entry_value());
+        assert!(
+            !DrawerFocus::NameEdit {
+                line: 0,
+                input: ContentSkin::make_input(),
+            }
+            .is_on_entry_value()
+        );
+        assert!(!DrawerFocus::SearchEdit { previous_idx: None }.is_on_entry_value());
+        assert!(!DrawerFocus::PendingRemoval { line: 0 }.is_on_entry_value());
     }
 }
 

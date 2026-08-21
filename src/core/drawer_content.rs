@@ -4,7 +4,11 @@ use {
         Deserialize,
         Serialize,
     },
+    std::ops::Range,
 };
+
+/// Size range of the random bytes rewritten in a drawer before every save
+pub const GARBAGE_SIZE_RANGE: Range<usize> = 5..5000;
 
 /// What's inside a drawer
 #[derive(Serialize, Deserialize)]
@@ -93,7 +97,7 @@ impl DrawerContent {
     /// isn't at the end), add some random bytes which makes the
     /// content's size undetectable
     pub fn add_noise(&mut self) {
-        self.garbage = random_bytes_random_size(5..5000);
+        self.garbage = random_bytes_random_size(GARBAGE_SIZE_RANGE);
         self.closet.shuffle_drawers();
     }
 

@@ -45,7 +45,6 @@ pub(super) fn run(
                     }
                     Event::Key(key) => {
                         let key_combination = KeyCombination::from(key);
-                        debug!("key combination pressed: {key_combination}");
                         let cmd_result = state.on_key(key_combination)?;
                         if cmd_result.quit() {
                             debug!("user requests quit");
