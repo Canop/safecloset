@@ -1,5 +1,15 @@
-<a name="v1.4.1"></a>
-### v1.4.1 - 2025-09-01
+### next
+- fix a crash on scrolling in a drawer whose values are taller than the screen
+- fix characters being written to the log file (same directory) when the SAFECLOSET_LOG env variable is set
+- an interrupted save can't leave a truncated closet anymore: the new version is written aside, flushed to disk, then renamed
+- saving a closet is much faster
+- opening a drawer is faster: the key is derived once per closet instead of once per drawer
+- new closets get a different distribution of decoy drawers, never leaving a drawer alone in a closet
+- import no longer skips a value which is only a substring of the destination one
+- pasting a multi-line text on a selected value no longer keeps only the first line
+
+<a name="v1.4.2"></a>
+### v1.4.2 - 2025-12-04
 - updated some dependencies
 
 <a name="v1.4.1"></a>
