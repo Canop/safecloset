@@ -68,7 +68,7 @@ impl View<PasswordDialogState> for PasswordDialogView {
         skin: &AppSkin,
     ) -> Result<(), SafeClosetError> {
         // border
-        let border_colors = skin.dialog.md.table.compound_style.clone();
+        let border_colors = skin.dialog.md.table.compound_style;
         let area = &self.area;
         let mut rect = Rect::new(area.clone(), border_colors);
         rect.set_fill(true);

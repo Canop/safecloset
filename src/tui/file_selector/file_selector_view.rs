@@ -56,7 +56,7 @@ impl View<FileSelectorState> for FileSelectorView {
         let intro_height = text.lines.len() as u16;
 
         // border
-        let border_colors = skin.dialog.md.table.compound_style.clone();
+        let border_colors = skin.dialog.md.table.compound_style;
         let mut rect = Rect::new(area.clone(), border_colors);
         rect.set_fill(true);
         rect.set_border_style(BORDER_STYLE_BLAND);

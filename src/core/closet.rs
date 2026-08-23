@@ -337,6 +337,7 @@ mod decoy_drawers_tests {
 
     use {
         super::*,
+        rand::RngExt,
         termimad::ProgressBar,
     };
 

@@ -35,7 +35,7 @@ impl<I: ToString + Clone> View<MenuState<I>> for MenuView {
     ) -> Result<(), SafeClosetError> {
         state.clear_item_areas();
         let skin = &app_skin.dialog;
-        let border_colors = skin.md.table.compound_style.clone();
+        let border_colors = skin.md.table.compound_style;
         let area_width = self.compute_area_width();
         let mut intro_lines = Vec::new();
         let text_width = area_width - 2;

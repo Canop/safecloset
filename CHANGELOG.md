@@ -1,4 +1,5 @@
-### next
+<a name="v1.5.0"></a>
+### v1.5.0 - 2026-08-23
 - fix a crash on scrolling in a drawer whose values are taller than the screen
 - fix characters being written to the log file (same directory) when the SAFECLOSET_LOG env variable is set
 - an interrupted save can't leave a truncated closet anymore: the new version is written aside, flushed to disk, then renamed

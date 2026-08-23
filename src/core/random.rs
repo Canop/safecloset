@@ -2,7 +2,7 @@ use {
     aes_gcm_siv::Nonce,
     rand::{
         Rng,
-        RngCore,
+        RngExt,
         rng,
     },
     std::ops::Range,
